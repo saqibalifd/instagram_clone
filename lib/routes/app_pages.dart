@@ -1,0 +1,36 @@
+// ============================================================
+//  WHAT GOES HERE
+//  Master list of GetPage definitions.
+//  Wires: route name → View + Binding + optional Middleware.
+//  This file is imported ONLY by main.dart / GetMaterialApp.
+//  Never import GetPage definitions from feature folders.
+// ============================================================
+
+import 'package:get/get.dart';
+import 'package:instagram/features/auth/views/splash_view.dart';
+import '../features/auth/bindings/auth_binding.dart';
+import '../features/auth/views/login_view.dart';
+import '../features/auth/views/register_view.dart';
+import 'app_routes.dart';
+
+class AppPages {
+  AppPages._();
+
+  static final pages = [
+    GetPage(
+      name: AppRoutes.splash,
+      page: () => const SplashView(),
+      binding: AuthBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.login,
+      page: () => const LoginView(),
+      binding: AuthBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.register,
+      page: () => const RegisterView(),
+      binding: AuthBinding(),
+    ),
+  ];
+}
