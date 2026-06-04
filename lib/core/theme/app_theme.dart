@@ -8,6 +8,7 @@ class IGColors {
   static const Color splashBg = Color(0xFF000000);
   static const Color gray = Color(0xFF8E8E8E);
   static const Color purple = Color(0xFF8134AF);
+  static const Color green = const Color(0xFF58C472);
 
   // Brand
   static const Color pink = Color(0xFFE1306C);

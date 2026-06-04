@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
 import 'package:instagram/core/constants/app_constants.dart';
 import 'package:instagram/core/constants/asset_paths.dart';
+import 'package:instagram/features/auth/controllers/auth_controller.dart';
 import 'package:instagram/features/auth/widgets/auth_textfield_widget.dart';
+import 'package:instagram/routes/app_routes.dart';
 import 'package:instagram/shared_widgets/instagram_gradient_button.dart';
+import 'package:instagram/utils/custom_toast_util.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -14,6 +18,11 @@ class LoginView extends StatefulWidget {
 }
 
 class _LoginViewState extends State<LoginView> {
+  final AuthController _authController = Get.put(AuthController());
+
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
@@ -29,24 +38,50 @@ class _LoginViewState extends State<LoginView> {
           children: [
             Center(child: Text(AppConstants.appName, style: ts.displayLarge)),
             SizedBox(height: 50.h),
-            AuthTextfieldWidget(hintText: "Email"),
+            AuthTextfieldWidget(
+              controller: emailController,
+              hintText: "Email",
+              suffix: GestureDetector(
+                onTap: () {
+                  print('Login with email');
+                },
+                child: Icon(Icons.email_outlined),
+              ),
+            ),
             SizedBox(height: 10.h),
-            AuthTextfieldWidget(hintText: "Password"),
+            AuthTextfieldWidget(
+              controller: passwordController,
+              hintText: "Password",
+            ),
             SizedBox(height: 10.h),
             Align(
               alignment: Alignment.centerRight,
-              child: Text(
-                'Forgot password?',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: cs.secondary,
+              child: GestureDetector(
+                onTap: () {
+                  Get.toNamed(AppRoutes.forgotPassword);
+                },
+                child: Text(
+                  'Forgot password?',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: cs.secondary,
+                  ),
                 ),
               ),
             ),
             SizedBox(height: 20.h),
             SizedBox(
               width: double.infinity,
-              child: InstagramGradientButton(label: 'Login', onPressed: () {}),
+              child: InstagramGradientButton(
+                label: 'Login',
+                onPressed: () async {
+                  await _authController.login(
+                    context,
+                    emailController,
+                    passwordController,
+                  );
+                },
+              ),
             ),
             SizedBox(height: 20.h),
             Row(
@@ -57,7 +92,7 @@ class _LoginViewState extends State<LoginView> {
               ],
             ),
             SizedBox(height: 20.h),
-            InkWell(
+            GestureDetector(
               onTap: () {
                 print('Login with Google');
               },
@@ -81,7 +116,7 @@ class _LoginViewState extends State<LoginView> {
               ),
             ),
             SizedBox(height: 20.h),
-            InkWell(
+            GestureDetector(
               onTap: () {
                 print('Login with phone');
               },
@@ -108,7 +143,15 @@ class _LoginViewState extends State<LoginView> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text('Don\'t have an account?'),
-                TextButton(onPressed: () {}, child: Text('Sign up')),
+                TextButton(
+                  onPressed: () {
+                    Get.toNamed(AppRoutes.register);
+                  },
+                  child: Text(
+                    'Sign up',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
               ],
             ),
           ],

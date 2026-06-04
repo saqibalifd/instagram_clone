@@ -1,5 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+// import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:instagram/core/theme/app_theme.dart';
@@ -25,14 +27,18 @@ void main() async {
     ),
     storageOptions: const StorageClientOptions(retryAttempts: 10),
   );
-  final prefs = await SharedPreferences.getInstance();
-  final storage = SharedPreferencesLocalStorage(
-    persistSessionKey: supabasePersistSessionKey,
-  );
+  EasyLoading.instance
+    ..userInteractions = false
+    ..dismissOnTap = false;
 
-  await storage.initialize();
+  // final prefs = await SharedPreferences.getInstance();
+  // final storage = SharedPreferencesLocalStorage(
+  //   persistSessionKey: supabasePersistSessionKey,
+  // );
 
-  Get.put<LocalStorage>(storage);
+  // await storage.initialize();
+
+  // Get.put<LocalStorage>(storage);
 
   runApp(const MyApp());
 }
@@ -55,6 +61,7 @@ class MyApp extends StatelessWidget {
           initialRoute: AppRoutes.splash,
           getPages: AppPages.pages,
           debugShowCheckedModeBanner: false,
+          builder: EasyLoading.init(),
         );
       },
     );

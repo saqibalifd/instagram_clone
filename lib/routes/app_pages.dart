@@ -7,8 +7,9 @@
 // ============================================================
 
 import 'package:get/get.dart';
+import 'package:instagram/features/auth/views/forgot_password_screen.dart';
 import 'package:instagram/features/auth/views/splash_view.dart';
-import '../features/auth/bindings/auth_binding.dart';
+import 'package:instagram/features/bottom_navbar/custom_bottom_navbar.dart';
 import '../features/auth/views/login_view.dart';
 import '../features/auth/views/register_view.dart';
 import 'app_routes.dart';
@@ -20,17 +21,27 @@ class AppPages {
     GetPage(
       name: AppRoutes.splash,
       page: () => const SplashView(),
-      binding: AuthBinding(),
+      // binding: AuthBinding(),
     ),
     GetPage(
       name: AppRoutes.login,
       page: () => const LoginView(),
-      binding: AuthBinding(),
+      // binding: AuthBinding(),
     ),
     GetPage(
       name: AppRoutes.register,
       page: () => const RegisterView(),
-      binding: AuthBinding(),
+      // binding: AuthBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.forgotPassword,
+      page: () => const ForgotPasswordScreen(),
+      // binding: AuthBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.bottomNavbar,
+      page: () => const CustomBottomNavbar(),
+      // binding: AuthBinding(),
     ),
   ];
 }
