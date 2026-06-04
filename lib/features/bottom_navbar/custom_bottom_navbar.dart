@@ -1,28 +1,66 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:instagram/routes/app_routes.dart';
+import 'package:instagram/features/feed/views/feed_view.dart';
+import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 
-class CustomBottomNavbar extends StatefulWidget {
-  const CustomBottomNavbar({super.key});
+class CustomBottomNavbar extends StatelessWidget {
+  CustomBottomNavbar({super.key});
 
-  @override
-  State<CustomBottomNavbar> createState() => _CustomBottomNavbarState();
-}
+  final PersistentTabController _controller = PersistentTabController(
+    initialIndex: 0,
+  );
 
-class _CustomBottomNavbarState extends State<CustomBottomNavbar> {
+  List<Widget> _buildScreens() {
+    return [FeedView(), FeedView(), FeedView(), FeedView(), FeedView()];
+  }
+
+  List<PersistentBottomNavBarItem> _navBarsItems() {
+    return [
+      PersistentBottomNavBarItem(
+        icon: const Icon(Icons.home),
+        title: "Home",
+        activeColorPrimary: Colors.black,
+        inactiveColorPrimary: Colors.grey,
+      ),
+      PersistentBottomNavBarItem(
+        icon: const Icon(Icons.search),
+        title: "Search",
+        activeColorPrimary: Colors.black,
+        inactiveColorPrimary: Colors.grey,
+      ),
+      PersistentBottomNavBarItem(
+        icon: const Icon(Icons.add_box),
+        title: "Add",
+        activeColorPrimary: Colors.black,
+        inactiveColorPrimary: Colors.grey,
+      ),
+      PersistentBottomNavBarItem(
+        icon: const Icon(Icons.video_collection),
+        title: "Reels",
+        activeColorPrimary: Colors.black,
+        inactiveColorPrimary: Colors.grey,
+      ),
+      PersistentBottomNavBarItem(
+        icon: const Icon(Icons.person),
+        title: "Profile",
+        activeColorPrimary: Colors.black,
+        inactiveColorPrimary: Colors.grey,
+      ),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () async {
-            await FirebaseAuth.instance.signOut();
-            Get.offAllNamed(AppRoutes.login);
-          },
-          child: Text('Logout'),
-        ),
-      ),
+    return PersistentTabView(
+      context,
+      controller: _controller,
+      screens: _buildScreens(),
+      items: _navBarsItems(),
+      confineToSafeArea: true,
+      backgroundColor: Colors.white,
+      handleAndroidBackButtonPress: true,
+      resizeToAvoidBottomInset: true,
+      stateManagement: true,
+      navBarStyle: NavBarStyle.style6,
     );
   }
 }

@@ -8,7 +8,6 @@ import 'package:instagram/features/auth/controllers/auth_controller.dart';
 import 'package:instagram/features/auth/widgets/auth_textfield_widget.dart';
 import 'package:instagram/routes/app_routes.dart';
 import 'package:instagram/shared_widgets/instagram_gradient_button.dart';
-import 'package:instagram/utils/custom_toast_util.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -38,16 +37,7 @@ class _LoginViewState extends State<LoginView> {
           children: [
             Center(child: Text(AppConstants.appName, style: ts.displayLarge)),
             SizedBox(height: 50.h),
-            AuthTextfieldWidget(
-              controller: emailController,
-              hintText: "Email",
-              suffix: GestureDetector(
-                onTap: () {
-                  print('Login with email');
-                },
-                child: Icon(Icons.email_outlined),
-              ),
-            ),
+            AuthTextfieldWidget(controller: emailController, hintText: "Email"),
             SizedBox(height: 10.h),
             AuthTextfieldWidget(
               controller: passwordController,
@@ -93,8 +83,8 @@ class _LoginViewState extends State<LoginView> {
             ),
             SizedBox(height: 20.h),
             GestureDetector(
-              onTap: () {
-                print('Login with Google');
+              onTap: () async {
+                await _authController.registerWithGoogle(context);
               },
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -105,6 +95,7 @@ class _LoginViewState extends State<LoginView> {
                     width: 20.w,
                   ),
                   SizedBox(width: 10.w),
+
                   Text(
                     'Log in with Google',
                     style: TextStyle(
@@ -118,7 +109,7 @@ class _LoginViewState extends State<LoginView> {
             SizedBox(height: 20.h),
             GestureDetector(
               onTap: () {
-                print('Login with phone');
+                Get.toNamed(AppRoutes.phoneAuth);
               },
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,

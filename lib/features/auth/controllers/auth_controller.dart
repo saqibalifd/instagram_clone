@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -9,6 +10,8 @@ import '../../../core/errors/app_exceptions.dart';
 import '../../../routes/app_routes.dart';
 
 class AuthController extends GetxController {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
   Future<void> loading() async {
     LoadingUtil.show();
     await Future.delayed(AppConstants.splashDuration);
@@ -80,15 +83,13 @@ class AuthController extends GetxController {
     }
   }
 
-  Future<void> signupWithGoogle(BuildContext context) async {
+  Future<void> registerWithGoogle(BuildContext context) async {
     try {
       LoadingUtil.show();
 
       final GoogleSignIn googleSignIn = GoogleSignIn(
         scopes: ['email', 'profile'],
       );
-
-      await googleSignIn.signOut();
 
       final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
 
@@ -112,26 +113,151 @@ class AuthController extends GetxController {
     }
   }
 
+  Future<void> sendOtp(
+    BuildContext context,
+    String selectedCountry,
+    String phone,
+  ) async {
+    try {
+      LoadingUtil.show();
+      final phoneNumber = '$selectedCountry$phone';
+      final completer = Completer<void>();
+
+      await _auth.verifyPhoneNumber(
+        phoneNumber: phoneNumber,
+        timeout: const Duration(seconds: 60),
+
+        verificationCompleted: (PhoneAuthCredential credential) async {
+          if (!completer.isCompleted) completer.complete();
+          await _auth.signInWithCredential(credential);
+        },
+
+        verificationFailed: (FirebaseAuthException e) {
+          if (!completer.isCompleted) completer.complete();
+          CustomToastUtil.showError(context, message: e.message.toString());
+        },
+
+        codeSent: (String verificationId, int? resendToken) {
+          if (!completer.isCompleted) completer.complete();
+          CustomToastUtil.showDefault(
+            context,
+            message: 'OTP sent successfully',
+          );
+          Get.offAllNamed(
+            AppRoutes.otp,
+            arguments: {
+              'verificationId': verificationId,
+              'phone': '$selectedCountry$phone',
+            },
+          );
+        },
+
+        codeAutoRetrievalTimeout: (String verificationId) {
+          if (!completer.isCompleted) completer.complete();
+        },
+      );
+
+      await completer.future;
+    } finally {
+      LoadingUtil.dismiss();
+    }
+  }
+
+  Future<void> verifyOtp(
+    BuildContext context,
+    String otp,
+    String verificationId,
+  ) async {
+    try {
+      LoadingUtil.show();
+      final credential = PhoneAuthProvider.credential(
+        verificationId: verificationId,
+        smsCode: otp,
+      );
+
+      UserCredential userCredential = await _auth.signInWithCredential(
+        credential,
+      );
+
+      User? user = userCredential.user;
+      CustomToastUtil.showGradient(context, message: 'Welcome to Instagram.');
+      Get.offAllNamed(AppRoutes.bottomNavbar);
+    } on FirebaseAuthException catch (e) {
+      CustomToastUtil.showError(context, message: e.message.toString());
+    } catch (e) {
+      CustomToastUtil.showError(context, message: e.toString());
+    } finally {
+      LoadingUtil.dismiss();
+    }
+  }
+
+  Future<void> resendOtp(BuildContext context, String phoneNumber) async {
+    try {
+      LoadingUtil.show();
+      final completer = Completer<void>();
+
+      await _auth.verifyPhoneNumber(
+        phoneNumber: phoneNumber,
+        timeout: const Duration(seconds: 60),
+
+        verificationCompleted: (PhoneAuthCredential credential) async {
+          if (!completer.isCompleted) completer.complete();
+          await _auth.signInWithCredential(credential);
+        },
+
+        verificationFailed: (FirebaseAuthException e) {
+          if (!completer.isCompleted) completer.complete();
+          CustomToastUtil.showError(context, message: e.message.toString());
+        },
+
+        codeSent: (String newVerificationId, int? resendToken) {
+          if (!completer.isCompleted) completer.complete();
+          CustomToastUtil.showDefault(
+            context,
+            message: 'OTP resent successfully',
+          );
+        },
+
+        codeAutoRetrievalTimeout: (String verificationId) {
+          if (!completer.isCompleted) completer.complete();
+        },
+      );
+
+      await completer.future;
+    } finally {
+      LoadingUtil.dismiss();
+    }
+  }
+
+  Future<void> resetPassword(
+    BuildContext context,
+    TextEditingController emailController,
+  ) async {
+    try {
+      LoadingUtil.show();
+
+      await _auth.sendPasswordResetEmail(email: emailController.text.trim());
+
+      CustomToastUtil.showDefault(
+        context,
+        message: 'Password reset email sent. Please check your inbox.',
+      );
+
+      Get.offAllNamed(AppRoutes.login);
+    } on FirebaseAuthException catch (e) {
+      CustomToastUtil.showError(context, message: e.message.toString());
+      print(e.toString());
+    } catch (e) {
+      CustomToastUtil.showError(context, message: e.toString());
+      print(e.toString());
+    } finally {
+      LoadingUtil.dismiss();
+    }
+  }
+
   Future<void> signOut() async {
+    await GoogleSignIn().signOut();
+    await FirebaseAuth.instance.signOut();
     Get.offAllNamed(AppRoutes.login);
   }
 }
-
-
-
-
-
-
-
-  // Future<void> signUp(String email, String password, String username) async {
-  //   isLoading.value = true;
-  //   errorMessage.value = '';
-  //   try {
-  //     await _repo.signUpWithEmail(email, password, username);
-  //     Get.offAllNamed(AppRoutes.feed);
-  //   } on AuthException catch (e) {
-  //     errorMessage.value = e.message;
-  //   } finally {
-  //     isLoading.value = false;
-  //   }
-  // }

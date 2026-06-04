@@ -8,6 +8,8 @@
 
 import 'package:get/get.dart';
 import 'package:instagram/features/auth/views/forgot_password_screen.dart';
+import 'package:instagram/features/auth/views/otp_screen.dart';
+import 'package:instagram/features/auth/views/phone_auth_screen.dart';
 import 'package:instagram/features/auth/views/splash_view.dart';
 import 'package:instagram/features/bottom_navbar/custom_bottom_navbar.dart';
 import '../features/auth/views/login_view.dart';
@@ -40,7 +42,17 @@ class AppPages {
     ),
     GetPage(
       name: AppRoutes.bottomNavbar,
-      page: () => const CustomBottomNavbar(),
+      page: () => CustomBottomNavbar(),
+      // binding: AuthBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.phoneAuth,
+      page: () => const PhoneAuthScreen(),
+      // binding: AuthBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.otp,
+      page: () => const OtpScreen(),
       // binding: AuthBinding(),
     ),
   ];

@@ -125,8 +125,8 @@ class _RegisterViewState extends State<RegisterView> {
               ),
               SizedBox(height: 20.h),
               GestureDetector(
-                onTap: () {
-                  print('Signup with Google');
+                onTap: () async {
+                  await _authController.registerWithGoogle(context);
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -150,7 +150,7 @@ class _RegisterViewState extends State<RegisterView> {
               SizedBox(height: 20.h),
               GestureDetector(
                 onTap: () {
-                  print('Signup with phone');
+                  Get.toNamed(AppRoutes.phoneAuth);
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,

@@ -1,15 +1,12 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-// import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:instagram/core/theme/app_theme.dart';
-import 'package:instagram/di/initial_bindings.dart';
 import 'package:instagram/firebase_options.dart';
 import 'package:instagram/routes/app_pages.dart';
 import 'package:instagram/routes/app_routes.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
@@ -57,7 +54,6 @@ class MyApp extends StatelessWidget {
           title: 'MyApp',
           theme: AppTheme.light,
           darkTheme: AppTheme.dark,
-          initialBinding: InitialBindings(),
           initialRoute: AppRoutes.splash,
           getPages: AppPages.pages,
           debugShowCheckedModeBanner: false,

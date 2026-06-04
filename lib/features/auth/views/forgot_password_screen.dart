@@ -3,7 +3,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:get/state_manager.dart';
 import 'package:instagram/core/constants/app_constants.dart';
+import 'package:instagram/core/constants/app_icons.dart';
 import 'package:instagram/core/theme/app_theme.dart';
+import 'package:instagram/features/auth/controllers/auth_controller.dart';
 import 'package:instagram/features/auth/widgets/auth_textfield_widget.dart';
 import 'package:instagram/routes/app_routes.dart';
 import 'package:instagram/shared_widgets/instagram_gradient_button.dart';
@@ -17,6 +19,8 @@ class ForgotPasswordScreen extends StatefulWidget {
 }
 
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
+  final AuthController _authController = Get.put(AuthController());
+  final TextEditingController emailController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
@@ -36,7 +40,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 shape: BoxShape.circle,
                 border: Border.all(color: IGColors.bgDark, width: 3),
               ),
-              child: Center(child: Icon(Icons.lock_outline, size: 50.sp)),
+              child: Center(child: Icon(AppIcons.lock, size: 50.sp)),
             ),
             SizedBox(height: 30.h),
             Center(child: Text('Trouble logging in?', style: ts.displayLarge)),
@@ -65,9 +69,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               child: InstagramGradientButton(
                 label: 'Send reset link',
                 onPressed: () async {
-                  LoadingUtil.show();
-                  await Future.delayed(Duration(seconds: 3));
-                  LoadingUtil.dismiss();
+                  await _authController.resetPassword(context, emailController);
                 },
               ),
             ),
