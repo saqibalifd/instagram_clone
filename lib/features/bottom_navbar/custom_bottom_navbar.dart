@@ -1,49 +1,61 @@
 import 'package:flutter/material.dart';
+import 'package:instagram/core/constants/app_icons.dart';
+import 'package:instagram/core/theme/app_theme.dart';
+import 'package:instagram/features/dm/view/dm_view.dart';
 import 'package:instagram/features/feed/views/feed_view.dart';
+import 'package:instagram/features/home/views/home_view.dart';
+import 'package:instagram/features/profile/views/profile_view.dart';
+import 'package:instagram/features/search/view/search_view.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 
-class CustomBottomNavbar extends StatelessWidget {
-  CustomBottomNavbar({super.key});
+class CustomBottomNavbar extends StatefulWidget {
+  final int index;
 
-  final PersistentTabController _controller = PersistentTabController(
-    initialIndex: 0,
-  );
+  const CustomBottomNavbar({super.key, this.index = 0});
+
+  @override
+  State<CustomBottomNavbar> createState() => _CustomBottomNavbarState();
+}
+
+class _CustomBottomNavbarState extends State<CustomBottomNavbar> {
+  late PersistentTabController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = PersistentTabController(initialIndex: widget.index);
+  }
 
   List<Widget> _buildScreens() {
-    return [FeedView(), FeedView(), FeedView(), FeedView(), FeedView()];
+    return [HomeView(), FeedView(), DmView(), SearchView(), ProfileView()];
   }
 
   List<PersistentBottomNavBarItem> _navBarsItems() {
     return [
       PersistentBottomNavBarItem(
-        icon: const Icon(Icons.home),
-        title: "Home",
-        activeColorPrimary: Colors.black,
-        inactiveColorPrimary: Colors.grey,
+        icon: Icon(AppIcons.home),
+        activeColorPrimary: IGColors.bgDark,
+        inactiveColorPrimary: IGColors.gray,
       ),
       PersistentBottomNavBarItem(
-        icon: const Icon(Icons.search),
-        title: "Search",
-        activeColorPrimary: Colors.black,
-        inactiveColorPrimary: Colors.grey,
+        icon: Icon(AppIcons.reels),
+        activeColorPrimary: IGColors.bgDark,
+        inactiveColorPrimary: IGColors.gray,
       ),
       PersistentBottomNavBarItem(
-        icon: const Icon(Icons.add_box),
-        title: "Add",
-        activeColorPrimary: Colors.black,
-        inactiveColorPrimary: Colors.grey,
+        icon: Icon(AppIcons.dm),
+        activeColorPrimary: IGColors.bgDark,
+        inactiveColorPrimary: IGColors.gray,
       ),
       PersistentBottomNavBarItem(
-        icon: const Icon(Icons.video_collection),
-        title: "Reels",
-        activeColorPrimary: Colors.black,
-        inactiveColorPrimary: Colors.grey,
+        icon: Icon(AppIcons.search),
+        activeColorPrimary: IGColors.bgDark,
+        inactiveColorPrimary: IGColors.gray,
       ),
       PersistentBottomNavBarItem(
-        icon: const Icon(Icons.person),
-        title: "Profile",
-        activeColorPrimary: Colors.black,
-        inactiveColorPrimary: Colors.grey,
+        icon: Icon(AppIcons.profile),
+        activeColorPrimary: IGColors.bgDark,
+        inactiveColorPrimary: IGColors.gray,
       ),
     ];
   }
@@ -56,7 +68,7 @@ class CustomBottomNavbar extends StatelessWidget {
       screens: _buildScreens(),
       items: _navBarsItems(),
       confineToSafeArea: true,
-      backgroundColor: Colors.white,
+      backgroundColor: IGColors.bgLight,
       handleAndroidBackButtonPress: true,
       resizeToAvoidBottomInset: true,
       stateManagement: true,

@@ -31,7 +31,7 @@ class _SplashViewState extends State<SplashView> {
     final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: IGColors.splashBg,
+      backgroundColor: IGColors.bgLight,
       body: Center(
         child: FloatingAnimation(
           child: Image.asset('assets/icons/instaCloneAppLogo.png', height: 100),

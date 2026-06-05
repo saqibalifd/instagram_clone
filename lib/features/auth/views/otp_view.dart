@@ -10,14 +10,14 @@ import 'package:instagram/routes/app_routes.dart';
 import 'package:instagram/shared_widgets/instagram_gradient_button.dart';
 import 'package:pinput/pinput.dart';
 
-class OtpScreen extends StatefulWidget {
-  const OtpScreen({super.key});
+class OtpView extends StatefulWidget {
+  const OtpView({super.key});
 
   @override
-  State<OtpScreen> createState() => _OtpScreenState();
+  State<OtpView> createState() => _OtpViewState();
 }
 
-class _OtpScreenState extends State<OtpScreen> {
+class _OtpViewState extends State<OtpView> {
   final AuthController _authController = AuthController();
   final TextEditingController otpController = TextEditingController();
   final FocusNode focusNode = FocusNode();

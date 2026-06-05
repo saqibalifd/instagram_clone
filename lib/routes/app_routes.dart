@@ -16,6 +16,9 @@ class AppRoutes {
   static const String otp = '/otp';
   static const String bottomNavbar = '/bottomNavbar';
   static const String feed = '/feed';
+  static const String notification = '/notification';
+  static const String shareProfile = '/shareProfile';
+  static const String editProfile = '/editProfile';
   static const String createPost = '/post/create';
   static const String profile = '/profile/:userId';
 

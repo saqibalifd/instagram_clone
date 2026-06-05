@@ -1,11 +1,3 @@
-// ============================================================
-//  WHAT GOES HERE
-//  Pure functions that validate form inputs.
-//  Return null on success, an error string on failure.
-//  No Flutter, no GetX — plain Dart.
-//  Wire directly into TextFormField.validator.
-// ============================================================
-
 class InputValidators {
   InputValidators._();
 
@@ -22,4 +14,13 @@ class InputValidators {
 
   static String? required(String? value) =>
       (value == null || value.isEmpty) ? 'This field is required' : null;
+
+  // 👇 Add this
+  static String? phone(String? value) {
+    if (value == null || value.isEmpty) return 'Phone number is required';
+    final digitsOnly = value.replaceAll(RegExp(r'\D'), '');
+    if (digitsOnly.length < 7) return 'Enter a valid phone number';
+    if (digitsOnly.length > 15) return 'Phone number is too long';
+    return null;
+  }
 }

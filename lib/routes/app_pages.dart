@@ -7,11 +7,14 @@
 // ============================================================
 
 import 'package:get/get.dart';
-import 'package:instagram/features/auth/views/forgot_password_screen.dart';
-import 'package:instagram/features/auth/views/otp_screen.dart';
-import 'package:instagram/features/auth/views/phone_auth_screen.dart';
+import 'package:instagram/features/auth/views/forgot_password_view.dart';
+import 'package:instagram/features/auth/views/otp_view.dart';
+import 'package:instagram/features/auth/views/phone_auth_view.dart';
 import 'package:instagram/features/auth/views/splash_view.dart';
 import 'package:instagram/features/bottom_navbar/custom_bottom_navbar.dart';
+import 'package:instagram/features/home/views/notification_view.dart';
+import 'package:instagram/features/profile/views/edit_profile_view.dart';
+import 'package:instagram/features/profile/views/share_profile_view.dart';
 import '../features/auth/views/login_view.dart';
 import '../features/auth/views/register_view.dart';
 import 'app_routes.dart';
@@ -37,7 +40,7 @@ class AppPages {
     ),
     GetPage(
       name: AppRoutes.forgotPassword,
-      page: () => const ForgotPasswordScreen(),
+      page: () => const ForgotPasswordView(),
       // binding: AuthBinding(),
     ),
     GetPage(
@@ -47,12 +50,27 @@ class AppPages {
     ),
     GetPage(
       name: AppRoutes.phoneAuth,
-      page: () => const PhoneAuthScreen(),
+      page: () => const PhoneAuthView(),
       // binding: AuthBinding(),
     ),
     GetPage(
       name: AppRoutes.otp,
-      page: () => const OtpScreen(),
+      page: () => const OtpView(),
+      // binding: AuthBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.notification,
+      page: () => const NotificationView(),
+      // binding: AuthBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.editProfile,
+      page: () => const EditProfileView(),
+      // binding: AuthBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.shareProfile,
+      page: () => const ShareProfileView(),
       // binding: AuthBinding(),
     ),
   ];

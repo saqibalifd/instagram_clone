@@ -11,14 +11,14 @@ import 'package:instagram/routes/app_routes.dart';
 import 'package:instagram/shared_widgets/instagram_gradient_button.dart';
 import 'package:instagram/utils/loading_utils.dart';
 
-class ForgotPasswordScreen extends StatefulWidget {
-  const ForgotPasswordScreen({super.key});
+class ForgotPasswordView extends StatefulWidget {
+  const ForgotPasswordView({super.key});
 
   @override
-  State<ForgotPasswordScreen> createState() => _ForgotPasswordScreenState();
+  State<ForgotPasswordView> createState() => _ForgotPasswordViewState();
 }
 
-class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
+class _ForgotPasswordViewState extends State<ForgotPasswordView> {
   final AuthController _authController = Get.put(AuthController());
   final TextEditingController emailController = TextEditingController();
   @override
