@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:instagram/core/constants/app_icons.dart';
 import 'package:instagram/core/theme/app_theme.dart';
 
-class PostsCardWidget extends StatelessWidget {
+class PostsCardWidget extends StatefulWidget {
   final String image;
   final String name;
   final String location;
@@ -25,6 +25,13 @@ class PostsCardWidget extends StatelessWidget {
   });
 
   @override
+  State<PostsCardWidget> createState() => _PostsCardWidgetState();
+}
+
+class _PostsCardWidgetState extends State<PostsCardWidget> {
+  bool isLiked = false;
+
+  @override
   Widget build(BuildContext context) {
     final ts = Theme.of(context).textTheme;
 
@@ -36,21 +43,24 @@ class PostsCardWidget extends StatelessWidget {
           padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
           child: Row(
             children: [
-              CircleAvatar(radius: 18.r, backgroundImage: NetworkImage(image)),
+              CircleAvatar(
+                radius: 18.r,
+                backgroundImage: NetworkImage(widget.image),
+              ),
               SizedBox(width: 10.w),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      name,
+                      widget.name,
                       style: ts.bodyMedium!.copyWith(
                         fontWeight: FontWeight.bold,
                         fontSize: 13.sp,
                       ),
                     ),
                     Text(
-                      location,
+                      widget.location,
                       style: ts.bodySmall!.copyWith(fontSize: 11.sp),
                     ),
                   ],
@@ -66,7 +76,7 @@ class PostsCardWidget extends StatelessWidget {
           width: double.maxFinite,
           height: 300.h,
           child: Image.network(
-            postImage,
+            widget.postImage,
             fit: BoxFit.cover,
             loadingBuilder: (context, child, loadingProgress) {
               if (loadingProgress == null) return child;
@@ -84,27 +94,33 @@ class PostsCardWidget extends StatelessWidget {
           child: Row(
             children: [
               IconButton(
-                onPressed: () {},
-                icon: Icon(AppIcons.heart),
+                onPressed: () {
+                  setState(() {
+                    isLiked = !isLiked;
+                  });
+                },
+                icon: isLiked == true
+                    ? Icon(AppIcons.heart, color: IGColors.bgDark)
+                    : Icon(AppIcons.heartFill, color: IGColors.like),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
               ),
               IconButton(
                 onPressed: () {},
-                icon: Icon(AppIcons.comment),
+                icon: Icon(AppIcons.comment, color: IGColors.bgDark),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
               ),
               IconButton(
                 onPressed: () {},
-                icon: Icon(AppIcons.dm),
+                icon: Icon(AppIcons.dm, color: IGColors.bgDark),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
               ),
               const Spacer(),
               IconButton(
                 onPressed: () {},
-                icon: Icon(AppIcons.favorite),
+                icon: Icon(AppIcons.favorite, color: IGColors.bgDark),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
               ),
@@ -119,7 +135,7 @@ class PostsCardWidget extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '$likes likes',
+                '${widget.likes} likes',
                 style: ts.bodyMedium!.copyWith(
                   fontWeight: FontWeight.bold,
                   fontSize: 13.sp,
@@ -130,14 +146,14 @@ class PostsCardWidget extends StatelessWidget {
                 text: TextSpan(
                   children: [
                     TextSpan(
-                      text: '$name ',
+                      text: '${widget.name} ',
                       style: ts.bodyMedium!.copyWith(
                         fontWeight: FontWeight.bold,
                         fontSize: 13.sp,
                       ),
                     ),
                     TextSpan(
-                      text: caption,
+                      text: widget.caption,
                       style: ts.bodyMedium!.copyWith(fontSize: 13.sp),
                     ),
                   ],
@@ -145,12 +161,12 @@ class PostsCardWidget extends StatelessWidget {
               ),
               SizedBox(height: 4.h),
               Text(
-                'View all $totalComments comments',
+                'View all ${widget.totalComments} comments',
                 style: ts.bodySmall!.copyWith(fontSize: 12.sp),
               ),
               SizedBox(height: 4.h),
               Text(
-                timeAgo,
+                widget.timeAgo,
                 style: ts.bodySmall!.copyWith(
                   fontSize: 10.sp,
                   letterSpacing: 0.5,

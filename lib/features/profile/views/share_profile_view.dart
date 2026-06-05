@@ -82,10 +82,7 @@ class EmojiBackground extends StatelessWidget {
                 top: pos.dy,
                 child: Transform.rotate(
                   angle: pos.angle,
-                  child: Text(
-                    '😄',
-                    style: TextStyle(fontSize: pos.size),
-                  ),
+                  child: Text('😄', style: TextStyle(fontSize: pos.size)),
                 ),
               ),
             )
@@ -127,12 +124,14 @@ class EmojiBackground extends StatelessWidget {
         final emojiSize = 48.0 + random.nextDouble() * 20;
         final angle = (random.nextDouble() - 0.5) * 0.4;
 
-        positions.add(_EmojiPos(
-          dx: cx + jitterX - emojiSize / 2,
-          dy: cy + jitterY - emojiSize / 2,
-          size: emojiSize,
-          angle: angle,
-        ));
+        positions.add(
+          _EmojiPos(
+            dx: cx + jitterX - emojiSize / 2,
+            dy: cy + jitterY - emojiSize / 2,
+            size: emojiSize,
+            angle: angle,
+          ),
+        );
       }
     }
 
@@ -142,11 +141,12 @@ class EmojiBackground extends StatelessWidget {
 
 class _EmojiPos {
   final double dx, dy, size, angle;
-  const _EmojiPos(
-      {required this.dx,
-      required this.dy,
-      required this.size,
-      required this.angle});
+  const _EmojiPos({
+    required this.dx,
+    required this.dy,
+    required this.size,
+    required this.angle,
+  });
 }
 
 // ─── QR Code Painter ────────────────────────────────────────────────────────
@@ -209,7 +209,12 @@ class InstagramQRPainter extends CustomPainter {
   }
 
   void _drawFinderPattern(
-      Canvas canvas, Paint paint, double cs, int startCol, int startRow) {
+    Canvas canvas,
+    Paint paint,
+    double cs,
+    int startCol,
+    int startRow,
+  ) {
     final outerRect = RRect.fromRectAndRadius(
       Rect.fromLTWH(startCol * cs, startRow * cs, cs * 7, cs * 7),
       Radius.circular(cs * 1.2),
@@ -225,7 +230,11 @@ class InstagramQRPainter extends CustomPainter {
     // Inner dot
     final innerRect = RRect.fromRectAndRadius(
       Rect.fromLTWH(
-          startCol * cs + cs * 2, startRow * cs + cs * 2, cs * 3, cs * 3),
+        startCol * cs + cs * 2,
+        startRow * cs + cs * 2,
+        cs * 3,
+        cs * 3,
+      ),
       Radius.circular(cs * 0.6),
     );
     canvas.drawRRect(innerRect, paint);
@@ -250,8 +259,7 @@ class InstagramQRPainter extends CustomPainter {
 
     // Outer rounded square
     final outerRect = RRect.fromRectAndRadius(
-      Rect.fromCenter(
-          center: center, width: logoSize, height: logoSize),
+      Rect.fromCenter(center: center, width: logoSize, height: logoSize),
       Radius.circular(logoSize * 0.28),
     );
     canvas.drawRRect(outerRect, logoPaint);

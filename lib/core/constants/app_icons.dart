@@ -17,6 +17,7 @@ class AppIcons {
   static final IconData profile = Iconsax.user_copy;
   static final IconData add = Iconsax.add_copy;
   static final IconData heart = Iconsax.heart_copy;
+  static final IconData heartFill = Iconsax.heart;
   static final IconData eyeOpen = Iconsax.eye_copy;
   static final IconData eyeClose = Iconsax.eye_slash_copy;
   static final IconData comment = Iconsax.message_copy;

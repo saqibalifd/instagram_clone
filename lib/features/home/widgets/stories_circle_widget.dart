@@ -30,7 +30,7 @@ class StoriesCircleWidget extends StatelessWidget {
           ),
           child: CircleAvatar(
             backgroundColor: IGColors.gray,
-            radius: 30.r,
+            radius: 40.r,
             backgroundImage: NetworkImage(imageUrl),
           ),
         ),
