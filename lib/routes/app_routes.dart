@@ -19,6 +19,7 @@ class AppRoutes {
   static const String notification = '/notification';
   static const String shareProfile = '/shareProfile';
   static const String editProfile = '/editProfile';
+  static const String addPost = '/addPost';
   static const String createPost = '/post/create';
   static const String profile = '/profile/:userId';
 

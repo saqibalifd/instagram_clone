@@ -4,10 +4,12 @@ import 'package:get/get.dart';
 import 'package:get/instance_manager.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:instagram/core/constants/app_icons.dart';
+import 'package:instagram/features/home/widgets/my_storie_circle_widget.dart';
 import 'package:instagram/features/home/widgets/posts_card_widget.dart';
 import 'package:instagram/features/home/widgets/stories_circle_widget.dart';
 import 'package:instagram/features/home/widgets/suggested_card_widget.dart';
 import 'package:instagram/routes/app_routes.dart';
+import 'package:instagram/utils/bottom_sheet_util.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -91,7 +93,15 @@ class _HomeViewState extends State<HomeView> {
         leading: IconButton(
           splashColor: Colors.transparent,
           highlightColor: Colors.transparent,
-          onPressed: () {},
+          onPressed: () {
+            BottomSheetUtil.show(
+              context,
+              type: IGBottomSheet.addPost,
+              onPostPhoto: () {
+                Get.toNamed(AppRoutes.addPost, arguments: 'photo');
+              },
+            );
+          },
           icon: Icon(AppIcons.add),
         ),
         title: Text(
@@ -124,16 +134,26 @@ class _HomeViewState extends State<HomeView> {
               height: 110.h,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
-                itemCount: storiesUsers.length,
+                itemCount: storiesUsers.length + 1,
                 itemBuilder: (context, index) {
+                  if (index == 0) {
+                    return Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 10.w),
+                      child: MyStorieCircleWidget(),
+                    );
+                  }
+
+                  final storyIndex = index - 1;
                   return Padding(
                     padding: EdgeInsets.symmetric(horizontal: 10.w),
                     child: StoriesCircleWidget(
-                      imageUrl: storiesUsers[index]['image'].toString(),
-                      name: storiesUsers[index]['name'].toString().length > 10
-                          ? '${storiesUsers[index]['name'].toString().substring(0, 10)}...'
-                          : storiesUsers[index]['name'].toString(),
-                      isPlayed: storiesUsers[index]['isPlayed'] as bool,
+                      imageUrl: storiesUsers[storyIndex]['image'].toString(),
+                      name:
+                          storiesUsers[storyIndex]['name'].toString().length >
+                              10
+                          ? '${storiesUsers[storyIndex]['name'].toString().substring(0, 10)}...'
+                          : storiesUsers[storyIndex]['name'].toString(),
+                      isPlayed: storiesUsers[storyIndex]['isPlayed'] as bool,
                     ),
                   );
                 },

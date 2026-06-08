@@ -139,28 +139,28 @@ class _LoginViewState extends State<LoginView> {
                 ),
               ),
               SizedBox(height: 20.h),
-              GestureDetector(
-                onTap: () {
-                  Get.toNamed(AppRoutes.phoneAuth);
-                },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SvgPicture.asset(
-                      AssetPaths.phoneSvg,
-                      height: 20.h,
-                      width: 20.w,
-                    ),
-                    SizedBox(width: 10.w),
-                    Text(
-                      'Log in with Phone',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 20.h),
 
+              // GestureDetector(
+              //   onTap: () {
+              //     Get.toNamed(AppRoutes.phoneAuth);
+              //   },
+              //   child: Row(
+              //     mainAxisAlignment: MainAxisAlignment.center,
+              //     children: [
+              //       SvgPicture.asset(
+              //         AssetPaths.phoneSvg,
+              //         height: 20.h,
+              //         width: 20.w,
+              //       ),
+              //       SizedBox(width: 10.w),
+              //       Text(
+              //         'Log in with Phone',
+              //         style: TextStyle(fontWeight: FontWeight.bold),
+              //       ),
+              //     ],
+              //   ),
+              // ),
+              // SizedBox(height: 20.h),
               Divider(),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,

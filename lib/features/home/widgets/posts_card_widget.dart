@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:instagram/core/constants/app_icons.dart';
 import 'package:instagram/core/theme/app_theme.dart';
+import 'package:instagram/utils/bottom_sheet_util.dart';
+import 'package:instagram/utils/custom_toast_util.dart';
 
 class PostsCardWidget extends StatefulWidget {
   final String image;
@@ -12,6 +14,7 @@ class PostsCardWidget extends StatefulWidget {
   final String caption;
   final int totalComments;
   final String timeAgo;
+
   const PostsCardWidget({
     super.key,
     required this.image,
@@ -30,6 +33,7 @@ class PostsCardWidget extends StatefulWidget {
 
 class _PostsCardWidgetState extends State<PostsCardWidget> {
   bool isLiked = false;
+  bool isFav = false;
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +70,12 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
                   ],
                 ),
               ),
-              Icon(AppIcons.more),
+              InkWell(
+                onTap: () {
+                  BottomSheetUtil.show(context, type: IGBottomSheet.more);
+                },
+                child: Icon(AppIcons.more),
+              ),
             ],
           ),
         ),
@@ -94,33 +103,54 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
           child: Row(
             children: [
               IconButton(
+                splashColor: Colors.transparent,
+                highlightColor: Colors.transparent,
                 onPressed: () {
-                  setState(() {
-                    isLiked = !isLiked;
-                  });
+                  setState(() => isLiked = !isLiked);
                 },
-                icon: isLiked == true
-                    ? Icon(AppIcons.heart, color: IGColors.bgDark)
-                    : Icon(AppIcons.heartFill, color: IGColors.like),
+                icon: isLiked
+                    ? Icon(AppIcons.heartFill, color: IGColors.like)
+                    : Icon(AppIcons.heart, color: IGColors.bgDark),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
               ),
+              SizedBox(width: 16.w),
               IconButton(
-                onPressed: () {},
+                splashColor: Colors.transparent,
+                highlightColor: Colors.transparent,
+                onPressed: () {
+                  BottomSheetUtil.show(context, type: IGBottomSheet.comment);
+                },
                 icon: Icon(AppIcons.comment, color: IGColors.bgDark),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
               ),
+              SizedBox(width: 16.w),
               IconButton(
-                onPressed: () {},
+                splashColor: Colors.transparent,
+                highlightColor: Colors.transparent,
+                onPressed: () {
+                  BottomSheetUtil.show(context, type: IGBottomSheet.share);
+                },
                 icon: Icon(AppIcons.dm, color: IGColors.bgDark),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
               ),
               const Spacer(),
               IconButton(
-                onPressed: () {},
-                icon: Icon(AppIcons.favorite, color: IGColors.bgDark),
+                splashColor: Colors.transparent,
+                highlightColor: Colors.transparent,
+                onPressed: () {
+                  setState(() => isFav = !isFav);
+                  CustomToastUtil.showDefault(
+                    context,
+                    message: 'Post added to favourites',
+                  );
+                },
+                icon: Icon(
+                  isFav ? AppIcons.favoriteFill : AppIcons.favorite,
+                  color: IGColors.bgDark,
+                ),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
               ),
@@ -160,9 +190,15 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
                 ),
               ),
               SizedBox(height: 4.h),
-              Text(
-                'View all ${widget.totalComments} comments',
-                style: ts.bodySmall!.copyWith(fontSize: 12.sp),
+              GestureDetector(
+                onTap: () {
+                  BottomSheetUtil.show(context, type: IGBottomSheet.comment);
+                },
+                child: Text(
+                  'View all ${widget.totalComments} comments',
+
+                  style: ts.bodySmall!.copyWith(fontSize: 12.sp),
+                ),
               ),
               SizedBox(height: 4.h),
               Text(

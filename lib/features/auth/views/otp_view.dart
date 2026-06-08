@@ -27,6 +27,9 @@ class _OtpViewState extends State<OtpView> {
   Widget build(BuildContext context) {
     final String verificationId = args['verificationId'];
     final String phone = args['phone'];
+    final String name = args['name'];
+    final String email = args['email'];
+
     final cs = Theme.of(context).colorScheme;
     final ts = Theme.of(context).textTheme;
     final defaultPinTheme = PinTheme(
@@ -153,6 +156,10 @@ class _OtpViewState extends State<OtpView> {
                       context,
                       otpController.text,
                       verificationId,
+                      name,
+                      name.trim(),
+                      email,
+                      phone,
                     );
                   },
                 ),

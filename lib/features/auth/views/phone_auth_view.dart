@@ -22,6 +22,7 @@ class _PhoneAuthViewState extends State<PhoneAuthView> {
   final AuthController _authController = Get.put(AuthController());
   final TextEditingController phoneController = TextEditingController();
   String _selectedCountryCode = '+92';
+  final args = Get.arguments;
 
   final _formKey = GlobalKey<FormState>();
 
@@ -29,6 +30,9 @@ class _PhoneAuthViewState extends State<PhoneAuthView> {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final ts = Theme.of(context).textTheme;
+    final String email = args['email'];
+    final String name = args['name'];
+
     return Scaffold(
       body: Padding(
         padding: EdgeInsets.symmetric(
@@ -121,6 +125,8 @@ class _PhoneAuthViewState extends State<PhoneAuthView> {
                           context,
                           _selectedCountryCode,
                           phoneController.text.trim(),
+                          name,
+                          email,
                         );
                       }
                     },

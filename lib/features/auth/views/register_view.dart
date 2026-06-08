@@ -181,7 +181,15 @@ class _RegisterViewState extends State<RegisterView> {
                 SizedBox(height: 20.h),
                 GestureDetector(
                   onTap: () {
-                    Get.toNamed(AppRoutes.phoneAuth);
+                    if (_formKey.currentState!.validate()) {
+                      Get.toNamed(
+                        AppRoutes.phoneAuth,
+                        arguments: {
+                          'email': emailController.text.trim(),
+                          'name': nameController.text,
+                        },
+                      );
+                    }
                   },
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,

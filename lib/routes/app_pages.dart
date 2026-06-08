@@ -12,6 +12,7 @@ import 'package:instagram/features/auth/views/otp_view.dart';
 import 'package:instagram/features/auth/views/phone_auth_view.dart';
 import 'package:instagram/features/auth/views/splash_view.dart';
 import 'package:instagram/features/bottom_navbar/custom_bottom_navbar.dart';
+import 'package:instagram/features/home/views/add_post_view.dart';
 import 'package:instagram/features/home/views/notification_view.dart';
 import 'package:instagram/features/profile/views/edit_profile_view.dart';
 import 'package:instagram/features/profile/views/share_profile_view.dart';
@@ -71,6 +72,11 @@ class AppPages {
     GetPage(
       name: AppRoutes.shareProfile,
       page: () => const ShareProfileView(),
+      // binding: AuthBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.addPost,
+      page: () => const AddPostView(),
       // binding: AuthBinding(),
     ),
   ];

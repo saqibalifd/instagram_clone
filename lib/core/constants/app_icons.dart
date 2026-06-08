@@ -7,8 +7,22 @@ class AppIcons {
   static const IconData phone = Icons.phone_outlined;
   static const IconData message = Icons.message_outlined;
   static const IconData favorite = Icons.bookmark_outline;
-  static const IconData more = Icons.more_horiz_outlined;
+  static const IconData favoriteFill = Icons.bookmark;
+  static const IconData check = Icons.check;
+
+  static const IconData more = Icons.more_vert;
+
   static const IconData menu = Icons.menu;
+
+  static const IconData flag = Icons.flag_outlined;
+  static const IconData personRemove = Icons.person_remove;
+  static const IconData hidePost = Icons.visibility_off;
+  static const IconData copy = Icons.copy_outlined;
+  static const IconData qrCode = Icons.qr_code;
+  static const IconData post = Icons.image_outlined;
+  static const IconData reel = Icons.video_camera_back_outlined;
+  static const IconData stories = Icons.circle_outlined;
+  static const IconData live = Icons.live_tv_outlined;
 
   static final IconData home = Iconsax.home_copy;
   static final IconData reels = Iconsax.video_play_copy;

@@ -1,9 +1,12 @@
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:instagram/core/constants/app_constants.dart';
+import 'package:instagram/data/models/user_model.dart';
+import 'package:instagram/services/notification_service.dart';
 import 'package:instagram/utils/custom_toast_util.dart';
 import 'package:instagram/utils/loading_utils.dart';
 import '../../../core/errors/app_exceptions.dart';
@@ -11,6 +14,8 @@ import '../../../routes/app_routes.dart';
 
 class AuthController extends GetxController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final NotificationServices _notificationService = NotificationServices();
 
   Future<void> loading() async {
     LoadingUtil.show();
@@ -44,11 +49,13 @@ class AuthController extends GetxController {
             email: emailController.text.trim(),
             password: passwordController.text,
           );
+
       Get.offAllNamed(AppRoutes.bottomNavbar);
       CustomToastUtil.showGradient(
         context,
         message: 'Welcome back to Instagram.',
       );
+      updateDeviceToken();
     } on FirebaseAuthException catch (e) {
       CustomToastUtil.showError(context, message: e.message.toString());
     } on AuthException catch (e) {
@@ -72,6 +79,15 @@ class AuthController extends GetxController {
             email: emailController.text.trim(),
             password: passwordController.text.trim(),
           );
+      await storeUserData(
+        context,
+        fullName: nameController.text,
+        email: emailController.text.trim(),
+        username: nameController.text.trim(),
+        profileImageUrl: '',
+        phone: '',
+      );
+
       Get.offAllNamed(AppRoutes.bottomNavbar);
       CustomToastUtil.showGradient(context, message: 'Welcome to Instagram.');
     } on FirebaseAuthException catch (e) {
@@ -102,6 +118,15 @@ class AuthController extends GetxController {
       );
 
       await FirebaseAuth.instance.signInWithCredential(credential);
+
+      await storeUserData(
+        context,
+        fullName: googleUser.displayName ?? '',
+        email: googleUser.email,
+        username: googleUser.displayName ?? '',
+        profileImageUrl: googleUser.photoUrl ?? '',
+        phone: '',
+      );
       Get.offAllNamed(AppRoutes.bottomNavbar);
       CustomToastUtil.showGradient(context, message: 'Welcome to Instagram.');
     } on FirebaseAuthException catch (e) {
@@ -117,6 +142,8 @@ class AuthController extends GetxController {
     BuildContext context,
     String selectedCountry,
     String phone,
+    String name,
+    String email,
   ) async {
     try {
       LoadingUtil.show();
@@ -148,6 +175,8 @@ class AuthController extends GetxController {
             arguments: {
               'verificationId': verificationId,
               'phone': '$selectedCountry$phone',
+              'name': name,
+              'email': email,
             },
           );
         },
@@ -167,6 +196,10 @@ class AuthController extends GetxController {
     BuildContext context,
     String otp,
     String verificationId,
+    String name,
+    String userName,
+    String email,
+    String phone,
   ) async {
     try {
       LoadingUtil.show();
@@ -181,6 +214,14 @@ class AuthController extends GetxController {
 
       User? user = userCredential.user;
       CustomToastUtil.showGradient(context, message: 'Welcome to Instagram.');
+      await storeUserData(
+        context,
+        fullName: name,
+        email: email,
+        username: userName,
+        profileImageUrl: '',
+        phone: phone,
+      );
       Get.offAllNamed(AppRoutes.bottomNavbar);
     } on FirebaseAuthException catch (e) {
       CustomToastUtil.showError(context, message: e.message.toString());
@@ -253,6 +294,59 @@ class AuthController extends GetxController {
     } finally {
       LoadingUtil.dismiss();
     }
+  }
+
+  Future<void> storeUserData(
+    BuildContext context, {
+    required String fullName,
+    required String email,
+    required String username,
+    required String profileImageUrl,
+    required String phone,
+  }) async {
+    try {
+      final userId = _auth.currentUser!.uid;
+      final deviceToken = await _notificationService.getDeviceToken();
+
+      final UserModel userModel = UserModel(
+        fullName: fullName,
+        email: email,
+        username: username,
+        profileImageUrl: profileImageUrl,
+        userId: userId,
+        deviceToken: deviceToken.toString(),
+        bio: '',
+        website: '',
+        isPrivate: false,
+        isVerified: false,
+        createdAt: Timestamp.now(),
+        following: [],
+        followers: [],
+        location: '',
+        phone: phone,
+        updatedAt: Timestamp.now(),
+      );
+
+      await _firestore
+          .collection(AppConstants.usersCollection)
+          .doc(userId)
+          .set(userModel.toJson());
+    } on FirebaseException catch (e) {
+      CustomToastUtil.showError(
+        context,
+        message: e.message ?? 'Something went wrong',
+      );
+    } on Exception catch (e) {
+      print(' errror in storing data ${e.toString()}');
+    }
+  }
+
+  Future<void> updateDeviceToken() async {
+    final deviceToken = await _notificationService.getDeviceToken();
+    await _firestore
+        .collection(AppConstants.usersCollection)
+        .doc(_auth.currentUser!.uid)
+        .update({'deviceToken': deviceToken.toString()});
   }
 
   Future<void> signOut() async {

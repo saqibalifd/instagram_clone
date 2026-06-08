@@ -9,6 +9,7 @@ import 'package:instagram/features/auth/controllers/auth_controller.dart';
 import 'package:instagram/features/profile/views/profile_tab_view.dart';
 import 'package:instagram/features/profile/widgets/profile_header.dart';
 import 'package:instagram/routes/app_routes.dart';
+import 'package:instagram/utils/bottom_sheet_util.dart';
 
 class ProfileView extends StatefulWidget {
   const ProfileView({super.key});
@@ -114,7 +115,9 @@ Passionate Flutter Developer with 2+ years of experience building modern, scalab
         leading: IconButton(
           splashColor: Colors.transparent,
           highlightColor: Colors.transparent,
-          onPressed: () {},
+          onPressed: () {
+            BottomSheetUtil.show(context, type: IGBottomSheet.addPost);
+          },
           icon: Icon(AppIcons.add),
         ),
         title: Text('Saqibali.fd', style: ts.displayMedium),
