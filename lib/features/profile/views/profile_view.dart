@@ -151,7 +151,7 @@ Passionate Flutter Developer with 2+ years of experience building modern, scalab
           children: [
             SizedBox(height: 20.h),
 
-            //profile header row
+            //profile header row`
             ProfileHeader(
               image: user.profileImageUrl,
               name: user.fullName,
