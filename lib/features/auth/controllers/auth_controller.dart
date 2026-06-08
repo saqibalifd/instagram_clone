@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:instagram/core/constants/app_constants.dart';
+import 'package:instagram/data/local/local_storage_service.dart';
 import 'package:instagram/data/models/user_model.dart';
 import 'package:instagram/services/notification_service.dart';
 import 'package:instagram/utils/custom_toast_util.dart';
@@ -16,6 +17,14 @@ class AuthController extends GetxController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final NotificationServices _notificationService = NotificationServices();
+  late final LocalStorageService _localStorage;
+
+  @override
+  void onInit() {
+    super.onInit();
+
+    _localStorage = Get.put<LocalStorageService>(LocalStorageService());
+  }
 
   Future<void> loading() async {
     LoadingUtil.show();
@@ -44,22 +53,47 @@ class AuthController extends GetxController {
     try {
       LoadingUtil.show();
 
+      // 1. LOGIN USER
       UserCredential userCredential = await FirebaseAuth.instance
           .signInWithEmailAndPassword(
             email: emailController.text.trim(),
-            password: passwordController.text,
+            password: passwordController.text.trim(),
           );
 
+      final uid = userCredential.user!.uid;
+
+      // 2. GET USER DATA FROM FIRESTORE
+      final doc = await FirebaseFirestore.instance
+          .collection(AppConstants.usersCollection)
+          .doc(uid)
+          .get();
+
+      if (!doc.exists || doc.data() == null) {
+        throw Exception("User data not found");
+      }
+
+      // 3. CONVERT TO MODEL
+      final userModel = UserModel.fromJson(doc.data() as Map<String, dynamic>);
+
+      // 4. STORE LOCALLY
+      final localStorage = LocalStorageService();
+      await localStorage.saveUser(userModel);
+
+      // 5. NAVIGATE AFTER SAVING
       Get.offAllNamed(AppRoutes.bottomNavbar);
+
+      // 6. TOAST
       CustomToastUtil.showGradient(
         context,
         message: 'Welcome back to Instagram.',
       );
+
+      // 7. UPDATE DEVICE TOKEN
       updateDeviceToken();
     } on FirebaseAuthException catch (e) {
       CustomToastUtil.showError(context, message: e.message.toString());
-    } on AuthException catch (e) {
-      CustomToastUtil.showError(context, message: e.message.toString());
+    } on Exception catch (e) {
+      CustomToastUtil.showError(context, message: e.toString());
     } finally {
       LoadingUtil.dismiss();
     }
@@ -86,6 +120,26 @@ class AuthController extends GetxController {
         username: nameController.text.trim(),
         profileImageUrl: '',
         phone: '',
+      );
+
+      UserModel user = UserModel(
+        fullName: nameController.text,
+        email: emailController.text.trim(),
+        username: nameController.text.trim(),
+        profileImageUrl: '',
+        userId: userCredential.user!.uid,
+        deviceToken: '',
+        bio: '',
+        website: '',
+        isPrivate: false,
+        isVerified: false,
+        createdAt: Timestamp.now(),
+        following: [],
+        followers: [],
+        posts: [],
+        location: '',
+        phone: '',
+        updatedAt: Timestamp.now(),
       );
 
       Get.offAllNamed(AppRoutes.bottomNavbar);
@@ -322,6 +376,7 @@ class AuthController extends GetxController {
         createdAt: Timestamp.now(),
         following: [],
         followers: [],
+        posts: [],
         location: '',
         phone: phone,
         updatedAt: Timestamp.now(),
@@ -331,6 +386,10 @@ class AuthController extends GetxController {
           .collection(AppConstants.usersCollection)
           .doc(userId)
           .set(userModel.toJson());
+
+      final storage = Get.find<LocalStorageService>();
+
+      await storage.saveUser(userModel);
     } on FirebaseException catch (e) {
       CustomToastUtil.showError(
         context,

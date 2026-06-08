@@ -14,6 +14,7 @@ class UserModel {
   final Timestamp createdAt;
   final List<String> following;
   final List<String> followers;
+  final List<String> posts;
   final String location;
   final String phone;
   final Timestamp updatedAt;
@@ -32,6 +33,7 @@ class UserModel {
     required this.createdAt,
     required this.following,
     required this.followers,
+    required this.posts,
     required this.location,
     required this.phone,
     required this.updatedAt,
@@ -52,6 +54,7 @@ class UserModel {
       createdAt: json['createdAt'] ?? Timestamp.now(),
       following: List<String>.from(json['following'] ?? []),
       followers: List<String>.from(json['followers'] ?? []),
+      posts: List<String>.from(json['posts'] ?? []),
       location: json['location'] ?? '',
       phone: json['phone'] ?? '',
       updatedAt: json['updatedAt'] ?? Timestamp.now(),
@@ -73,6 +76,8 @@ class UserModel {
       'createdAt': createdAt,
       'following': following,
       'followers': followers,
+      'posts': posts,
+
       'location': location,
       'phone': phone,
       'updatedAt': updatedAt,
@@ -93,6 +98,8 @@ class UserModel {
     Timestamp? createdAt,
     List<String>? following,
     List<String>? followers,
+    List<String>? posts,
+
     String? location,
     String? phone,
     Timestamp? updatedAt,
@@ -111,6 +118,8 @@ class UserModel {
       createdAt: createdAt ?? this.createdAt,
       following: following ?? this.following,
       followers: followers ?? this.followers,
+      posts: posts ?? this.posts,
+
       location: location ?? this.location,
       phone: phone ?? this.phone,
       updatedAt: updatedAt ?? this.updatedAt,
