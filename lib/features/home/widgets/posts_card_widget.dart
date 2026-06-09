@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/route_manager.dart';
+import 'package:get/state_manager.dart';
 import 'package:instagram/core/constants/app_icons.dart';
 import 'package:instagram/core/theme/app_theme.dart';
+import 'package:instagram/routes/app_routes.dart';
 import 'package:instagram/utils/bottom_sheet_util.dart';
 import 'package:instagram/utils/custom_toast_util.dart';
 
@@ -14,11 +17,7 @@ class PostsCardWidget extends StatefulWidget {
   final String caption;
   final int totalComments;
   final String timeAgo;
-
-  final VoidCallback? onSavePost;
-  final VoidCallback? onCopyLink;
-  final VoidCallback? onAddToStory;
-  final VoidCallback? onSendDm;
+  final String userId;
 
   const PostsCardWidget({
     super.key,
@@ -30,10 +29,7 @@ class PostsCardWidget extends StatefulWidget {
     required this.caption,
     required this.totalComments,
     required this.timeAgo,
-    this.onSavePost,
-    this.onCopyLink,
-    this.onAddToStory,
-    this.onSendDm,
+    required this.userId,
   });
 
   @override
@@ -56,9 +52,17 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
           padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
           child: Row(
             children: [
-              CircleAvatar(
-                radius: 18.r,
-                backgroundImage: NetworkImage(widget.image),
+              GestureDetector(
+                onTap: () {
+                  Get.toNamed(
+                    AppRoutes.publicProfile,
+                    arguments: widget.userId,
+                  );
+                },
+                child: CircleAvatar(
+                  radius: 18.r,
+                  backgroundImage: NetworkImage(widget.image),
+                ),
               ),
               SizedBox(width: 10.w),
               Expanded(

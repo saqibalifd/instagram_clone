@@ -3,7 +3,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:instagram/core/theme/app_theme.dart';
 
 class MyStorieCircleWidget extends StatelessWidget {
-  const MyStorieCircleWidget({super.key});
+  final VoidCallback onAddStory;
+  const MyStorieCircleWidget({super.key, required this.onAddStory});
 
   @override
   Widget build(BuildContext context) {
@@ -28,9 +29,7 @@ class MyStorieCircleWidget extends StatelessWidget {
               bottom: 0,
               right: 0,
               child: GestureDetector(
-                onTap: () {
-                  // Handle add story tap
-                },
+                onTap: onAddStory,
                 child: Container(
                   width: 22.w,
                   height: 22.h,

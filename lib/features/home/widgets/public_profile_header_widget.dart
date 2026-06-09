@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:instagram/core/constants/app_constants.dart';
 
-class ProfileHeader extends StatelessWidget {
+class PublicProfileHeaderWidget extends StatelessWidget {
   final String image;
   final String name;
   final int totalPosts;
@@ -10,7 +10,7 @@ class ProfileHeader extends StatelessWidget {
   final int followingCount;
   final String bio;
 
-  const ProfileHeader({
+  const PublicProfileHeaderWidget({
     super.key,
     required this.image,
     required this.name,

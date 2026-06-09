@@ -14,6 +14,7 @@ import 'package:instagram/features/auth/views/splash_view.dart';
 import 'package:instagram/features/bottom_navbar/custom_bottom_navbar.dart';
 import 'package:instagram/features/home/views/add_post_view.dart';
 import 'package:instagram/features/home/views/notification_view.dart';
+import 'package:instagram/features/home/views/public_profile_view.dart';
 import 'package:instagram/features/profile/views/edit_profile_view.dart';
 import 'package:instagram/features/profile/views/share_profile_view.dart';
 import '../features/auth/views/login_view.dart';
@@ -77,6 +78,11 @@ class AppPages {
     GetPage(
       name: AppRoutes.addPost,
       page: () => const AddPostView(),
+      // binding: AuthBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.publicProfile,
+      page: () => const PublicProfileView(),
       // binding: AuthBinding(),
     ),
   ];

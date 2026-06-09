@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -10,6 +12,7 @@ import 'package:instagram/features/home/widgets/stories_circle_widget.dart';
 import 'package:instagram/features/home/widgets/suggested_card_widget.dart';
 import 'package:instagram/routes/app_routes.dart';
 import 'package:instagram/utils/bottom_sheet_util.dart';
+import 'package:instagram/utils/image_picker_util.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -19,36 +22,44 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
+  File? image;
+
   final storiesUsers = [
     {
       'name': 'Ali',
       'image': 'https://i.pravatar.cc/150?img=1',
       'isPlayed': false,
+      'userId': 'cc8J8XNLKLRlyXPr8jGPLN7RMqr2',
     },
     {
       'name': 'Iftikha Ali',
       'image': 'https://i.pravatar.cc/150?img=2',
       'isPlayed': false,
+      'userId': 'cc8J8XNLKLRlyXPr8jGPLN7RMqr2',
     },
     {
       'name': 'Jamshed hussain alvi',
       'image': 'https://i.pravatar.cc/150?img=3',
       'isPlayed': false,
+      'userId': 'cc8J8XNLKLRlyXPr8jGPLN7RMqr2',
     },
     {
       'name': 'Fakhar hussain',
       'image': 'https://i.pravatar.cc/150?img=10',
       'isPlayed': false,
+      'userId': 'cc8J8XNLKLRlyXPr8jGPLN7RMqr2',
     },
     {
       'name': 'Hassan Ali',
       'image': 'https://i.pravatar.cc/150?img=7',
       'isPlayed': true,
+      'userId': 'cc8J8XNLKLRlyXPr8jGPLN7RMqr2',
     },
     {
       'name': 'Iftikha Ali',
       'image': 'https://i.pravatar.cc/150?img=2',
       'isPlayed': false,
+      'userId': 'cc8J8XNLKLRlyXPr8jGPLN7RMqr2',
     },
   ];
 
@@ -139,7 +150,16 @@ class _HomeViewState extends State<HomeView> {
                   if (index == 0) {
                     return Padding(
                       padding: EdgeInsets.symmetric(horizontal: 10.w),
-                      child: MyStorieCircleWidget(),
+                      child: MyStorieCircleWidget(
+                        onAddStory: () async {
+                          // print('add story');
+                          await ImagePickerUtil.pickFromGallery(
+                            context,
+                            maxWidth: 1024,
+                            imageQuality: 85,
+                          );
+                        },
+                      ),
                     );
                   }
 
@@ -209,6 +229,7 @@ class _HomeViewState extends State<HomeView> {
                   caption: 'Sharing a beautiful moment 🌟',
                   totalComments: 233,
                   timeAgo: '2 HOURS AGO',
+                  userId: user['userId'].toString(),
                 );
               },
             ),

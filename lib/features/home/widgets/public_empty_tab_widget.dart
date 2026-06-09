@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:instagram/core/constants/app_icons.dart';
 
-class EmptyTabWidget extends StatelessWidget {
+class PublicEmptyTabWidget extends StatelessWidget {
   final IconData icon;
   final String title;
   final String subtitle;
 
-  const EmptyTabWidget({
+  const PublicEmptyTabWidget({
     super.key,
     this.icon = AppIcons.tagProfile,
     this.title = "",
