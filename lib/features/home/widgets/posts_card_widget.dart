@@ -15,6 +15,11 @@ class PostsCardWidget extends StatefulWidget {
   final int totalComments;
   final String timeAgo;
 
+  final VoidCallback? onSavePost;
+  final VoidCallback? onCopyLink;
+  final VoidCallback? onAddToStory;
+  final VoidCallback? onSendDm;
+
   const PostsCardWidget({
     super.key,
     required this.image,
@@ -25,6 +30,10 @@ class PostsCardWidget extends StatefulWidget {
     required this.caption,
     required this.totalComments,
     required this.timeAgo,
+    this.onSavePost,
+    this.onCopyLink,
+    this.onAddToStory,
+    this.onSendDm,
   });
 
   @override
