@@ -87,7 +87,6 @@ Container _sheetContainer({
 );
 
 // ─── Comment Sheet ────────────────────────────────────────────────────────────
-
 class _CommentSheet extends StatefulWidget {
   final String postOwner;
   final int totalComments;
@@ -100,7 +99,9 @@ class _CommentSheet extends StatefulWidget {
 
 class _CommentSheetState extends State<_CommentSheet> {
   final _controller = TextEditingController();
-  final _focusNode = FocusNode();
+  final _focusNode = FocusNode(); // single focus node, used everywhere
+  final _sheetController =
+      DraggableScrollableController(); // ← controls sheet size
   late final LocalStorageService _localStorage;
   final profileUser = Rxn<UserModel>();
 
@@ -108,29 +109,48 @@ class _CommentSheetState extends State<_CommentSheet> {
     {'user': 'alex.doe', 'text': 'Amazing shot! 🔥', 'time': '2h'},
     {'user': 'sara_m', 'text': 'Love this so much ❤️', 'time': '1h'},
     {'user': 'john_travels', 'text': 'Where is this place?', 'time': '45m'},
-    {'user': 'alex.doe', 'text': 'Amazing shot! 🔥', 'time': '2h'},
-    {'user': 'sara_m', 'text': 'Love this so much ❤️', 'time': '1h'},
-    {'user': 'john_travels', 'text': 'Where is this place?', 'time': '45m'},
   ];
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _localStorage = Get.put<LocalStorageService>(LocalStorageService());
     loadLocalProfile();
+
+    // ← listen for focus changes and snap the sheet accordingly
+    _focusNode.addListener(_onFocusChange);
+  }
+
+  void _onFocusChange() {
+    if (!_sheetController.isAttached) return;
+    if (_focusNode.hasFocus) {
+      // keyboard is opening → expand to full view
+      _sheetController.animateTo(
+        0.93,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    } else {
+      // keyboard dismissed → return to half view
+      _sheetController.animateTo(
+        0.6,
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeIn,
+      );
+    }
   }
 
   Future<void> loadLocalProfile() async {
     final user = _localStorage.getUser();
-
     profileUser.value = user;
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    _focusNode.removeListener(_onFocusChange); // ← always remove before dispose
     _focusNode.dispose();
+    _sheetController.dispose(); // ← dispose the sheet controller too
     super.dispose();
   }
 
@@ -141,7 +161,7 @@ class _CommentSheetState extends State<_CommentSheet> {
       _comments.add({'user': 'you', 'text': text, 'time': 'Just now'});
       _controller.clear();
     });
-    _focusNode.unfocus();
+    _focusNode.unfocus(); // this triggers _onFocusChange → sheet shrinks back
   }
 
   @override
@@ -150,6 +170,7 @@ class _CommentSheetState extends State<_CommentSheet> {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
     return DraggableScrollableSheet(
+      controller: _sheetController, // ← attach controller
       initialChildSize: 0.6,
       minChildSize: 0.4,
       maxChildSize: 0.93,
@@ -171,6 +192,8 @@ class _CommentSheetState extends State<_CommentSheet> {
                 ),
               ),
               Divider(color: IGColors.gray, thickness: 0.3, height: 0),
+
+              // ← Expanded fills all remaining space; no more fixed Container height
               Expanded(
                 child: _comments.isEmpty
                     ? Center(
@@ -243,26 +266,33 @@ class _CommentSheetState extends State<_CommentSheet> {
                         },
                       ),
               ),
+
               Divider(color: IGColors.gray, thickness: 0.3, height: 0),
               Padding(
                 padding: EdgeInsets.fromLTRB(12, 8, 12, bottomInset + 12),
                 child: Row(
                   children: [
-                    CircleAvatar(
-                      backgroundImage: NetworkImage(
-                        profileUser.value!.profileImageUrl,
+                    Obx(
+                      () => CircleAvatar(
+                        backgroundImage: NetworkImage(
+                          profileUser.value?.profileImageUrl ?? '',
+                        ),
                       ),
                     ),
                     SizedBox(width: 10.w),
                     Expanded(
                       child: TextFormField(
+                        controller: _controller,
                         focusNode: _focusNode,
                         keyboardType: TextInputType.text,
                         textInputAction: TextInputAction.send,
-                        onFieldSubmitted: (value) {
-                          _postComment();
-                          print('comment added ');
+                        onTap: () {
+                          setState(() {});
                         },
+                        onFieldSubmitted: (_) {
+                          setState(() {});
+                        },
+
                         decoration: InputDecoration(
                           hintText: 'Add a comment…',
                           hintStyle: ts.bodySmall!.copyWith(fontSize: 13.sp),
@@ -283,6 +313,10 @@ class _CommentSheetState extends State<_CommentSheet> {
                     ),
                   ],
                 ),
+              ),
+              Visibility(
+                visible: _focusNode.hasFocus,
+                child: SizedBox(height: 300.h),
               ),
             ],
           ),
