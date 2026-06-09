@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:instagram/core/constants/app_icons.dart';
 import 'package:instagram/core/theme/app_theme.dart';
+import 'package:instagram/data/local/local_storage_service.dart';
+import 'package:instagram/data/models/user_model.dart';
 
 enum IGBottomSheet { comment, share, more, addPost }
 
@@ -96,12 +101,31 @@ class _CommentSheet extends StatefulWidget {
 class _CommentSheetState extends State<_CommentSheet> {
   final _controller = TextEditingController();
   final _focusNode = FocusNode();
+  late final LocalStorageService _localStorage;
+  final profileUser = Rxn<UserModel>();
 
   final List<Map<String, String>> _comments = [
     {'user': 'alex.doe', 'text': 'Amazing shot! 🔥', 'time': '2h'},
     {'user': 'sara_m', 'text': 'Love this so much ❤️', 'time': '1h'},
     {'user': 'john_travels', 'text': 'Where is this place?', 'time': '45m'},
+    {'user': 'alex.doe', 'text': 'Amazing shot! 🔥', 'time': '2h'},
+    {'user': 'sara_m', 'text': 'Love this so much ❤️', 'time': '1h'},
+    {'user': 'john_travels', 'text': 'Where is this place?', 'time': '45m'},
   ];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _localStorage = Get.put<LocalStorageService>(LocalStorageService());
+    loadLocalProfile();
+  }
+
+  Future<void> loadLocalProfile() async {
+    final user = _localStorage.getUser();
+
+    profileUser.value = user;
+  }
 
   @override
   void dispose() {
@@ -226,7 +250,7 @@ class _CommentSheetState extends State<_CommentSheet> {
                   children: [
                     CircleAvatar(
                       backgroundImage: NetworkImage(
-                        'https://picsum.photos/seed/av/200',
+                        profileUser.value!.profileImageUrl,
                       ),
                     ),
                     SizedBox(width: 10.w),

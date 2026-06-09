@@ -118,10 +118,4 @@ class ProfileController extends GetxController {
       LoadingUtil.dismiss();
     }
   }
-
-  Future<void> loadProfileFromServer(String userId) async {
-    isLoading.value = true;
-
-    isLoading.value = false;
-  }
 }

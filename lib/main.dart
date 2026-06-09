@@ -32,7 +32,7 @@ void main() async {
   final localStorage = LocalStorageService();
   await localStorage.init();
 
-  Get.put(localStorage); // now safe
+  Get.put(localStorage);
 
   runApp(const MyApp());
 }
