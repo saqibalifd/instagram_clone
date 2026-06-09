@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -9,6 +11,7 @@ import 'package:instagram/data/models/user_model.dart';
 import 'package:instagram/features/profile/controllers/profile_controller.dart';
 import 'package:instagram/features/profile/widgets/profile_text_field_widget.dart';
 import 'package:instagram/shared_widgets/dropdown_widget.dart';
+import 'package:instagram/utils/image_picker_util.dart';
 
 class EditProfileView extends StatefulWidget {
   const EditProfileView({super.key});
@@ -23,6 +26,17 @@ class _EditProfileViewState extends State<EditProfileView> {
   final TextEditingController bioController = TextEditingController();
 
   final ProfileController _profileController = Get.put(ProfileController());
+
+  File? image;
+
+  Future<void> _pickAny() async {
+    final file = await ImagePickerUtil.pick(
+      context,
+      maxWidth: 1024,
+      imageQuality: 85,
+    );
+    if (file != null) setState(() => image = file);
+  }
 
   late UserModel user;
   String slectedGender = '';
@@ -68,6 +82,12 @@ class _EditProfileViewState extends State<EditProfileView> {
                   bioController.text,
                   slectedGender,
                 );
+                if (image != null) {
+                  await _profileController.updateProfilePicture(
+                    context,
+                    image!,
+                  );
+                }
                 await _profileController.loadLocalProfile();
                 Get.back();
               },
@@ -88,12 +108,26 @@ class _EditProfileViewState extends State<EditProfileView> {
             Center(
               child: CircleAvatar(
                 radius: 40.r,
-                backgroundImage: NetworkImage(user.profileImageUrl),
+                backgroundImage: image == null
+                    ? NetworkImage(user.profileImageUrl)
+                    : FileImage(image ?? File(user.profileImageUrl)),
+
+                // backgroundImage: NetworkImage(user.profileImageUrl),
               ),
             ),
             SizedBox(height: 5.h),
             Center(
-              child: TextButton(onPressed: () {}, child: Text('Edit picture')),
+              child: TextButton(
+                style: TextButton.styleFrom(
+                  splashFactory: NoSplash.splashFactory,
+                  overlayColor: Colors.transparent,
+                ),
+
+                onPressed: () {
+                  _pickAny();
+                },
+                child: Text('Edit picture'),
+              ),
             ),
             SizedBox(height: 10.h),
             ProfileTextFieldWidget(

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/widgets.dart';
@@ -6,12 +8,14 @@ import 'package:instagram/core/constants/app_constants.dart';
 import 'package:instagram/data/local/local_storage_service.dart';
 import 'package:instagram/utils/custom_toast_util.dart';
 import 'package:instagram/utils/loading_utils.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../data/models/user_model.dart';
 
 class ProfileController extends GetxController {
   late final LocalStorageService _localStorage;
   final _firebase = FirebaseFirestore.instance;
   final userId = FirebaseAuth.instance.currentUser!.uid;
+  final supabase = Supabase.instance.client;
 
   final profileUser = Rxn<UserModel>();
   final fetchLoading = false.obs;
@@ -66,21 +70,46 @@ class ProfileController extends GetxController {
     }
   }
 
-  Future<void> updateProfilePicture(BuildContext context) async {
+  Future<void> updateProfilePicture(
+    BuildContext context,
+    File imageFile,
+  ) async {
     try {
       LoadingUtil.show();
-      await _firebase.collection(AppConstants.usersCollection).doc(userId).update({
-        'profileImageUrl':
-            'https://plus.unsplash.com/premium_photo-1689568126014-06fea9d5d341?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8cHJvZmlsZSUyMHBpY3R1cmV8ZW58MHx8MHx8fDA%3D',
-      });
-      await _localStorage.storeProfileImageLocal(
-        'https://plus.unsplash.com/premium_photo-1689568126014-06fea9d5d341?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8cHJvZmlsZSUyMHBpY3R1cmV8ZW58MHx8MHx8fDA%3D',
-      );
+
+      final userId = FirebaseAuth.instance.currentUser!.uid;
+
+      final fileName = '$userId.jpg';
+
+      final filePath = 'profile_pictures/$fileName';
+
+      await supabase.storage
+          .from('images')
+          .upload(
+            filePath,
+            imageFile,
+            fileOptions: const FileOptions(cacheControl: '3600', upsert: true),
+          );
+
+      final imageUrl =
+          '${supabase.storage.from('images').getPublicUrl(filePath)}'
+          '?t=${DateTime.now().millisecondsSinceEpoch}';
+
+      await _firebase
+          .collection(AppConstants.usersCollection)
+          .doc(userId)
+          .update({'profileImageUrl': imageUrl});
+
+      await _localStorage.storeProfileImageLocal(imageUrl);
 
       CustomToastUtil.showDefault(context, message: 'Profile picture updated.');
     } on FirebaseException catch (e) {
       CustomToastUtil.showError(context, message: e.message.toString());
     } catch (e) {
+      print(
+        '*********************error found in update profile picture********************',
+      );
+      print(e.toString());
       CustomToastUtil.showError(
         context,
         message: AppConstants.commonErrorMessage,
@@ -89,6 +118,53 @@ class ProfileController extends GetxController {
       LoadingUtil.dismiss();
     }
   }
+
+  // Future<void> updateProfilePicture(
+  //   BuildContext context,
+  //   File imageFile,
+  // ) async {
+  //   try {
+  //     LoadingUtil.show();
+
+  //     final userId = FirebaseAuth.instance.currentUser!.uid;
+
+  //     final fileName = '$userId.jpg';
+
+  //     final filePath = 'profile_pictures/$fileName';
+
+  //     await supabase.storage
+  //         .from('images')
+  //         .upload(
+  //           filePath,
+  //           imageFile,
+  //           fileOptions: const FileOptions(cacheControl: '3600', upsert: true),
+  //         );
+
+  //     final imageUrl = supabase.storage.from('images').getPublicUrl(filePath);
+
+  //     await _firebase
+  //         .collection(AppConstants.usersCollection)
+  //         .doc(userId)
+  //         .update({'profileImageUrl': imageUrl});
+
+  //     await _localStorage.storeProfileImageLocal(imageUrl);
+
+  //     CustomToastUtil.showDefault(context, message: 'Profile picture updated.');
+  //   } on FirebaseException catch (e) {
+  //     CustomToastUtil.showError(context, message: e.message.toString());
+  //   } catch (e) {
+  //     print(
+  //       '*********************error found in update profile picture********************',
+  //     );
+  //     print(e.toString());
+  //     CustomToastUtil.showError(
+  //       context,
+  //       message: AppConstants.commonErrorMessage,
+  //     );
+  //   } finally {
+  //     LoadingUtil.dismiss();
+  //   }
+  // }
 
   Future<void> loadProfileFromServer(String userId) async {
     isLoading.value = true;
