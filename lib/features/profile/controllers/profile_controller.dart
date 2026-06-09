@@ -119,53 +119,6 @@ class ProfileController extends GetxController {
     }
   }
 
-  // Future<void> updateProfilePicture(
-  //   BuildContext context,
-  //   File imageFile,
-  // ) async {
-  //   try {
-  //     LoadingUtil.show();
-
-  //     final userId = FirebaseAuth.instance.currentUser!.uid;
-
-  //     final fileName = '$userId.jpg';
-
-  //     final filePath = 'profile_pictures/$fileName';
-
-  //     await supabase.storage
-  //         .from('images')
-  //         .upload(
-  //           filePath,
-  //           imageFile,
-  //           fileOptions: const FileOptions(cacheControl: '3600', upsert: true),
-  //         );
-
-  //     final imageUrl = supabase.storage.from('images').getPublicUrl(filePath);
-
-  //     await _firebase
-  //         .collection(AppConstants.usersCollection)
-  //         .doc(userId)
-  //         .update({'profileImageUrl': imageUrl});
-
-  //     await _localStorage.storeProfileImageLocal(imageUrl);
-
-  //     CustomToastUtil.showDefault(context, message: 'Profile picture updated.');
-  //   } on FirebaseException catch (e) {
-  //     CustomToastUtil.showError(context, message: e.message.toString());
-  //   } catch (e) {
-  //     print(
-  //       '*********************error found in update profile picture********************',
-  //     );
-  //     print(e.toString());
-  //     CustomToastUtil.showError(
-  //       context,
-  //       message: AppConstants.commonErrorMessage,
-  //     );
-  //   } finally {
-  //     LoadingUtil.dismiss();
-  //   }
-  // }
-
   Future<void> loadProfileFromServer(String userId) async {
     isLoading.value = true;
 
