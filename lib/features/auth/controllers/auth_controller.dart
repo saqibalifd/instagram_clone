@@ -127,6 +127,7 @@ class AuthController extends GetxController {
         email: emailController.text.trim(),
         username: nameController.text.trim(),
         profileImageUrl: '',
+        gender: '',
         userId: userCredential.user!.uid,
         deviceToken: '',
         bio: '',
@@ -365,8 +366,9 @@ class AuthController extends GetxController {
       final UserModel userModel = UserModel(
         fullName: fullName,
         email: email,
-        username: username,
+        username: username.trim().toLowerCase().replaceAll(' ', ''),
         profileImageUrl: profileImageUrl,
+        gender: '',
         userId: userId,
         deviceToken: deviceToken.toString(),
         bio: '',

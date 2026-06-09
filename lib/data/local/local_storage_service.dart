@@ -71,6 +71,10 @@ class LocalStorageService {
     await _updateField('location', location);
   }
 
+  Future<void> storeGenderLocal(String gender) async {
+    await _updateField('gender', gender);
+  }
+
   // Generic updater (important part)
   Future<void> _updateField(String key, dynamic value) async {
     final Map<String, dynamic> userMap = Map<String, dynamic>.from(
@@ -88,6 +92,7 @@ class LocalStorageService {
       'email': user.email,
       'username': user.username,
       'profileImageUrl': user.profileImageUrl,
+      'gender': user.gender,
       'userId': user.userId,
       'deviceToken': user.deviceToken,
       'bio': user.bio,
@@ -111,6 +116,7 @@ class LocalStorageService {
       email: json['email'] ?? '',
       username: json['username'] ?? '',
       profileImageUrl: json['profileImageUrl'] ?? '',
+      gender: json['gender'] ?? '',
       userId: json['userId'] ?? '',
       deviceToken: json['deviceToken'] ?? '',
       bio: json['bio'] ?? '',

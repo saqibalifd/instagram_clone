@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:get/route_manager.dart';
-import 'package:get/state_manager.dart';
 import 'package:instagram/core/constants/app_constants.dart';
 import 'package:instagram/core/constants/app_icons.dart';
 import 'package:instagram/core/theme/app_theme.dart';
+import 'package:instagram/data/models/user_model.dart';
+import 'package:instagram/features/profile/controllers/profile_controller.dart';
 import 'package:instagram/features/profile/widgets/profile_text_field_widget.dart';
 import 'package:instagram/shared_widgets/dropdown_widget.dart';
-import 'package:instagram/utils/custom_toast_util.dart';
 
 class EditProfileView extends StatefulWidget {
   const EditProfileView({super.key});
@@ -20,29 +21,21 @@ class _EditProfileViewState extends State<EditProfileView> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController bioController = TextEditingController();
+
+  final ProfileController _profileController = Get.put(ProfileController());
+
+  late UserModel user;
   String slectedGender = '';
   bool hasChanges = false;
-
-  // store initial values
-  String initialName = '';
-  String initialUsername = '';
-  String initialBio = '';
-  String initialGender = '';
 
   @override
   void initState() {
     super.initState();
-
-    // fake initial data (replace with API/Firebase later)
-    nameController.text = "John Doe";
-    usernameController.text = "john123";
-    bioController.text = "Flutter developer";
-    slectedGender = "Male";
-
-    initialName = nameController.text;
-    initialUsername = usernameController.text;
-    initialBio = bioController.text;
-    initialGender = slectedGender;
+    user = Get.arguments as UserModel;
+    nameController.text = user.fullName;
+    usernameController.text = user.username;
+    bioController.text = user.bio;
+    slectedGender = user.gender;
   }
 
   @override
@@ -51,18 +44,6 @@ class _EditProfileViewState extends State<EditProfileView> {
     usernameController.dispose();
     bioController.dispose();
     super.dispose();
-  }
-
-  void checkChanges() {
-    final changed =
-        nameController.text != initialName ||
-        usernameController.text != initialUsername ||
-        bioController.text != initialBio ||
-        slectedGender != initialGender;
-
-    setState(() {
-      hasChanges = changed;
-    });
   }
 
   @override
@@ -76,15 +57,18 @@ class _EditProfileViewState extends State<EditProfileView> {
         title: Text('Edit profile', style: ts.displayMedium),
         actions: [
           Visibility(
-            visible: hasChanges,
+            visible: true,
             child: IconButton(
               splashColor: Colors.transparent,
               highlightColor: Colors.transparent,
-              onPressed: () {
-                CustomToastUtil.showDefault(
+              onPressed: () async {
+                await _profileController.updateProfile(
                   context,
-                  message: 'Profile updated',
+                  nameController.text,
+                  bioController.text,
+                  slectedGender,
                 );
+                await _profileController.loadLocalProfile();
                 Get.back();
               },
               icon: Icon(AppIcons.check, color: IGColors.blue),
@@ -104,7 +88,7 @@ class _EditProfileViewState extends State<EditProfileView> {
             Center(
               child: CircleAvatar(
                 radius: 40.r,
-                backgroundImage: NetworkImage('https://picsum.photos/200'),
+                backgroundImage: NetworkImage(user.profileImageUrl),
               ),
             ),
             SizedBox(height: 5.h),
@@ -114,20 +98,17 @@ class _EditProfileViewState extends State<EditProfileView> {
             SizedBox(height: 10.h),
             ProfileTextFieldWidget(
               controller: nameController,
-              onChanged: checkChanges,
               labelText: 'Name',
             ),
             SizedBox(height: 10.h),
             ProfileTextFieldWidget(
               controller: usernameController,
-              onChanged: checkChanges,
-
+              readOnly: true,
               labelText: 'Username',
             ),
             SizedBox(height: 10.h),
             ProfileTextFieldWidget(
               controller: bioController,
-              onChanged: checkChanges,
 
               labelText: 'Bio',
               maxLines: 3,
@@ -141,7 +122,7 @@ class _EditProfileViewState extends State<EditProfileView> {
               onChanged: (value) {
                 setState(() {
                   slectedGender = value;
-                  checkChanges();
+                  // checkChanges();
                 });
               },
             ),

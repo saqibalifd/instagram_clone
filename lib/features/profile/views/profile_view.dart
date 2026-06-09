@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:get/state_manager.dart';
 import 'package:instagram/core/constants/app_constants.dart';
 import 'package:instagram/core/constants/app_icons.dart';
 import 'package:instagram/core/theme/app_theme.dart';
-import 'package:instagram/data/local/local_storage_service.dart';
 import 'package:instagram/features/auth/controllers/auth_controller.dart';
 import 'package:instagram/features/profile/controllers/profile_controller.dart';
 import 'package:instagram/features/profile/views/profile_tab_view.dart';
@@ -126,7 +124,10 @@ Passionate Flutter Developer with 2+ years of experience building modern, scalab
           },
           icon: Icon(AppIcons.add),
         ),
-        title: Text('Saqibali.fd', style: ts.displayMedium),
+        title: Text(
+          _profileController.profileUser.value!.username,
+          style: ts.displayMedium,
+        ),
         actions: [
           IconButton(
             onPressed: () async {
@@ -139,21 +140,13 @@ Passionate Flutter Developer with 2+ years of experience building modern, scalab
       body: Obx(() {
         final user = _profileController.profileUser.value;
 
-        if (_profileController.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        if (user == null) {
-          return const Center(child: Text("No user found in local storage"));
-        }
-
         return Column(
           children: [
             SizedBox(height: 20.h),
 
             //profile header row`
             ProfileHeader(
-              image: user.profileImageUrl,
+              image: user!.profileImageUrl,
               name: user.fullName,
               bio: user.bio,
               totalPosts: user.posts.length,
@@ -174,7 +167,7 @@ Passionate Flutter Developer with 2+ years of experience building modern, scalab
 
                     child: ElevatedButton(
                       onPressed: () {
-                        Get.toNamed(AppRoutes.editProfile);
+                        Get.toNamed(AppRoutes.editProfile, arguments: user);
                       },
                       style: ButtonStyle(
                         backgroundColor: WidgetStatePropertyAll(
@@ -199,8 +192,7 @@ Passionate Flutter Developer with 2+ years of experience building modern, scalab
 
                     child: ElevatedButton(
                       onPressed: () {
-                        print(_profileController.profileUser.value);
-                        // Get.toNamed(AppRoutes.shareProfile);
+                        Get.toNamed(AppRoutes.shareProfile);
                       },
                       style:
                           ElevatedButton.styleFrom(

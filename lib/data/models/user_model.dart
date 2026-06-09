@@ -5,6 +5,7 @@ class UserModel {
   final String email;
   final String username;
   final String profileImageUrl;
+  final String gender;
   final String userId;
   final String deviceToken;
   final String bio;
@@ -24,6 +25,7 @@ class UserModel {
     required this.email,
     required this.username,
     required this.profileImageUrl,
+    required this.gender,
     required this.userId,
     required this.deviceToken,
     required this.bio,
@@ -45,6 +47,8 @@ class UserModel {
       email: json['email'] ?? '',
       username: json['username'] ?? '',
       profileImageUrl: json['profileImageUrl'] ?? '',
+      gender: json['gender'] ?? '',
+
       userId: json['userId'] ?? '',
       deviceToken: json['deviceToken'] ?? '',
       bio: json['bio'] ?? '',
@@ -67,6 +71,7 @@ class UserModel {
       'email': email,
       'username': username,
       'profileImageUrl': profileImageUrl,
+      'gender': gender,
       'userId': userId,
       'deviceToken': deviceToken,
       'bio': bio,
@@ -89,6 +94,7 @@ class UserModel {
     String? email,
     String? username,
     String? profileImageUrl,
+    String? gender,
     String? userId,
     String? deviceToken,
     String? bio,
@@ -109,6 +115,7 @@ class UserModel {
       email: email ?? this.email,
       username: username ?? this.username,
       profileImageUrl: profileImageUrl ?? this.profileImageUrl,
+      gender: gender ?? this.gender,
       userId: userId ?? this.userId,
       deviceToken: deviceToken ?? this.deviceToken,
       bio: bio ?? this.bio,

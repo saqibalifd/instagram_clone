@@ -1,16 +1,11 @@
-// ============================================================
-//  WHAT GOES HERE
-//  App-wide magic numbers, string keys, limits.
-//  No Flutter imports — pure Dart only.
-//  Examples: collection names, page sizes, durations.
-// ============================================================
-
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AppConstants {
   AppConstants._();
 
   static const String appName = 'Instagram';
+  static const String commonErrorMessage =
+      'Something went wrong. Please try again.';
   static const int maxPostLength = 500;
   static const int feedPageSize = 20;
   static double horizontalSmallPadding = 20.w;
