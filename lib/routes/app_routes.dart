@@ -20,6 +20,7 @@ class AppRoutes {
   static const String shareProfile = '/shareProfile';
   static const String editProfile = '/editProfile';
   static const String addPost = '/addPost';
+  static const String chat = '/chat';
   static const String publicProfile = '/publicProfile';
 
   static const String createPost = '/post/create';

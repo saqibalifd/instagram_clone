@@ -12,6 +12,7 @@ import 'package:instagram/features/auth/views/otp_view.dart';
 import 'package:instagram/features/auth/views/phone_auth_view.dart';
 import 'package:instagram/features/auth/views/splash_view.dart';
 import 'package:instagram/features/bottom_navbar/custom_bottom_navbar.dart';
+import 'package:instagram/features/dm/view/chat_view.dart';
 import 'package:instagram/features/home/views/add_post_view.dart';
 import 'package:instagram/features/home/views/notification_view.dart';
 import 'package:instagram/features/home/views/public_profile_view.dart';
@@ -83,6 +84,11 @@ class AppPages {
     GetPage(
       name: AppRoutes.publicProfile,
       page: () => const PublicProfileView(),
+      // binding: AuthBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.chat,
+      page: () => const ChatView(),
       // binding: AuthBinding(),
     ),
   ];

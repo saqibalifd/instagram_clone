@@ -31,6 +31,7 @@ class AppIcons {
   static final IconData profile = Iconsax.user_copy;
   static final IconData add = Iconsax.add_copy;
   static final IconData heart = Iconsax.heart_copy;
+
   static final IconData heartFill = Iconsax.heart;
   static final IconData eyeOpen = Iconsax.eye_copy;
   static final IconData eyeClose = Iconsax.eye_slash_copy;
@@ -39,6 +40,9 @@ class AppIcons {
   static final IconData repost = Iconsax.repeat_copy;
   static const IconData tagProfile = Iconsax.tag_user_copy;
   static const IconData logout = Iconsax.logout_copy;
+  static const IconData editNote = Iconsax.message_edit_copy;
+  static const IconData audioCall = Iconsax.call_copy;
+  static const IconData videoCall = Iconsax.video_copy;
 
   static final IconData dm = Iconsax.send_2_copy;
 }

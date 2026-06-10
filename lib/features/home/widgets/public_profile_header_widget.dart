@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:instagram/core/constants/app_constants.dart';
+import 'package:instagram/shared_widgets/story_border_wraper_widget.dart';
 
-class PublicProfileHeaderWidget extends StatelessWidget {
+class PublicProfileHeaderWidget extends StatefulWidget {
   final String image;
   final String name;
   final int totalPosts;
@@ -21,6 +22,13 @@ class PublicProfileHeaderWidget extends StatelessWidget {
   });
 
   @override
+  State<PublicProfileHeaderWidget> createState() =>
+      _PublicProfileHeaderWidgetState();
+}
+
+class _PublicProfileHeaderWidgetState extends State<PublicProfileHeaderWidget> {
+  bool isStoryAvailable = true;
+  @override
   Widget build(BuildContext context) {
     final ts = Theme.of(context).textTheme;
 
@@ -35,7 +43,13 @@ class PublicProfileHeaderWidget extends StatelessWidget {
         children: [
           Row(
             children: [
-              CircleAvatar(radius: 35.r, backgroundImage: NetworkImage(image)),
+              StoryBorderWrapper(
+                isActive: true,
+                child: CircleAvatar(
+                  radius: 35.r,
+                  backgroundImage: NetworkImage(widget.image),
+                ),
+              ),
               SizedBox(width: 10.w),
 
               Row(
@@ -44,9 +58,9 @@ class PublicProfileHeaderWidget extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(name, style: ts.titleLarge),
+                      Text(widget.name, style: ts.titleLarge),
                       SizedBox(height: 5.h),
-                      Text(totalPosts.toString(), style: ts.titleLarge),
+                      Text(widget.totalPosts.toString(), style: ts.titleLarge),
                       Text('posts'),
                     ],
                   ),
@@ -61,7 +75,10 @@ class PublicProfileHeaderWidget extends StatelessWidget {
                     children: [
                       SizedBox(height: 30.h),
 
-                      Text(followersCount.toString(), style: ts.titleLarge),
+                      Text(
+                        widget.followersCount.toString(),
+                        style: ts.titleLarge,
+                      ),
                       Text('followers'),
                     ],
                   ),
@@ -77,7 +94,10 @@ class PublicProfileHeaderWidget extends StatelessWidget {
                     children: [
                       SizedBox(height: 30.h),
 
-                      Text(followingCount.toString(), style: ts.titleLarge),
+                      Text(
+                        widget.followingCount.toString(),
+                        style: ts.titleLarge,
+                      ),
                       Text('following'),
                     ],
                   ),
@@ -91,7 +111,7 @@ class PublicProfileHeaderWidget extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             maxLines: 3,
             textAlign: TextAlign.start,
-            bio,
+            widget.bio,
             style: ts.bodyMedium,
           ),
         ],

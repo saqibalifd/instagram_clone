@@ -1,4 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:get/state_manager.dart';
+import 'package:instagram/core/constants/app_constants.dart';
+import 'package:instagram/core/constants/app_icons.dart';
+import 'package:instagram/core/theme/app_theme.dart';
+import 'package:instagram/features/dm/widgets/dm_my_stories_circle_widget.dart';
+import 'package:instagram/features/dm/widgets/dm_stories_circle_widget.dart';
+import 'package:instagram/routes/app_routes.dart';
+import 'package:instagram/utils/image_picker_util.dart';
 
 class DmView extends StatefulWidget {
   const DmView({super.key});
@@ -8,8 +18,228 @@ class DmView extends StatefulWidget {
 }
 
 class _DmViewState extends State<DmView> {
+  final storiesUsers = [
+    {
+      'name': 'Ali',
+      'image': 'https://i.pravatar.cc/150?img=1',
+      'isPlayed': false,
+      'userId': 'cc8J8XNLKLRlyXPr8jGPLN7RMqr2',
+    },
+    {
+      'name': 'Iftikha Ali',
+      'image': 'https://i.pravatar.cc/150?img=2',
+      'isPlayed': false,
+      'userId': 'cc8J8XNLKLRlyXPr8jGPLN7RMqr2',
+    },
+    {
+      'name': 'Jamshed hussain alvi',
+      'image': 'https://i.pravatar.cc/150?img=3',
+      'isPlayed': false,
+      'userId': 'cc8J8XNLKLRlyXPr8jGPLN7RMqr2',
+    },
+    {
+      'name': 'Fakhar hussain',
+      'image': 'https://i.pravatar.cc/150?img=10',
+      'isPlayed': false,
+      'userId': 'cc8J8XNLKLRlyXPr8jGPLN7RMqr2',
+    },
+    {
+      'name': 'Hassan Ali',
+      'image': 'https://i.pravatar.cc/150?img=7',
+      'isPlayed': true,
+      'userId': 'cc8J8XNLKLRlyXPr8jGPLN7RMqr2',
+    },
+    {
+      'name': 'Iftikha Ali',
+      'image': 'https://i.pravatar.cc/150?img=2',
+      'isPlayed': false,
+      'userId': 'cc8J8XNLKLRlyXPr8jGPLN7RMqr2',
+    },
+  ];
+
+  final List<Map<String, String>> users = [
+    {
+      'name': 'Elsa',
+      'status': 'Active 16 min ago.',
+      'image':
+          'https://plus.unsplash.com/premium_photo-1690407617542-2f210cf20d7e?fm=jpg&q=60&w=3000&auto=format&fit=crop',
+    },
+    {
+      'name': 'John',
+      'status': 'Active now',
+      'image':
+          'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=500',
+    },
+    {
+      'name': 'Sophia',
+      'status': 'Active 5 min ago.',
+      'image':
+          'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=500',
+    },
+    {
+      'name': 'Michael',
+      'status': 'Active 1 hour ago.',
+      'image':
+          'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=500',
+    },
+    {
+      'name': 'Emma',
+      'status': 'Active yesterday',
+      'image':
+          'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=500',
+    },
+    {
+      'name': 'David',
+      'status': 'Online',
+      'image':
+          'https://images.unsplash.com/photo-1504593811423-6dd665756598?w=500',
+    },
+    {
+      'name': 'Olivia',
+      'status': 'Active 30 min ago.',
+      'image':
+          'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=500',
+    },
+    {
+      'name': 'James',
+      'status': 'Active 2 hours ago.',
+      'image':
+          'https://images.unsplash.com/photo-1504257432389-52343af06ae3?w=500',
+    },
+  ];
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: Center(child: Text('DmView')));
+    final ts = Theme.of(context).textTheme;
+
+    return Scaffold(
+      appBar: AppBar(
+        forceMaterialTransparency: true,
+        title: Text('saqibali.fd', style: ts.displayMedium),
+        actions: [IconButton(onPressed: () {}, icon: Icon(AppIcons.editNote))],
+      ),
+
+      body: SingleChildScrollView(
+        physics: BouncingScrollPhysics(),
+        child: Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: AppConstants.horizontalSmallPadding,
+              ),
+              child: TextFormField(
+                decoration: InputDecoration(
+                  prefixIcon: Icon(AppIcons.search),
+                  fillColor: IGColors.gray.withValues(alpha: .2),
+                  filled: true,
+                  hintText: 'Search with Meta AI',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(50),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(height: 40.h),
+            SizedBox(
+              height: 110.h,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: storiesUsers.length + 1,
+                itemBuilder: (context, index) {
+                  if (index == 0) {
+                    return Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 10.w),
+                      child: DmMyStoriesCircleWidget(
+                        onAddStory: () async {
+                          // print('add story');
+                          await ImagePickerUtil.pickFromGallery(
+                            context,
+                            maxWidth: 1024,
+                            imageQuality: 85,
+                          );
+                        },
+                      ),
+                    );
+                  }
+
+                  final storyIndex = index - 1;
+                  return Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 10.w),
+                    child: DmStoriesCircleWidget(
+                      imageUrl: storiesUsers[storyIndex]['image'].toString(),
+                      name:
+                          storiesUsers[storyIndex]['name'].toString().length >
+                              10
+                          ? '${storiesUsers[storyIndex]['name'].toString().substring(0, 10)}...'
+                          : storiesUsers[storyIndex]['name'].toString(),
+                      isPlayed: storiesUsers[storyIndex]['isPlayed'] as bool,
+                    ),
+                  );
+                },
+              ),
+            ),
+            Align(
+              alignment: Alignment.bottomLeft,
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: AppConstants.horizontalSmallPadding,
+                  vertical: 8,
+                ),
+                child: Text('Messages', style: ts.displaySmall),
+              ),
+            ),
+            ListView.builder(
+              physics: NeverScrollableScrollPhysics(),
+              itemCount: users.length,
+              shrinkWrap: true,
+              itemBuilder: (context, index) {
+                final user = users[index];
+
+                return Column(
+                  children: [
+                    ListTile(
+                      onTap: () {
+                        Get.toNamed(
+                          AppRoutes.chat,
+                          arguments: {
+                            'name': user['name'],
+                            'status': user['status'],
+                            'image': user['image'],
+                          },
+                        );
+                      },
+                      leading: Stack(
+                        children: [
+                          CircleAvatar(
+                            backgroundImage: NetworkImage(user['image']!),
+                          ),
+                          Visibility(
+                            visible:
+                                user['status'] == 'Online' ||
+                                    user['status'] == 'Active now'
+                                ? true
+                                : false,
+                            child: Positioned(
+                              bottom: 0,
+                              right: 0,
+                              child: CircleAvatar(
+                                radius: 5,
+                                backgroundColor: IGColors.green,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      title: Text(user['name']!),
+                      subtitle: Text(user['status']!),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

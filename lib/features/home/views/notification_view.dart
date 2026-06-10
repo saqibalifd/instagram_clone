@@ -46,6 +46,76 @@ class _NotificationViewState extends State<NotificationView> {
       "image": "https://picsum.photos/seed/15/300",
       "time": "1w ago",
     },
+    {
+      "name": "John",
+      "title": "liked your post",
+      "avatar": "https://i.pravatar.cc/150?img=1",
+      "image": "https://picsum.photos/seed/11/300",
+      "time": "3m ago",
+    },
+    {
+      "name": "Sarah",
+      "title": "commented on your photo",
+      "avatar": "https://i.pravatar.cc/150?img=2",
+      "image": "https://picsum.photos/seed/12/300",
+      "time": "4d ago",
+    },
+    {
+      "name": "Ali",
+      "title": "started following you",
+      "avatar": "https://i.pravatar.cc/150?img=3",
+      "image": '',
+      "time": "9h ago",
+    },
+    {
+      "name": "Emma",
+      "title": "mentioned you in a comment",
+      "avatar": "https://i.pravatar.cc/150?img=4",
+      "image": "https://picsum.photos/seed/14/300",
+      "time": "2h ago",
+    },
+    {
+      "name": "David",
+      "title": "liked your reel",
+      "avatar": "https://i.pravatar.cc/150?img=5",
+      "image": "https://picsum.photos/seed/15/300",
+      "time": "1w ago",
+    },
+    {
+      "name": "John",
+      "title": "liked your post",
+      "avatar": "https://i.pravatar.cc/150?img=1",
+      "image": "https://picsum.photos/seed/11/300",
+      "time": "3m ago",
+    },
+    {
+      "name": "Sarah",
+      "title": "commented on your photo",
+      "avatar": "https://i.pravatar.cc/150?img=2",
+      "image": "https://picsum.photos/seed/12/300",
+      "time": "4d ago",
+    },
+    {
+      "name": "Ali",
+      "title": "started following you",
+      "avatar": "https://i.pravatar.cc/150?img=3",
+      "image": '',
+      "time": "9h ago",
+    },
+    {
+      "name": "Emma",
+      "title": "mentioned you in a comment",
+      "avatar": "https://i.pravatar.cc/150?img=4",
+      "image": "https://picsum.photos/seed/14/300",
+      "time": "2h ago",
+    },
+    {
+      "name": "David",
+      "title": "liked your reel",
+      "avatar": "https://i.pravatar.cc/150?img=5",
+      "image": "https://picsum.photos/seed/15/300",
+      "time": "1w ago",
+    },
   ];
   @override
   Widget build(BuildContext context) {
@@ -59,6 +129,7 @@ class _NotificationViewState extends State<NotificationView> {
       ),
 
       body: ListView.builder(
+        physics: BouncingScrollPhysics(),
         itemCount: dummyNotifications.length,
         itemBuilder: (context, index) {
           return Padding(

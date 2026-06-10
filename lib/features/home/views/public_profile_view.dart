@@ -9,8 +9,6 @@ import 'package:instagram/features/home/controllers/public_profile_controller.da
 import 'package:instagram/features/home/views/public_profile_tabview.dart';
 import 'package:instagram/features/home/widgets/public_profile_header_widget.dart';
 
-import 'package:instagram/routes/app_routes.dart';
-
 class PublicProfileView extends StatefulWidget {
   const PublicProfileView({super.key});
 
@@ -26,8 +24,8 @@ class _PublicProfileViewState extends State<PublicProfileView>
     PublicProfileController(),
   );
   final List dummyPosts = [];
+  bool isFollowed = false;
 
-  @override
   @override
   void initState() {
     super.initState();
@@ -110,9 +108,17 @@ class _PublicProfileViewState extends State<PublicProfileView>
                     height: 30.h,
                     width: 165.w,
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        setState(() {
+                          isFollowed = !isFollowed;
+                        });
+                      },
                       style: ButtonStyle(
-                        backgroundColor: WidgetStatePropertyAll(IGColors.blue),
+                        backgroundColor: WidgetStatePropertyAll(
+                          isFollowed
+                              ? IGColors.gray.withValues(alpha: .3)
+                              : IGColors.blue,
+                        ),
                         overlayColor: const WidgetStatePropertyAll(
                           Colors.transparent,
                         ),
@@ -122,8 +128,12 @@ class _PublicProfileViewState extends State<PublicProfileView>
                         ),
                       ),
                       child: Text(
-                        'Follow',
-                        style: TextStyle(color: IGColors.bgLight),
+                        isFollowed ? 'Following' : 'Follow',
+                        style: TextStyle(
+                          color: isFollowed
+                              ? IGColors.bgDark
+                              : IGColors.bgLight,
+                        ),
                       ),
                     ),
                   ),

@@ -3,7 +3,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:instagram/core/constants/app_icons.dart';
 import 'package:instagram/core/theme/app_theme.dart';
 import 'package:instagram/features/home/widgets/public_empty_tab_widget.dart';
-import 'package:instagram/features/profile/widgets/empty_tab_widget.dart';
 
 class PublicProfileTabview extends StatelessWidget {
   final List<Map<String, dynamic>> data;
@@ -30,7 +29,7 @@ class PublicProfileTabview extends StatelessWidget {
         return PublicEmptyTabWidget(
           icon: AppIcons.reels,
           title: "No Reels Yet",
-          subtitle: "Your reels will appear here.",
+          subtitle: "This user hasn't shared any reels yet.",
         );
       }
 
@@ -38,23 +37,23 @@ class PublicProfileTabview extends StatelessWidget {
         return PublicEmptyTabWidget(
           icon: AppIcons.repost,
           title: "No Reposts Yet",
-          subtitle: "Posts you repost will appear here.",
+          subtitle: "This user hasn't reposted any posts yet.",
         );
       }
 
       if (tabType == 'isTag') {
         return PublicEmptyTabWidget(
           icon: AppIcons.tagProfile,
-          title: "Photos and videos of you",
+          title: "No Tagged Posts",
           subtitle:
-              "When people tag you in photos and videos, they'll appear here.",
+              "When people tag this user in photos and videos, they'll appear here.",
         );
       }
 
       return PublicEmptyTabWidget(
         icon: AppIcons.grid,
         title: "No Posts Yet",
-        subtitle: "Your posts will appear here.",
+        subtitle: "This user hasn't shared any posts yet.",
       );
     }
 
