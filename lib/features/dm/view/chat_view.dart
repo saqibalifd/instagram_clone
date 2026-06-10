@@ -105,14 +105,9 @@ class _ChatViewState extends State<ChatView> {
 
   Widget buildInputField() {
     return TextField(
-      controller: messageController,
+      // controller: messageController,
       focusNode: focusNode,
-      onTap: () {
-        setState(() {});
-      },
-      onSubmitted: (value) {
-        setState(() {});
-      },
+
       decoration: InputDecoration(
         hintText: "Type a message...",
         suffixIcon: IconButton(
