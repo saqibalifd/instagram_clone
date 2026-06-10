@@ -108,6 +108,10 @@ class _CommentSheetState extends State<_CommentSheet> {
     {'user': 'alex.doe', 'text': 'Amazing shot! 🔥', 'time': '2h'},
     {'user': 'sara_m', 'text': 'Love this so much ❤️', 'time': '1h'},
     {'user': 'john_travels', 'text': 'Where is this place?', 'time': '45m'},
+    {'user': 'alex.doe', 'text': 'Amazing shot! 🔥', 'time': '2h'},
+    {'user': 'sara_m', 'text': 'Love this so much ❤️', 'time': '1h'},
+    {'user': 'john_travels', 'text': 'Where is this place?', 'time': '45m'},
+    {'user': 'alex.doe', 'text': 'Amazing shot! 🔥', 'time': '2h'},
   ];
 
   @override

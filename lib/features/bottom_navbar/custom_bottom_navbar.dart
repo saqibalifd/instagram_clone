@@ -6,7 +6,6 @@ import 'package:instagram/features/feed/views/feed_view.dart';
 import 'package:instagram/features/home/views/home_view.dart';
 import 'package:instagram/features/profile/views/profile_view.dart';
 import 'package:instagram/features/search/view/search_view.dart';
-import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 
 class CustomBottomNavbar extends StatefulWidget {
   final int index;
@@ -18,61 +17,74 @@ class CustomBottomNavbar extends StatefulWidget {
 }
 
 class _CustomBottomNavbarState extends State<CustomBottomNavbar> {
-  late PersistentTabController _controller;
+  late final PageController _pageController;
+  late int _currentIndex;
+
+  final List<Widget> _screens = const [
+    HomeView(),
+    FeedView(),
+    DmView(),
+    SearchView(),
+    ProfileView(),
+  ];
 
   @override
   void initState() {
     super.initState();
-    _controller = PersistentTabController(initialIndex: widget.index);
+    _currentIndex = widget.index;
+    _pageController = PageController(initialPage: _currentIndex);
   }
 
-  List<Widget> _buildScreens() {
-    return [HomeView(), FeedView(), DmView(), SearchView(), ProfileView()];
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
   }
 
-  List<PersistentBottomNavBarItem> _navBarsItems() {
-    return [
-      PersistentBottomNavBarItem(
-        icon: Icon(AppIcons.home),
-        activeColorPrimary: IGColors.bgDark,
-        inactiveColorPrimary: IGColors.gray,
-      ),
-      PersistentBottomNavBarItem(
-        icon: Icon(AppIcons.reels),
-        activeColorPrimary: IGColors.bgDark,
-        inactiveColorPrimary: IGColors.gray,
-      ),
-      PersistentBottomNavBarItem(
-        icon: Icon(AppIcons.dm),
-        activeColorPrimary: IGColors.bgDark,
-        inactiveColorPrimary: IGColors.gray,
-      ),
-      PersistentBottomNavBarItem(
-        icon: Icon(AppIcons.search),
-        activeColorPrimary: IGColors.bgDark,
-        inactiveColorPrimary: IGColors.gray,
-      ),
-      PersistentBottomNavBarItem(
-        icon: Icon(AppIcons.profile),
-        activeColorPrimary: IGColors.bgDark,
-        inactiveColorPrimary: IGColors.gray,
-      ),
-    ];
+  void _changeTab(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+
+    _pageController.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return PersistentTabView(
-      context,
-      controller: _controller,
-      screens: _buildScreens(),
-      items: _navBarsItems(),
-      confineToSafeArea: true,
-      backgroundColor: IGColors.bgLight,
-      handleAndroidBackButtonPress: true,
-      resizeToAvoidBottomInset: true,
-      stateManagement: true,
-      navBarStyle: NavBarStyle.style6,
+    return Scaffold(
+      body: PageView(
+        controller: _pageController,
+        physics: const BouncingScrollPhysics(),
+        onPageChanged: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        children: _screens,
+      ),
+
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: _changeTab,
+        type: BottomNavigationBarType.fixed,
+        elevation: 0,
+        backgroundColor: IGColors.bgLight,
+        selectedItemColor: IGColors.bgDark,
+        unselectedItemColor: IGColors.gray,
+        showSelectedLabels: false,
+        showUnselectedLabels: false,
+        items: [
+          BottomNavigationBarItem(icon: Icon(AppIcons.home), label: ''),
+          BottomNavigationBarItem(icon: Icon(AppIcons.reels), label: ''),
+          BottomNavigationBarItem(icon: Icon(AppIcons.dm), label: ''),
+          BottomNavigationBarItem(icon: Icon(AppIcons.search), label: ''),
+          BottomNavigationBarItem(icon: Icon(AppIcons.profile), label: ''),
+        ],
+      ),
     );
   }
 }

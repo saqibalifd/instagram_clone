@@ -43,6 +43,8 @@ class AppIcons {
   static const IconData editNote = Iconsax.message_edit_copy;
   static const IconData audioCall = Iconsax.call_copy;
   static const IconData videoCall = Iconsax.video_copy;
+  static const IconData messageFill = Iconsax.message;
+  static const IconData send = Iconsax.send_1;
 
   static final IconData dm = Iconsax.send_2_copy;
 }
