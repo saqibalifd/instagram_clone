@@ -8,6 +8,7 @@ import 'package:instagram/core/theme/app_theme.dart';
 import 'package:instagram/features/home/controllers/public_profile_controller.dart';
 import 'package:instagram/features/home/views/public_profile_tabview.dart';
 import 'package:instagram/features/home/widgets/public_profile_header_widget.dart';
+import 'package:instagram/routes/app_routes.dart';
 
 class PublicProfileView extends StatefulWidget {
   const PublicProfileView({super.key});
@@ -144,7 +145,17 @@ class _PublicProfileViewState extends State<PublicProfileView>
                     height: 30.h,
                     width: 165.w,
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Get.toNamed(
+                          AppRoutes.chat,
+                          arguments: {
+                            'name': user.fullName,
+                            'status': 'online',
+                            'image': user.profileImageUrl,
+                            'userId': user.userId,
+                          },
+                        );
+                      },
                       style:
                           ElevatedButton.styleFrom(
                             backgroundColor: IGColors.gray.withValues(

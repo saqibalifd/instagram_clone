@@ -105,6 +105,10 @@ class _SearchViewState extends State<SearchView> {
                   borderRadius: BorderRadius.circular(50),
                   borderSide: BorderSide.none,
                 ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(50),
+                  borderSide: BorderSide.none,
+                ),
               ),
             ),
           ),

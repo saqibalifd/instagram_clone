@@ -63,48 +63,56 @@ class _DmViewState extends State<DmView> {
       'status': 'Active 16 min ago.',
       'image':
           'https://plus.unsplash.com/premium_photo-1690407617542-2f210cf20d7e?fm=jpg&q=60&w=3000&auto=format&fit=crop',
+      "userId": "cc8J8XNLKLRlyXPr8jGPLN7RMqr2",
     },
     {
       'name': 'John',
       'status': 'Active now',
       'image':
           'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=500',
+      "userId": "cc8J8XNLKLRlyXPr8jGPLN7RMqr2",
     },
     {
       'name': 'Sophia',
       'status': 'Active 5 min ago.',
       'image':
           'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=500',
+      "userId": "cc8J8XNLKLRlyXPr8jGPLN7RMqr2",
     },
     {
       'name': 'Michael',
       'status': 'Active 1 hour ago.',
       'image':
           'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=500',
+      "userId": "cc8J8XNLKLRlyXPr8jGPLN7RMqr2",
     },
     {
       'name': 'Emma',
       'status': 'Active yesterday',
       'image':
           'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=500',
+      "userId": "cc8J8XNLKLRlyXPr8jGPLN7RMqr2",
     },
     {
       'name': 'David',
       'status': 'Online',
       'image':
           'https://images.unsplash.com/photo-1504593811423-6dd665756598?w=500',
+      "userId": "cc8J8XNLKLRlyXPr8jGPLN7RMqr2",
     },
     {
       'name': 'Olivia',
       'status': 'Active 30 min ago.',
       'image':
           'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=500',
+      "userId": "cc8J8XNLKLRlyXPr8jGPLN7RMqr2",
     },
     {
       'name': 'James',
       'status': 'Active 2 hours ago.',
       'image':
           'https://images.unsplash.com/photo-1504257432389-52343af06ae3?w=500',
+      "userId": "cc8J8XNLKLRlyXPr8jGPLN7RMqr2",
     },
   ];
   @override
@@ -115,7 +123,7 @@ class _DmViewState extends State<DmView> {
       appBar: AppBar(
         forceMaterialTransparency: true,
         title: Text('saqibali.fd', style: ts.displayMedium),
-        actions: [IconButton(onPressed: () {}, icon: Icon(AppIcons.editNote))],
+        // actions: [IconButton(onPressed: () {}, icon: Icon(AppIcons.editNote))],
       ),
 
       body: SingleChildScrollView(
@@ -133,6 +141,10 @@ class _DmViewState extends State<DmView> {
                   filled: true,
                   hintText: 'Search with Meta AI',
                   border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(50),
+                    borderSide: BorderSide.none,
+                  ),
+                  focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(50),
                     borderSide: BorderSide.none,
                   ),
@@ -205,6 +217,7 @@ class _DmViewState extends State<DmView> {
                             'name': user['name'],
                             'status': user['status'],
                             'image': user['image'],
+                            'userId': user['userId'],
                           },
                         );
                       },
