@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:get/instance_manager.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:instagram/core/constants/app_icons.dart';
 import 'package:instagram/features/home/widgets/my_storie_circle_widget.dart';
@@ -27,37 +26,61 @@ class _HomeViewState extends State<HomeView> {
   final storiesUsers = [
     {
       'name': 'Ali',
-      'image': 'https://i.pravatar.cc/150?img=1',
+      'profileImage': 'https://i.pravatar.cc/150?img=1',
+      'storyImage':
+          'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800',
+      'songTitle': 'Blinding Lights • The Weeknd',
+      'timeAgo': '5m ago',
       'isPlayed': false,
       'userId': 'cc8J8XNLKLRlyXPr8jGPLN7RMqr2',
     },
     {
-      'name': 'Iftikha Ali',
-      'image': 'https://i.pravatar.cc/150?img=2',
+      'name': 'Iftikhar Ali',
+      'profileImage': 'https://i.pravatar.cc/150?img=2',
+      'storyImage':
+          'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=800',
+      'songTitle': 'Calm Down • Rema',
+      'timeAgo': '15m ago',
       'isPlayed': false,
       'userId': 'cc8J8XNLKLRlyXPr8jGPLN7RMqr2',
     },
     {
-      'name': 'Jamshed hussain alvi',
-      'image': 'https://i.pravatar.cc/150?img=3',
+      'name': 'Jamshed Hussain Alvi',
+      'profileImage': 'https://i.pravatar.cc/150?img=3',
+      'storyImage':
+          'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800',
+      'songTitle': 'Perfect • Ed Sheeran',
+      'timeAgo': '30m ago',
       'isPlayed': false,
       'userId': 'cc8J8XNLKLRlyXPr8jGPLN7RMqr2',
     },
     {
-      'name': 'Fakhar hussain',
-      'image': 'https://i.pravatar.cc/150?img=10',
+      'name': 'Fakhar Hussain',
+      'profileImage': 'https://i.pravatar.cc/150?img=4',
+      'storyImage':
+          'https://images.unsplash.com/photo-1494526585095-c41746248156?w=800',
+      'songTitle': 'Starboy • The Weeknd',
+      'timeAgo': '1h ago',
       'isPlayed': false,
       'userId': 'cc8J8XNLKLRlyXPr8jGPLN7RMqr2',
     },
     {
       'name': 'Hassan Ali',
-      'image': 'https://i.pravatar.cc/150?img=7',
+      'profileImage': 'https://i.pravatar.cc/150?img=5',
+      'storyImage':
+          'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800',
+      'songTitle': 'Shape of You • Ed Sheeran',
+      'timeAgo': '2h ago',
       'isPlayed': true,
       'userId': 'cc8J8XNLKLRlyXPr8jGPLN7RMqr2',
     },
     {
-      'name': 'Iftikha Ali',
-      'image': 'https://i.pravatar.cc/150?img=2',
+      'name': 'Usman Khan',
+      'profileImage': 'https://i.pravatar.cc/150?img=6',
+      'storyImage':
+          'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800',
+      'songTitle': 'Until I Found You • Stephen Sanchez',
+      'timeAgo': '3h ago',
       'isPlayed': false,
       'userId': 'cc8J8XNLKLRlyXPr8jGPLN7RMqr2',
     },
@@ -167,7 +190,22 @@ class _HomeViewState extends State<HomeView> {
                   return Padding(
                     padding: EdgeInsets.symmetric(horizontal: 10.w),
                     child: StoriesCircleWidget(
-                      imageUrl: storiesUsers[storyIndex]['image'].toString(),
+                      onStoryTap: () {
+                        Get.toNamed(
+                          AppRoutes.viewStory,
+                          arguments: {
+                            'name': storiesUsers[storyIndex]['name'],
+                            'profileImage':
+                                storiesUsers[storyIndex]['profileImage'],
+                            'storyImage':
+                                storiesUsers[storyIndex]['storyImage'],
+                            'songTitle': storiesUsers[storyIndex]['songTitle'],
+                            'timeAgo': storiesUsers[storyIndex]['timeAgo'],
+                          },
+                        );
+                      },
+                      imageUrl: storiesUsers[storyIndex]['storyImage']
+                          .toString(),
                       name:
                           storiesUsers[storyIndex]['name'].toString().length >
                               10

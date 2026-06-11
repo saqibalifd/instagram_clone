@@ -9,7 +9,6 @@ class AppIcons {
   static const IconData favorite = Icons.bookmark_outline;
   static const IconData favoriteFill = Icons.bookmark;
   static const IconData check = Icons.check;
-
   static const IconData more = Icons.more_vert;
 
   static const IconData menu = Icons.menu;
@@ -45,6 +44,7 @@ class AppIcons {
   static const IconData videoCall = Iconsax.video_copy;
   static const IconData messageFill = Iconsax.message;
   static const IconData send = Iconsax.send_1;
+  static const IconData music = Iconsax.music_circle_copy;
 
   static final IconData dm = Iconsax.send_2_copy;
 }

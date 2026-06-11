@@ -6,11 +6,13 @@ class DmStoriesCircleWidget extends StatelessWidget {
   final String imageUrl;
   final String name;
   final bool isPlayed;
+  final VoidCallback onStoryTap;
   const DmStoriesCircleWidget({
     super.key,
     required this.imageUrl,
     required this.name,
     required this.isPlayed,
+    required this.onStoryTap,
   });
 
   @override
@@ -28,10 +30,13 @@ class DmStoriesCircleWidget extends StatelessWidget {
                 ? LinearGradient(colors: [IGColors.gray, IGColors.gray])
                 : IGColors.buttonGradient,
           ),
-          child: CircleAvatar(
-            backgroundColor: IGColors.gray,
-            radius: 40.r,
-            backgroundImage: NetworkImage(imageUrl),
+          child: GestureDetector(
+            onTap: onStoryTap,
+            child: CircleAvatar(
+              backgroundColor: IGColors.gray,
+              radius: 40.r,
+              backgroundImage: NetworkImage(imageUrl),
+            ),
           ),
         ),
         SizedBox(height: 4.h),

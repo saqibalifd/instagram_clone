@@ -4,6 +4,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:instagram/core/theme/app_theme.dart';
+import 'package:instagram/data/local/favourite_post_services.dart';
 import 'package:instagram/data/local/local_storage_service.dart';
 import 'package:instagram/firebase_options.dart';
 import 'package:instagram/routes/app_pages.dart';
@@ -13,6 +14,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 final LocalStorageService localStorageService = LocalStorageService();
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await Supabase.initialize(
     url: 'https://iulownxcodnqzlefdavl.supabase.co',
@@ -28,6 +30,8 @@ void main() async {
   EasyLoading.instance
     ..userInteractions = false
     ..dismissOnTap = false;
+
+  await FavoritePostService.init();
 
   final localStorage = LocalStorageService();
   await localStorage.init();

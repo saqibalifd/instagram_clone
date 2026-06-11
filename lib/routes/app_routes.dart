@@ -22,6 +22,7 @@ class AppRoutes {
   static const String addPost = '/addPost';
   static const String chat = '/chat';
   static const String publicProfile = '/publicProfile';
+  static const String viewStory = '/viewStory';
 
   static const String createPost = '/post/create';
   static const String profile = '/profile/:userId';

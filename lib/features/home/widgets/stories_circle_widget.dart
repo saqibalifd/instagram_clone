@@ -6,11 +6,13 @@ class StoriesCircleWidget extends StatelessWidget {
   final String imageUrl;
   final String name;
   final bool isPlayed;
+  final VoidCallback onStoryTap;
   const StoriesCircleWidget({
     super.key,
     required this.imageUrl,
     required this.name,
     required this.isPlayed,
+    required this.onStoryTap,
   });
 
   @override
@@ -20,18 +22,21 @@ class StoriesCircleWidget extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Container(
-          padding: const EdgeInsets.all(2),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: isPlayed
-                ? LinearGradient(colors: [IGColors.gray, IGColors.gray])
-                : IGColors.buttonGradient,
-          ),
-          child: CircleAvatar(
-            backgroundColor: IGColors.gray,
-            radius: 40.r,
-            backgroundImage: NetworkImage(imageUrl),
+        GestureDetector(
+          onTap: onStoryTap,
+          child: Container(
+            padding: const EdgeInsets.all(2),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: isPlayed
+                  ? LinearGradient(colors: [IGColors.gray, IGColors.gray])
+                  : IGColors.buttonGradient,
+            ),
+            child: CircleAvatar(
+              backgroundColor: IGColors.gray,
+              radius: 40.r,
+              backgroundImage: NetworkImage(imageUrl),
+            ),
           ),
         ),
         SizedBox(height: 4.h),
