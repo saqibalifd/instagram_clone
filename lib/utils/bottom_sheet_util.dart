@@ -7,7 +7,61 @@ import 'package:instagram/core/theme/app_theme.dart';
 import 'package:instagram/data/local/local_storage_service.dart';
 import 'package:instagram/data/models/user_model.dart';
 
+// ─── Data Models ──────────────────────────────────────────────────────────────
+
+/// A single comment item passed into [IGBottomSheet.comment].
+class IGComment {
+  final String user;
+  final String text;
+  final String time;
+
+  const IGComment({required this.user, required this.text, required this.time});
+}
+
+/// A single action item for [IGBottomSheet.more].
+class IGMoreAction {
+  final IconData icon;
+  final String label;
+  final Color? color;
+  final VoidCallback? onTap;
+
+  const IGMoreAction({
+    required this.icon,
+    required this.label,
+    this.color,
+    this.onTap,
+  });
+}
+
+/// A single share option for [IGBottomSheet.share].
+class IGShareOption {
+  final IconData icon;
+  final String label;
+  final VoidCallback? onTap;
+
+  const IGShareOption({required this.icon, required this.label, this.onTap});
+}
+
+/// A single create option for [IGBottomSheet.addPost].
+class IGAddPostAction {
+  final IconData icon;
+  final String label;
+  final String subtitle;
+  final VoidCallback? onTap;
+
+  const IGAddPostAction({
+    required this.icon,
+    required this.label,
+    required this.subtitle,
+    this.onTap,
+  });
+}
+
+// ─── Sheet Type Enum ──────────────────────────────────────────────────────────
+
 enum IGBottomSheet { comment, share, more, addPost }
+
+// ─── BottomSheetUtil ──────────────────────────────────────────────────────────
 
 class BottomSheetUtil {
   BottomSheetUtil._();
@@ -15,39 +69,35 @@ class BottomSheetUtil {
   static Future<T?> show<T>(
     BuildContext context, {
     required IGBottomSheet type,
-    // comment
-    String? postOwner,
-    int? totalComments,
-    // share
-    String? postUrl,
-    // more
-    VoidCallback? onReport,
-    VoidCallback? onHide,
-    VoidCallback? onUnfollow,
-    // addPost
-    VoidCallback? onPostPhoto,
-    VoidCallback? onPostVideo,
-    VoidCallback? onPostReel,
-    VoidCallback? onPostStory,
-    VoidCallback? onGoLive,
+
+    // ── comment ──────────────────────────────────────────────────────────────
+    /// Pre-loaded list of comments to display.
+    List<IGComment>? comments,
+
+    /// Called with the new comment text when the user submits a comment.
+    void Function(String text)? onCommentSubmit,
+
+    // ── share ─────────────────────────────────────────────────────────────────
+    /// Share options to display in the grid.
+    List<IGShareOption>? shareOptions,
+
+    // ── more ──────────────────────────────────────────────────────────────────
+    /// Action rows shown in the "More" sheet.
+    List<IGMoreAction>? moreActions,
+
+    // ── addPost ───────────────────────────────────────────────────────────────
+    /// Create-type actions shown in the "Add Post" sheet.
+    List<IGAddPostAction>? addPostActions,
   }) {
     final Widget sheet = switch (type) {
       IGBottomSheet.comment => _CommentSheet(
-        postOwner: postOwner ?? '',
-        totalComments: totalComments ?? 0,
+        comments: comments ?? const [],
+        onCommentSubmit: onCommentSubmit,
       ),
-      IGBottomSheet.share => _ShareSheet(postUrl: postUrl),
-      IGBottomSheet.more => _MoreSheet(
-        onReport: onReport,
-        onHide: onHide,
-        onUnfollow: onUnfollow,
-      ),
+      IGBottomSheet.share => _ShareSheet(options: shareOptions ?? const []),
+      IGBottomSheet.more => _MoreSheet(actions: moreActions ?? const []),
       IGBottomSheet.addPost => _AddPostSheet(
-        onPostPhoto: onPostPhoto,
-        onPostVideo: onPostVideo,
-        onPostReel: onPostReel,
-        onPostStory: onPostStory,
-        onGoLive: onGoLive,
+        actions: addPostActions ?? const [],
       ),
     };
 
@@ -60,7 +110,7 @@ class BottomSheetUtil {
   }
 }
 
-// ─── Shared drag handle ───────────────────────────────────────────────────────
+// ─── Shared helpers ───────────────────────────────────────────────────────────
 
 Widget _dragHandle() => Container(
   width: 36,
@@ -86,11 +136,16 @@ Container _sheetContainer({
 );
 
 // ─── Comment Sheet ────────────────────────────────────────────────────────────
-class _CommentSheet extends StatefulWidget {
-  final String postOwner;
-  final int totalComments;
 
-  const _CommentSheet({required this.postOwner, required this.totalComments});
+class _CommentSheet extends StatefulWidget {
+  /// Initial comments to display (caller-provided).
+  final List<IGComment> comments;
+
+  /// Called with the typed text when the user posts a comment.
+  /// The caller is responsible for updating state / API.
+  final void Function(String text)? onCommentSubmit;
+
+  const _CommentSheet({required this.comments, this.onCommentSubmit});
 
   @override
   State<_CommentSheet> createState() => _CommentSheetState();
@@ -98,72 +153,58 @@ class _CommentSheet extends StatefulWidget {
 
 class _CommentSheetState extends State<_CommentSheet> {
   final _controller = TextEditingController();
-  final _focusNode = FocusNode(); // single focus node, used everywhere
-  final _sheetController =
-      DraggableScrollableController(); // ← controls sheet size
+  final _focusNode = FocusNode();
+  final _sheetController = DraggableScrollableController();
   late final LocalStorageService _localStorage;
-  final profileUser = Rxn<UserModel>();
+  final _profileUser = Rxn<UserModel>();
 
-  final List<Map<String, String>> _comments = [
-    {'user': 'alex.doe', 'text': 'Amazing shot! 🔥', 'time': '2h'},
-    {'user': 'sara_m', 'text': 'Love this so much ❤️', 'time': '1h'},
-    {'user': 'john_travels', 'text': 'Where is this place?', 'time': '45m'},
-    {'user': 'alex.doe', 'text': 'Amazing shot! 🔥', 'time': '2h'},
-    {'user': 'sara_m', 'text': 'Love this so much ❤️', 'time': '1h'},
-    {'user': 'john_travels', 'text': 'Where is this place?', 'time': '45m'},
-  ];
+  /// Local copy so we can append the optimistic "just now" comment.
+  late final List<IGComment> _comments;
 
   @override
   void initState() {
     super.initState();
+    _comments = List<IGComment>.from(widget.comments);
     _localStorage = Get.put<LocalStorageService>(LocalStorageService());
-    loadLocalProfile();
-
-    // ← listen for focus changes and snap the sheet accordingly
+    _loadLocalProfile();
     _focusNode.addListener(_onFocusChange);
+  }
+
+  Future<void> _loadLocalProfile() async {
+    _profileUser.value = _localStorage.getUser();
   }
 
   void _onFocusChange() {
     if (!_sheetController.isAttached) return;
-    if (_focusNode.hasFocus) {
-      // keyboard is opening → expand to full view
-      _sheetController.animateTo(
-        0.93,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
-    } else {
-      // keyboard dismissed → return to half view
-      _sheetController.animateTo(
-        0.6,
-        duration: const Duration(milliseconds: 250),
-        curve: Curves.easeIn,
-      );
-    }
-  }
-
-  Future<void> loadLocalProfile() async {
-    final user = _localStorage.getUser();
-    profileUser.value = user;
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    _focusNode.removeListener(_onFocusChange); // ← always remove before dispose
-    _focusNode.dispose();
-    _sheetController.dispose(); // ← dispose the sheet controller too
-    super.dispose();
+    _sheetController.animateTo(
+      _focusNode.hasFocus ? 0.93 : 0.6,
+      duration: Duration(milliseconds: _focusNode.hasFocus ? 300 : 250),
+      curve: _focusNode.hasFocus ? Curves.easeOut : Curves.easeIn,
+    );
   }
 
   void _postComment() {
     final text = _controller.text.trim();
     if (text.isEmpty) return;
+
+    // Optimistic local update.
     setState(() {
-      _comments.add({'user': 'you', 'text': text, 'time': 'Just now'});
+      _comments.add(IGComment(user: 'you', text: text, time: 'Just now'));
       _controller.clear();
     });
-    _focusNode.unfocus(); // this triggers _onFocusChange → sheet shrinks back
+
+    // Notify caller so it can persist / call API.
+    widget.onCommentSubmit?.call(text);
+    _focusNode.unfocus();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _focusNode.removeListener(_onFocusChange);
+    _focusNode.dispose();
+    _sheetController.dispose();
+    super.dispose();
   }
 
   @override
@@ -172,7 +213,7 @@ class _CommentSheetState extends State<_CommentSheet> {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
     return DraggableScrollableSheet(
-      controller: _sheetController, // ← attach controller
+      controller: _sheetController,
       initialChildSize: 0.6,
       minChildSize: 0.4,
       maxChildSize: 0.93,
@@ -195,7 +236,7 @@ class _CommentSheetState extends State<_CommentSheet> {
               ),
               Divider(color: IGColors.gray, thickness: 0.3, height: 0),
 
-              // ← Expanded fills all remaining space; no more fixed Container height
+              // Comment list.
               Expanded(
                 child: _comments.isEmpty
                     ? Center(
@@ -236,14 +277,14 @@ class _CommentSheetState extends State<_CommentSheet> {
                                         text: TextSpan(
                                           children: [
                                             TextSpan(
-                                              text: '${c['user']} ',
+                                              text: '${c.user} ',
                                               style: ts.bodyMedium!.copyWith(
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: 13,
                                               ),
                                             ),
                                             TextSpan(
-                                              text: c['text'],
+                                              text: c.text,
                                               style: ts.bodyMedium!.copyWith(
                                                 fontSize: 13,
                                               ),
@@ -253,7 +294,7 @@ class _CommentSheetState extends State<_CommentSheet> {
                                       ),
                                       const SizedBox(height: 4),
                                       Text(
-                                        c['time']!,
+                                        c.time,
                                         style: ts.bodySmall!.copyWith(
                                           fontSize: 10,
                                           color: Colors.grey,
@@ -269,6 +310,7 @@ class _CommentSheetState extends State<_CommentSheet> {
                       ),
               ),
 
+              // Input row.
               Divider(color: IGColors.gray, thickness: 0.3, height: 0),
               Padding(
                 padding: EdgeInsets.fromLTRB(12, 8, 12, bottomInset + 12),
@@ -277,7 +319,7 @@ class _CommentSheetState extends State<_CommentSheet> {
                     Obx(
                       () => CircleAvatar(
                         backgroundImage: NetworkImage(
-                          profileUser.value?.profileImageUrl ?? '',
+                          _profileUser.value?.profileImageUrl ?? '',
                         ),
                       ),
                     ),
@@ -288,13 +330,7 @@ class _CommentSheetState extends State<_CommentSheet> {
                         focusNode: _focusNode,
                         keyboardType: TextInputType.text,
                         textInputAction: TextInputAction.send,
-                        onTap: () {
-                          setState(() {});
-                        },
-                        onFieldSubmitted: (_) {
-                          setState(() {});
-                        },
-
+                        onFieldSubmitted: (_) => _postComment(),
                         decoration: InputDecoration(
                           hintText: 'Add a comment…',
                           hintStyle: ts.bodySmall!.copyWith(fontSize: 13.sp),
@@ -309,6 +345,15 @@ class _CommentSheetState extends State<_CommentSheet> {
                           contentPadding: EdgeInsets.symmetric(
                             horizontal: 14.w,
                             vertical: 8.h,
+                          ),
+                          suffixIcon: ValueListenableBuilder(
+                            valueListenable: _controller,
+                            builder: (_, value, __) => value.text.isNotEmpty
+                                ? IconButton(
+                                    icon: const Icon(Icons.send_rounded),
+                                    onPressed: _postComment,
+                                  )
+                                : const SizedBox.shrink(),
                           ),
                         ),
                       ),
@@ -331,16 +376,9 @@ class _CommentSheetState extends State<_CommentSheet> {
 // ─── Share Sheet ──────────────────────────────────────────────────────────────
 
 class _ShareSheet extends StatelessWidget {
-  final String? postUrl;
+  final List<IGShareOption> options;
 
-  const _ShareSheet({this.postUrl});
-
-  static const _options = [
-    (icon: Icons.send_outlined, label: 'Send in DM'),
-    (icon: Icons.add_circle_outline, label: 'Add to Story'),
-    (icon: Icons.link, label: 'Copy link'),
-    (icon: Icons.bookmark_border, label: 'Save post'),
-  ];
+  const _ShareSheet({required this.options});
 
   @override
   Widget build(BuildContext context) {
@@ -359,40 +397,55 @@ class _ShareSheet extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             _dragHandle(),
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4,
-                mainAxisSpacing: 16,
-                crossAxisSpacing: 8,
-                childAspectRatio: 0.85,
+            if (options.isEmpty)
+              const Padding(
+                padding: EdgeInsets.all(24),
+                child: Text('No share options available.'),
+              )
+            else
+              GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 4,
+                  mainAxisSpacing: 16,
+                  crossAxisSpacing: 8,
+                  childAspectRatio: 0.85,
+                ),
+                itemCount: options.length,
+                itemBuilder: (_, i) {
+                  final opt = options[i];
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.pop(context);
+                      opt.onTap?.call();
+                    },
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CircleAvatar(
+                          radius: 28,
+                          backgroundColor: IGColors.gray.withValues(
+                            alpha: 0.35,
+                          ),
+                          child: Icon(
+                            opt.icon,
+                            size: 22,
+                            color: IGColors.bgDark,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          opt.label,
+                          style: ts.bodySmall!.copyWith(fontSize: 11),
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                        ),
+                      ],
+                    ),
+                  );
+                },
               ),
-              itemCount: _options.length,
-              itemBuilder: (_, i) {
-                final opt = _options[i];
-                return GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      CircleAvatar(
-                        radius: 28,
-                        backgroundColor: IGColors.gray.withValues(alpha: 0.35),
-                        child: Icon(opt.icon, size: 22, color: IGColors.bgDark),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        opt.label,
-                        style: ts.bodySmall!.copyWith(fontSize: 11),
-                        textAlign: TextAlign.center,
-                        maxLines: 2,
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
           ],
         ),
       ),
@@ -403,48 +456,13 @@ class _ShareSheet extends StatelessWidget {
 // ─── More Sheet ───────────────────────────────────────────────────────────────
 
 class _MoreSheet extends StatelessWidget {
-  final VoidCallback? onReport;
-  final VoidCallback? onHide;
-  final VoidCallback? onUnfollow;
-  final VoidCallback? onCopyLink;
+  final List<IGMoreAction> actions;
 
-  const _MoreSheet({
-    this.onReport,
-    this.onHide,
-    this.onUnfollow,
-    this.onCopyLink,
-  });
+  const _MoreSheet({required this.actions});
 
   @override
   Widget build(BuildContext context) {
     final ts = Theme.of(context).textTheme;
-
-    final actions = [
-      (
-        icon: AppIcons.flag,
-        label: 'Report',
-        color: IGColors.like,
-        cb: onReport,
-      ),
-      (
-        icon: AppIcons.hidePost,
-        label: 'Hide post',
-        color: IGColors.bgDark,
-        cb: onHide,
-      ),
-      (
-        icon: AppIcons.personRemove,
-        label: 'Unfollow',
-        color: IGColors.bgDark,
-        cb: onUnfollow,
-      ),
-      (
-        icon: AppIcons.copy,
-        label: 'Copy link',
-        color: IGColors.bgDark,
-        cb: onCopyLink,
-      ),
-    ];
 
     return _sheetContainer(
       context: context,
@@ -454,14 +472,21 @@ class _MoreSheet extends StatelessWidget {
           _dragHandle(),
           ...actions.map(
             (a) => ListTile(
-              leading: Icon(a.icon, color: a.color, size: 22),
+              leading: Icon(
+                a.icon,
+                color: a.color ?? IGColors.bgDark,
+                size: 22,
+              ),
               title: Text(
                 a.label,
-                style: ts.bodyMedium!.copyWith(color: a.color, fontSize: 14),
+                style: ts.bodyMedium!.copyWith(
+                  color: a.color ?? IGColors.bgDark,
+                  fontSize: 14,
+                ),
               ),
               onTap: () {
                 Navigator.pop(context);
-                a.cb?.call();
+                a.onTap?.call();
               },
             ),
           ),
@@ -475,50 +500,13 @@ class _MoreSheet extends StatelessWidget {
 // ─── Add Post Sheet ───────────────────────────────────────────────────────────
 
 class _AddPostSheet extends StatelessWidget {
-  final VoidCallback? onPostPhoto;
-  final VoidCallback? onPostVideo;
-  final VoidCallback? onPostReel;
-  final VoidCallback? onPostStory;
-  final VoidCallback? onGoLive;
+  final List<IGAddPostAction> actions;
 
-  const _AddPostSheet({
-    this.onPostPhoto,
-    this.onPostVideo,
-    this.onPostReel,
-    this.onPostStory,
-    this.onGoLive,
-  });
+  const _AddPostSheet({required this.actions});
 
   @override
   Widget build(BuildContext context) {
     final ts = Theme.of(context).textTheme;
-
-    final actions = [
-      (
-        icon: AppIcons.post, // e.g. Icons.image_outlined
-        label: 'Post',
-        subtitle: 'Share a photo',
-        cb: onPostPhoto,
-      ),
-      (
-        icon: AppIcons.reels, // e.g. Icons.video_camera_back_outlined
-        label: 'Reel',
-        subtitle: 'Share a short video',
-        cb: onPostReel,
-      ),
-      (
-        icon: AppIcons.stories, // e.g. Icons.circle_outlined
-        label: 'Story',
-        subtitle: 'Share a photo or video',
-        cb: onPostStory,
-      ),
-      (
-        icon: AppIcons.live, // e.g. Icons.live_tv_outlined
-        label: 'Live',
-        subtitle: 'Go live right now',
-        cb: onGoLive,
-      ),
-    ];
 
     return _sheetContainer(
       context: context,
@@ -561,7 +549,7 @@ class _AddPostSheet extends StatelessWidget {
               ),
               onTap: () {
                 Navigator.pop(context);
-                a.cb?.call();
+                a.onTap?.call();
               },
             ),
           ),
@@ -571,3 +559,83 @@ class _AddPostSheet extends StatelessWidget {
     );
   }
 }
+
+// ─── Usage Example ────────────────────────────────────────────────────────────
+//
+// ── Comment Sheet ─────────────────────────────────────────────────────────────
+//
+// BottomSheetUtil.show(
+//   context,
+//   type: IGBottomSheet.comment,
+//   comments: [
+//     IGComment(user: 'alex.doe', text: 'Amazing shot! 🔥', time: '2h'),
+//     IGComment(user: 'sara_m',   text: 'Love this ❤️',     time: '1h'),
+//   ],
+//   onCommentSubmit: (text) {
+//     postController.addComment(postId, text); // your API call
+//   },
+// );
+//
+// ── More Sheet ────────────────────────────────────────────────────────────────
+//
+// BottomSheetUtil.show(
+//   context,
+//   type: IGBottomSheet.more,
+//   moreActions: [
+//     IGMoreAction(
+//       icon: AppIcons.flag,
+//       label: 'Report',
+//       color: IGColors.like,
+//       onTap: () => postController.report(postId),
+//     ),
+//     IGMoreAction(
+//       icon: AppIcons.hidePost,
+//       label: 'Hide post',
+//       onTap: () => postController.hide(postId),
+//     ),
+//     IGMoreAction(
+//       icon: AppIcons.personRemove,
+//       label: 'Unfollow',
+//       onTap: () => userController.unfollow(userId),
+//     ),
+//     IGMoreAction(
+//       icon: AppIcons.copy,
+//       label: 'Copy link',
+//       onTap: () => Clipboard.setData(ClipboardData(text: postUrl)),
+//     ),
+//   ],
+// );
+//
+// ── Share Sheet ───────────────────────────────────────────────────────────────
+//
+// BottomSheetUtil.show(
+//   context,
+//   type: IGBottomSheet.share,
+//   shareOptions: [
+//     IGShareOption(icon: Icons.send_outlined,    label: 'Send in DM',
+//         onTap: () => shareController.sendDM(postUrl)),
+//     IGShareOption(icon: Icons.add_circle_outline, label: 'Add to Story',
+//         onTap: () => shareController.addToStory(postUrl)),
+//     IGShareOption(icon: Icons.link,             label: 'Copy link',
+//         onTap: () => Clipboard.setData(ClipboardData(text: postUrl))),
+//     IGShareOption(icon: Icons.bookmark_border,  label: 'Save post',
+//         onTap: () => postController.save(postId)),
+//   ],
+// );
+//
+// ── Add Post Sheet ────────────────────────────────────────────────────────────
+//
+// BottomSheetUtil.show(
+//   context,
+//   type: IGBottomSheet.addPost,
+//   addPostActions: [
+//     IGAddPostAction(icon: AppIcons.post,   label: 'Post',  subtitle: 'Share a photo',
+//         onTap: () => Get.to(() => const CreatePostPage())),
+//     IGAddPostAction(icon: AppIcons.reels,  label: 'Reel',  subtitle: 'Share a short video',
+//         onTap: () => Get.to(() => const CreateReelPage())),
+//     IGAddPostAction(icon: AppIcons.stories,label: 'Story', subtitle: 'Share a photo or video',
+//         onTap: () => Get.to(() => const CreateStoryPage())),
+//     IGAddPostAction(icon: AppIcons.live,   label: 'Live',  subtitle: 'Go live right now',
+//         onTap: () => Get.to(() => const GoLivePage())),
+//   ],
+// );

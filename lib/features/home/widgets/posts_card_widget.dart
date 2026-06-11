@@ -4,33 +4,15 @@ import 'package:get/route_manager.dart';
 import 'package:get/state_manager.dart';
 import 'package:instagram/core/constants/app_icons.dart';
 import 'package:instagram/core/theme/app_theme.dart';
+import 'package:instagram/data/local/favourite_post_services.dart';
+import 'package:instagram/data/models/post_model.dart';
 import 'package:instagram/routes/app_routes.dart';
 import 'package:instagram/utils/bottom_sheet_util.dart';
 import 'package:instagram/utils/custom_toast_util.dart';
 
 class PostsCardWidget extends StatefulWidget {
-  final String image;
-  final String name;
-  final String location;
-  final int likes;
-  final String postImage;
-  final String caption;
-  final int totalComments;
-  final String timeAgo;
-  final String userId;
-
-  const PostsCardWidget({
-    super.key,
-    required this.image,
-    required this.name,
-    required this.location,
-    required this.postImage,
-    required this.likes,
-    required this.caption,
-    required this.totalComments,
-    required this.timeAgo,
-    required this.userId,
-  });
+  final PostModel postModel;
+  const PostsCardWidget({super.key, required this.postModel});
 
   @override
   State<PostsCardWidget> createState() => _PostsCardWidgetState();
@@ -39,6 +21,14 @@ class PostsCardWidget extends StatefulWidget {
 class _PostsCardWidgetState extends State<PostsCardWidget> {
   bool isLiked = false;
   bool isFav = false;
+  @override
+  void initState() {
+    super.initState();
+
+    isFav = FavoritePostService.isFavorite(widget.postModel.postId);
+
+    print('Initial isFav: $isFav');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,12 +46,14 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
                 onTap: () {
                   Get.toNamed(
                     AppRoutes.publicProfile,
-                    arguments: widget.userId,
+                    arguments: widget.postModel.userId,
                   );
                 },
                 child: CircleAvatar(
                   radius: 18.r,
-                  backgroundImage: NetworkImage(widget.image),
+                  backgroundImage: NetworkImage(
+                    widget.postModel.profileImageUrl,
+                  ),
                 ),
               ),
               SizedBox(width: 10.w),
@@ -70,14 +62,14 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      widget.name,
+                      widget.postModel.userName,
                       style: ts.bodyMedium!.copyWith(
                         fontWeight: FontWeight.bold,
                         fontSize: 13.sp,
                       ),
                     ),
                     Text(
-                      widget.location,
+                      widget.postModel.location,
                       style: ts.bodySmall!.copyWith(fontSize: 11.sp),
                     ),
                   ],
@@ -85,7 +77,33 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
               ),
               InkWell(
                 onTap: () {
-                  BottomSheetUtil.show(context, type: IGBottomSheet.more);
+                  BottomSheetUtil.show(
+                    context,
+                    type: IGBottomSheet.more,
+                    moreActions: [
+                      IGMoreAction(
+                        icon: AppIcons.flag,
+                        label: 'Report',
+                        color: IGColors.like,
+                        onTap: () {},
+                      ),
+                      IGMoreAction(
+                        icon: AppIcons.hidePost,
+                        label: 'Hide post',
+                        onTap: () {},
+                      ),
+                      IGMoreAction(
+                        icon: AppIcons.personRemove,
+                        label: 'Unfollow',
+                        onTap: () => {},
+                      ),
+                      IGMoreAction(
+                        icon: AppIcons.copy,
+                        label: 'Copy link',
+                        onTap: () {},
+                      ),
+                    ],
+                  );
                 },
                 child: Icon(AppIcons.more),
               ),
@@ -98,7 +116,7 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
           width: double.maxFinite,
           height: 300.h,
           child: Image.network(
-            widget.postImage,
+            widget.postModel.mediaUrl,
             fit: BoxFit.cover,
             loadingBuilder: (context, child, loadingProgress) {
               if (loadingProgress == null) return child;
@@ -132,7 +150,22 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
                 splashColor: Colors.transparent,
                 highlightColor: Colors.transparent,
                 onPressed: () {
-                  BottomSheetUtil.show(context, type: IGBottomSheet.comment);
+                  BottomSheetUtil.show(
+                    context,
+                    type: IGBottomSheet.comment,
+                    comments: widget.postModel.comments
+                        .map(
+                          (comment) => IGComment(
+                            user: widget.postModel.userName,
+                            text: comment,
+                            time: 'now',
+                          ),
+                        )
+                        .toList(),
+                    onCommentSubmit: (text) {
+                      // Add comment logic here
+                    },
+                  );
                 },
                 icon: Icon(AppIcons.comment, color: IGColors.bgDark),
                 padding: EdgeInsets.zero,
@@ -143,7 +176,32 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
                 splashColor: Colors.transparent,
                 highlightColor: Colors.transparent,
                 onPressed: () {
-                  BottomSheetUtil.show(context, type: IGBottomSheet.share);
+                  BottomSheetUtil.show(
+                    context,
+                    type: IGBottomSheet.share,
+                    shareOptions: [
+                      IGShareOption(
+                        icon: Icons.send_outlined,
+                        label: 'Send in DM',
+                        onTap: () {},
+                      ),
+                      IGShareOption(
+                        icon: Icons.add_circle_outline,
+                        label: 'Add to Story',
+                        onTap: () {},
+                      ),
+                      IGShareOption(
+                        icon: Icons.link,
+                        label: 'Copy link',
+                        onTap: () {},
+                      ),
+                      IGShareOption(
+                        icon: Icons.bookmark_border,
+                        label: 'Save post',
+                        onTap: () {},
+                      ),
+                    ],
+                  );
                 },
                 icon: Icon(AppIcons.dm, color: IGColors.bgDark),
                 padding: EdgeInsets.zero,
@@ -153,12 +211,35 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
               IconButton(
                 splashColor: Colors.transparent,
                 highlightColor: Colors.transparent,
-                onPressed: () {
-                  setState(() => isFav = !isFav);
-                  CustomToastUtil.showDefault(
-                    context,
-                    message: 'Post added to favourites',
-                  );
+                onPressed: () async {
+                  if (!isFav) {
+                    await FavoritePostService.addToFavorites(widget.postModel);
+
+                    setState(() {
+                      isFav = !isFav;
+                    });
+                    CustomToastUtil.showDefault(
+                      context,
+                      message: 'Post added to favorites',
+                    );
+                  } else {
+                    await FavoritePostService.removeFromFavorites(
+                      widget.postModel.postId,
+                    );
+                    setState(() {
+                      isFav = !isFav;
+                    });
+                    CustomToastUtil.showDefault(
+                      context,
+                      message: 'Post removed from favorites',
+                    );
+                  }
+
+                  // try {
+                  //   await FavoritePostService.addToFavorites(widget.postModel);
+                  // } catch (e) {
+                  //   print(e.toString());
+                  // }
                 },
                 icon: Icon(
                   isFav ? AppIcons.favoriteFill : AppIcons.favorite,
@@ -178,7 +259,7 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '${widget.likes} likes',
+                '${widget.postModel.likes.length.toString()} likes',
                 style: ts.bodyMedium!.copyWith(
                   fontWeight: FontWeight.bold,
                   fontSize: 13.sp,
@@ -189,14 +270,14 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
                 text: TextSpan(
                   children: [
                     TextSpan(
-                      text: '${widget.name} ',
+                      text: '${widget.postModel.userName} ',
                       style: ts.bodyMedium!.copyWith(
                         fontWeight: FontWeight.bold,
                         fontSize: 13.sp,
                       ),
                     ),
                     TextSpan(
-                      text: widget.caption,
+                      text: widget.postModel.caption,
                       style: ts.bodyMedium!.copyWith(fontSize: 13.sp),
                     ),
                   ],
@@ -208,14 +289,14 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
                   BottomSheetUtil.show(context, type: IGBottomSheet.comment);
                 },
                 child: Text(
-                  'View all ${widget.totalComments} comments',
+                  'View all ${widget.postModel.comments.length.toString()} comments',
 
                   style: ts.bodySmall!.copyWith(fontSize: 12.sp),
                 ),
               ),
               SizedBox(height: 4.h),
               Text(
-                widget.timeAgo,
+                widget.postModel.createdAt.toString(),
                 style: ts.bodySmall!.copyWith(
                   fontSize: 10.sp,
                   letterSpacing: 0.5,

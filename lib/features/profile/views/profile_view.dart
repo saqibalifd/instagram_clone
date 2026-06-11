@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 import 'package:instagram/core/constants/app_constants.dart';
 import 'package:instagram/core/constants/app_icons.dart';
 import 'package:instagram/core/theme/app_theme.dart';
+import 'package:instagram/data/local/favourite_post_services.dart';
+import 'package:instagram/data/models/post_model.dart';
 import 'package:instagram/features/auth/controllers/auth_controller.dart';
 import 'package:instagram/features/profile/controllers/profile_controller.dart';
 import 'package:instagram/features/profile/views/profile_tab_view.dart';
@@ -22,77 +24,70 @@ class _ProfileViewState extends State<ProfileView>
     with TickerProviderStateMixin {
   final AuthController _authController = AuthController();
   late TabController tabController;
-  final List<Map<String, dynamic>> dummyPosts = [
-    {
-      "image": "https://picsum.photos/300/300?random=1",
-      "viewsCount": 120,
-      "isVideo": true,
-      "isRepost": false,
-      "isTag": false,
-    },
-    {
-      "image": "https://picsum.photos/300/300?random=2",
-      "viewsCount": 340,
-      "isVideo": true,
-      "isRepost": false,
-      "isTag": false,
-    },
-    {
-      "image": "https://picsum.photos/300/300?random=3",
-      "viewsCount": 89,
-      "isVideo": true,
-      "isRepost": false,
-      "isTag": false,
-    },
-    {
-      "image": "https://picsum.photos/300/300?random=4",
-      "viewsCount": 560,
-      "isVideo": false,
-      "isRepost": false,
-      "isTag": false,
-    },
-    {
-      "image": "https://picsum.photos/300/300?random=5",
-      "viewsCount": 1020,
-      "isVideo": false,
-      "isRepost": false,
-      "isTag": false,
-    },
-    {
-      "image": "https://picsum.photos/300/300?random=6",
-      "viewsCount": 120,
-      "isVideo": false,
-      "isRepost": true,
-      "isTag": false,
-    },
-    {
-      "image": "https://picsum.photos/300/300?random=7",
-      "viewsCount": 340,
-      "isVideo": false,
-      "isRepost": true,
-      "isTag": false,
-    },
-    {
-      "image": "https://picsum.photos/300/300?random=8",
-      "viewsCount": 89,
-      "isVideo": false,
-      "isRepost": false,
-      "isTag": false,
-    },
-    {
-      "image": "https://picsum.photos/300/300?random=9",
-      "viewsCount": 560,
-      "isVideo": false,
-      "isRepost": false,
-      "isTag": false,
-    },
-    {
-      "image": "https://picsum.photos/300/300?random=10",
-      "viewsCount": 1020,
-      "isVideo": false,
-      "isRepost": true,
-      "isTag": false,
-    },
+  final List<PostModel> dummyPosts = [
+    PostModel(
+      postId: '1',
+      userId: 'cc8J8XNLKLRlyXPr8jGPLN7RMqr2',
+      userName: 'Saqib Ali',
+      profileImageUrl: 'https://i.pravatar.cc/150?img=1',
+      caption: 'Enjoying Flutter development 🚀',
+      mediaUrl: 'https://picsum.photos/id/1011/600/800',
+      mediaType: 'image',
+      isVideo: false,
+      createdAt: DateTime.now(),
+      location: 'Lahore, Pakistan',
+      likes: ['user_2', 'user_3'],
+      comments: ['Nice!', 'Awesome 🔥'],
+      tags: [],
+      repostBy: [],
+      favorites: [],
+      viewsBy: [],
+      visibility: 'public',
+      allowComments: true,
+      hideFrom: [],
+    ),
+    PostModel(
+      postId: '1',
+      userId: 'cc8J8XNLKLRlyXPr8jGPLN7RMqr2',
+      userName: 'Saqib Ali',
+      profileImageUrl: 'https://i.pravatar.cc/150?img=1',
+      caption: 'Enjoying Flutter development 🚀',
+      mediaUrl: 'https://picsum.photos/id/1011/600/800',
+      mediaType: 'image',
+      isVideo: false,
+      createdAt: DateTime.now(),
+      location: 'Lahore, Pakistan',
+      likes: ['user_2', 'user_3'],
+      comments: ['Nice!', 'Awesome 🔥'],
+      tags: [],
+      repostBy: [],
+      favorites: [],
+      viewsBy: [],
+      visibility: 'public',
+      allowComments: true,
+      hideFrom: [],
+    ),
+    PostModel(
+      postId: '1',
+      userId: 'cc8J8XNLKLRlyXPr8jGPLN7RMqr2',
+      userName: 'Saqib Ali',
+      profileImageUrl: 'https://i.pravatar.cc/150?img=1',
+      caption: 'Enjoying Flutter development 🚀',
+      mediaUrl: 'https://picsum.photos/id/1011/600/800',
+      mediaType: 'image',
+      isVideo: false,
+      createdAt: DateTime.now(),
+      location: 'Lahore, Pakistan',
+      likes: ['user_2', 'user_3'],
+      comments: ['Nice!', 'Awesome 🔥'],
+      tags: [],
+      repostBy: [],
+      favorites: [],
+      viewsBy: [],
+      visibility: 'public',
+      allowComments: true,
+      hideFrom: [],
+    ),
   ];
   final String bio = '''
 🚀 Flutter Developer | 2+ Years Experience
@@ -100,13 +95,28 @@ Passionate Flutter Developer with 2+ years of experience building modern, scalab
 ''';
 
   final ProfileController _profileController = Get.put(ProfileController());
+  // Change this field declaration:
+  List<PostModel> favoritePosts = FavoritePostService.getFavorites();
 
+  // To this:
+  RxList<PostModel> favoritePost = <PostModel>[].obs;
+
+  // To this:
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     tabController = TabController(length: 4, vsync: this);
     _profileController.loadLocalProfile();
+    favoritePosts;
+    _loadFavorites();
+  }
+
+  Future<void> _loadFavorites() async {
+    await FavoritePostService.init();
+    setState(() {
+      favoritePosts = FavoritePostService.getFavorites();
+    });
   }
 
   @override
@@ -192,7 +202,8 @@ Passionate Flutter Developer with 2+ years of experience building modern, scalab
 
                     child: ElevatedButton(
                       onPressed: () {
-                        Get.toNamed(AppRoutes.shareProfile);
+                        FavoritePostService.clearFavorites();
+                        // Get.toNamed(AppRoutes.shareProfile);
                       },
                       style:
                           ElevatedButton.styleFrom(
@@ -249,10 +260,13 @@ Passionate Flutter Developer with 2+ years of experience building modern, scalab
               child: TabBarView(
                 controller: tabController,
                 children: [
-                  ProfileTabView(data: dummyPosts),
-                  ProfileTabView(data: dummyPosts, tabType: 'isVideo'),
-                  ProfileTabView(data: dummyPosts, tabType: 'isRepost'),
-                  ProfileTabView(data: dummyPosts, tabType: 'isTag'),
+                  ProfileTabView(posts: dummyPosts, tabType: 'isFavorite'),
+                  ProfileTabView(posts: dummyPosts, tabType: 'isVideo'),
+                  ProfileTabView(posts: dummyPosts, tabType: 'isRepost'),
+                  ProfileTabView(
+                    posts: favoritePosts,
+                    tabType: 'isFav',
+                  ), // no Obx
                 ],
               ),
             ),

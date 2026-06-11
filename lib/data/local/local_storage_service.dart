@@ -5,12 +5,14 @@ import 'package:instagram/data/models/user_model.dart';
 class LocalStorageService {
   static const String _boxName = 'userBox';
   static const String _key = 'current_user';
+  static const String favBoxName = 'favorite_posts';
 
   late Box _box;
 
   Future<void> init() async {
     await Hive.initFlutter();
     _box = await Hive.openBox(_boxName);
+    _box = await Hive.openBox(favBoxName);
   }
 
   // ---------------------------

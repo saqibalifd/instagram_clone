@@ -2,25 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:instagram/core/constants/app_icons.dart';
 import 'package:instagram/core/theme/app_theme.dart';
+import 'package:instagram/data/models/post_model.dart';
 import 'package:instagram/features/profile/widgets/empty_tab_widget.dart';
 
 class ProfileTabView extends StatelessWidget {
-  final List<Map<String, dynamic>> data;
+  final List<PostModel> posts;
   final String tabType;
-  const ProfileTabView({super.key, required this.data, this.tabType = 'all'});
+  const ProfileTabView({super.key, this.tabType = 'all', required this.posts});
 
   @override
   Widget build(BuildContext context) {
     final ts = Theme.of(context).textTheme;
-    final myData = tabType == 'isVideo'
-        ? data.where((post) => post['isVideo'] == true).toList()
-        : tabType == 'isRepost'
-        ? data.where((post) => post['isRepost'] == true).toList()
-        : tabType == 'isTag'
-        ? data.where((post) => post['isTag'] == true).toList()
-        : data;
+    // final
+    //  myData = tabType == 'isFav'
+    //     ? posts.where((post) => post.isVideo == true).toList()
+    //     : tabType == 'isRepost'
+    //     ? posts.where((post) => post.re == true).toList()
+    //     : tabType == 'isTag'
+    //     ? data.where((post) => post['isTag'] == true).toList()
+    //     : data;
 
-    if (myData.isEmpty) {
+    if (posts.isEmpty) {
       if (tabType == 'isVideo') {
         return EmptyTabWidget(
           icon: AppIcons.reels,
@@ -56,7 +58,7 @@ class ProfileTabView extends StatelessWidget {
     return GridView.builder(
       physics: BouncingScrollPhysics(),
       shrinkWrap: true,
-      itemCount: myData.length,
+      itemCount: posts.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 3,
         crossAxisSpacing: 2,
@@ -67,7 +69,7 @@ class ProfileTabView extends StatelessWidget {
         return Stack(
           fit: StackFit.expand,
           children: [
-            Image.network(myData[index]['image'], fit: BoxFit.cover),
+            Image.network(posts[index].mediaUrl, fit: BoxFit.cover),
             Positioned(
               bottom: 10.h,
               left: 10.w,
@@ -78,7 +80,7 @@ class ProfileTabView extends StatelessWidget {
                   Icon(AppIcons.eyeOpen, color: IGColors.bgLight, size: 14.sp),
                   SizedBox(width: 5.w),
                   Text(
-                    myData[index]['viewsCount'].toString(),
+                    posts[index].viewsBy.length.toString(),
                     style: TextStyle(color: IGColors.bgLight, fontSize: 10.sp),
                   ),
                 ],

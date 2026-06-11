@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:instagram/core/constants/app_icons.dart';
+import 'package:instagram/features/home/controllers/posts_controller.dart';
 import 'package:instagram/features/home/widgets/my_storie_circle_widget.dart';
 import 'package:instagram/features/home/widgets/posts_card_widget.dart';
 import 'package:instagram/features/home/widgets/stories_circle_widget.dart';
@@ -22,6 +23,8 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView> {
   File? image;
+
+  final PostsController postsController = Get.put(PostsController());
 
   final storiesUsers = [
     {
@@ -104,19 +107,6 @@ class _HomeViewState extends State<HomeView> {
     },
   ];
 
-  final postImages = [
-    'https://i.pravatar.cc/600?img=11',
-    'https://i.pravatar.cc/600?img=12',
-    'https://i.pravatar.cc/600?img=13',
-    'https://i.pravatar.cc/600?img=14',
-    'https://i.pravatar.cc/600?img=15',
-    'https://i.pravatar.cc/600?img=16',
-    'https://i.pravatar.cc/600?img=17',
-    'https://i.pravatar.cc/600?img=18',
-    'https://i.pravatar.cc/600?img=19',
-    'https://i.pravatar.cc/600?img=20',
-  ];
-
   @override
   Widget build(BuildContext context) {
     final ts = Theme.of(context).textTheme;
@@ -131,9 +121,9 @@ class _HomeViewState extends State<HomeView> {
             BottomSheetUtil.show(
               context,
               type: IGBottomSheet.addPost,
-              onPostPhoto: () {
-                Get.toNamed(AppRoutes.addPost, arguments: 'photo');
-              },
+              addPostActions: [
+                
+              ]
             );
           },
           icon: Icon(AppIcons.add),
@@ -255,20 +245,9 @@ class _HomeViewState extends State<HomeView> {
             ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              itemCount: postImages.length,
+              itemCount: postsController.posts.length,
               itemBuilder: (context, index) {
-                final user = storiesUsers[index % storiesUsers.length];
-                return PostsCardWidget(
-                  image: user['image'].toString(),
-                  name: user['name'].toString(),
-                  location: 'Lahore, Pakistan',
-                  postImage: postImages[index],
-                  likes: 234,
-                  caption: 'Sharing a beautiful moment 🌟',
-                  totalComments: 233,
-                  timeAgo: '2 HOURS AGO',
-                  userId: user['userId'].toString(),
-                );
+                return PostsCardWidget(postModel: postsController.posts[index]);
               },
             ),
           ],
