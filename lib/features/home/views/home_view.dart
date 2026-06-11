@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:instagram/core/constants/app_icons.dart';
+import 'package:instagram/core/theme/app_theme.dart';
 import 'package:instagram/features/home/controllers/posts_controller.dart';
 import 'package:instagram/features/home/widgets/my_storie_circle_widget.dart';
 import 'package:instagram/features/home/widgets/posts_card_widget.dart';
@@ -122,8 +123,33 @@ class _HomeViewState extends State<HomeView> {
               context,
               type: IGBottomSheet.addPost,
               addPostActions: [
-                
-              ]
+                IGAddPostAction(
+                  icon: AppIcons.grid,
+                  label: 'Post',
+                  subtitle: 'Share a photo or video to your profile',
+                  onTap: () {},
+                ),
+                IGAddPostAction(
+                  icon: AppIcons.reels,
+                  label: 'Reel',
+                  subtitle: 'Create and share a short video',
+                  onTap: () {},
+                ),
+                IGAddPostAction(
+                  icon: AppIcons.stories,
+                  label: 'Story',
+                  subtitle:
+                      'Share a photo or video that disappears in 24 hours',
+                  onTap: () {},
+                ),
+                IGAddPostAction(
+                  icon: AppIcons.live,
+                  label: 'Live',
+                  subtitle:
+                      'Go live and connect with your followers in real time',
+                  onTap: () {},
+                ),
+              ],
             );
           },
           icon: Icon(AppIcons.add),
@@ -164,6 +190,22 @@ class _HomeViewState extends State<HomeView> {
                     return Padding(
                       padding: EdgeInsets.symmetric(horizontal: 10.w),
                       child: MyStorieCircleWidget(
+                        imageUrl:
+                            'https://img.magnific.com/free-psd/modern-dynamic-banner_125755-403.jpg?semt=ais_hybrid&w=740&q=80',
+                        onStoryTap: () {
+                          Get.toNamed(
+                            AppRoutes.viewStory,
+                            arguments: {
+                              'name': 'Saqib Ali',
+                              'profileImage':
+                                  'https://media.easy-peasy.ai/4e600a82-8aac-4abb-95cd-f87cc9125a0f/18ea5802-d34e-4fbb-91e2-99baebb2eac9_medium.webp',
+                              'storyImage':
+                                  'https://img.magnific.com/free-psd/modern-dynamic-banner_125755-403.jpg?semt=ais_hybrid&w=740&q=80',
+                              'songTitle': 'Smells Like Teen Spirit',
+                              'timeAgo': '5 min ago',
+                            },
+                          );
+                        },
                         onAddStory: () async {
                           // print('add story');
                           await ImagePickerUtil.pickFromGallery(

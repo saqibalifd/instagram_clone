@@ -176,7 +176,38 @@ Passionate Flutter Developer with 2+ years of experience building modern, scalab
           splashColor: Colors.transparent,
           highlightColor: Colors.transparent,
           onPressed: () {
-            BottomSheetUtil.show(context, type: IGBottomSheet.addPost);
+            BottomSheetUtil.show(
+              context,
+              type: IGBottomSheet.addPost,
+              addPostActions: [
+                IGAddPostAction(
+                  icon: AppIcons.grid,
+                  label: 'Post',
+                  subtitle: 'Share a photo or video to your profile',
+                  onTap: () {},
+                ),
+                IGAddPostAction(
+                  icon: AppIcons.reels,
+                  label: 'Reel',
+                  subtitle: 'Create and share a short video',
+                  onTap: () {},
+                ),
+                IGAddPostAction(
+                  icon: AppIcons.stories,
+                  label: 'Story',
+                  subtitle:
+                      'Share a photo or video that disappears in 24 hours',
+                  onTap: () {},
+                ),
+                IGAddPostAction(
+                  icon: AppIcons.live,
+                  label: 'Live',
+                  subtitle:
+                      'Go live and connect with your followers in real time',
+                  onTap: () {},
+                ),
+              ],
+            );
           },
           icon: Icon(AppIcons.add),
         ),
@@ -248,8 +279,7 @@ Passionate Flutter Developer with 2+ years of experience building modern, scalab
 
                     child: ElevatedButton(
                       onPressed: () {
-                        FavoritePostService.clearFavorites();
-                        // Get.toNamed(AppRoutes.shareProfile);
+                        Get.toNamed(AppRoutes.shareProfile);
                       },
                       style:
                           ElevatedButton.styleFrom(

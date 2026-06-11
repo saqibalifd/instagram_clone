@@ -192,6 +192,28 @@ class _FeedViewState extends State<FeedView> {
                             BottomSheetUtil.show(
                               context,
                               type: IGBottomSheet.share,
+                              shareOptions: [
+                                IGShareOption(
+                                  icon: Icons.send_outlined,
+                                  label: 'Send in DM',
+                                  onTap: () {},
+                                ),
+                                IGShareOption(
+                                  icon: Icons.add_circle_outline,
+                                  label: 'Add to Story',
+                                  onTap: () {},
+                                ),
+                                IGShareOption(
+                                  icon: Icons.link,
+                                  label: 'Copy link',
+                                  onTap: () {},
+                                ),
+                                IGShareOption(
+                                  icon: Icons.bookmark_border,
+                                  label: 'Save post',
+                                  onTap: () {},
+                                ),
+                              ],
                             );
                           },
                           child: Icon(
@@ -213,6 +235,29 @@ class _FeedViewState extends State<FeedView> {
                             BottomSheetUtil.show(
                               context,
                               type: IGBottomSheet.more,
+                              moreActions: [
+                                IGMoreAction(
+                                  icon: AppIcons.flag,
+                                  label: 'Report',
+                                  color: IGColors.like,
+                                  onTap: () {},
+                                ),
+                                IGMoreAction(
+                                  icon: AppIcons.hidePost,
+                                  label: 'Hide post',
+                                  onTap: () {},
+                                ),
+                                IGMoreAction(
+                                  icon: AppIcons.personRemove,
+                                  label: 'Unfollow',
+                                  onTap: () => {},
+                                ),
+                                IGMoreAction(
+                                  icon: AppIcons.copy,
+                                  label: 'Copy link',
+                                  onTap: () {},
+                                ),
+                              ],
                             );
                           },
 

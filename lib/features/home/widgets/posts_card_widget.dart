@@ -153,15 +153,39 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
                   BottomSheetUtil.show(
                     context,
                     type: IGBottomSheet.comment,
-                    comments: widget.postModel.comments
-                        .map(
-                          (comment) => IGComment(
-                            user: widget.postModel.userName,
-                            text: comment,
-                            time: 'now',
-                          ),
-                        )
-                        .toList(),
+                    comments: [
+                      IGComment(
+                        user: 'alex.doe',
+                        text: 'Amazing shot! 🔥',
+                        time: '2h',
+                      ),
+                      IGComment(
+                        user: 'sara_m',
+                        text: 'Love this so much ❤️',
+                        time: '1h',
+                      ),
+                      IGComment(
+                        user: 'john_travels',
+                        text: 'Where was this taken? 😍',
+                        time: '45m',
+                      ),
+                      IGComment(
+                        user: 'priya.k',
+                        text: 'Absolutely stunning 🌅',
+                        time: '30m',
+                      ),
+                      IGComment(
+                        user: 'mike_photos',
+                        text: 'The lighting is perfect here!',
+                        time: '20m',
+                      ),
+                      IGComment(user: 'layla99', text: 'Goals 🙌', time: '10m'),
+                      IGComment(
+                        user: 'dev.omar',
+                        text: 'This is my wallpaper now lol',
+                        time: '5m',
+                      ),
+                    ],
                     onCommentSubmit: (text) {
                       // Add comment logic here
                     },

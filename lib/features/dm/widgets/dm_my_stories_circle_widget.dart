@@ -3,8 +3,16 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:instagram/core/theme/app_theme.dart';
 
 class DmMyStoriesCircleWidget extends StatelessWidget {
+  final String imageUrl;
+  final VoidCallback onStoryTap;
+
   final VoidCallback onAddStory;
-  const DmMyStoriesCircleWidget({super.key, required this.onAddStory});
+  const DmMyStoriesCircleWidget({
+    super.key,
+    required this.imageUrl,
+    required this.onStoryTap,
+    required this.onAddStory,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -19,10 +27,14 @@ class DmMyStoriesCircleWidget extends StatelessWidget {
                 shape: BoxShape.circle,
                 gradient: IGColors.buttonGradient,
               ),
-              child: CircleAvatar(
-                backgroundColor: IGColors.gray,
-                radius: 40.r,
-                backgroundImage: NetworkImage('https://picsum.photos/200'),
+              child: GestureDetector(
+                onTap: onStoryTap,
+
+                child: CircleAvatar(
+                  backgroundColor: IGColors.gray,
+                  radius: 40.r,
+                  backgroundImage: NetworkImage(imageUrl),
+                ),
               ),
             ),
             Positioned(
