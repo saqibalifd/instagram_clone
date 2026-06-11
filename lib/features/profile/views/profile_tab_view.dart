@@ -39,12 +39,12 @@ class ProfileTabView extends StatelessWidget {
         );
       }
 
-      if (tabType == 'isTag') {
+      if (tabType == 'isFav') {
         return EmptyTabWidget(
           icon: AppIcons.tagProfile,
-          title: "Photos and videos of you",
+          title: "No Favourite Posts Yet",
           subtitle:
-              "When people tag you in photos and videos, they'll appear here.",
+              "Posts you add to your favourites will appear here so you can easily find them later.",
         );
       }
 
@@ -58,7 +58,7 @@ class ProfileTabView extends StatelessWidget {
     return GridView.builder(
       physics: BouncingScrollPhysics(),
       shrinkWrap: true,
-      itemCount: posts.length,
+      itemCount: tabType == 'isFav' ? posts.length - 1 : posts.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 3,
         crossAxisSpacing: 2,

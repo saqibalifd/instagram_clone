@@ -207,38 +207,52 @@ class _HomeViewState extends State<HomeView> {
                 },
               ),
             ),
+            suggestedPosts.isEmpty
+                ? SizedBox()
+                : Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 16.w,
+                          vertical: 8.h,
+                        ),
+                        child: Text(
+                          'Suggested for you',
+                          style: ts.headlineSmall!.copyWith(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15.sp,
+                          ),
+                        ),
+                      ),
 
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-              child: Text(
-                'Suggested for you',
-                style: ts.headlineSmall!.copyWith(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 15.sp,
-                ),
-              ),
-            ),
+                      SizedBox(
+                        height: 240.h,
+                        child: ListView.builder(
+                          itemCount: suggestedPosts.length,
+                          scrollDirection: Axis.horizontal,
+                          padding: EdgeInsets.symmetric(horizontal: 12.w),
+                          itemBuilder: (context, index) {
+                            return SuggestedCardWidget(
+                              onFollow: () {
+                                setState(() {
+                                  suggestedPosts.removeAt(index);
+                                });
+                              },
+                              name: suggestedPosts[index]['name'].toString(),
 
-            SizedBox(
-              height: 240.h,
-              child: ListView.builder(
-                itemCount: suggestedPosts.length,
-                scrollDirection: Axis.horizontal,
-                padding: EdgeInsets.symmetric(horizontal: 12.w),
-                itemBuilder: (context, index) {
-                  return SuggestedCardWidget(
-                    onFollow: () {
-                      print('Follow');
-                    },
-                    name: suggestedPosts[index]['name'].toString(),
+                              image: suggestedPosts[index]['imageUrl']
+                                  .toString(),
 
-                    image: suggestedPosts[index]['imageUrl'].toString(),
-
-                    totalMutual: suggestedPosts[index]['mutualFriends'] as int,
-                  );
-                },
-              ),
-            ),
+                              totalMutual:
+                                  suggestedPosts[index]['mutualFriends'] as int,
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
 
             SizedBox(height: 8.h),
 

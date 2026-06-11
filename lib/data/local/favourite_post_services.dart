@@ -2,7 +2,7 @@ import 'package:hive/hive.dart';
 import '../models/post_model.dart';
 
 class FavoritePostService {
-  static const String boxName = 'favorite_posts';
+  static const String boxName = 'favorite_post';
 
   static Future<void> init() async {
     await Hive.openBox(boxName);

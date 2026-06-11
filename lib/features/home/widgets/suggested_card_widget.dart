@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/route_manager.dart';
 import 'package:instagram/core/theme/app_theme.dart';
+import 'package:instagram/routes/app_routes.dart';
 
 class SuggestedCardWidget extends StatelessWidget {
   final String name;
@@ -30,7 +32,18 @@ class SuggestedCardWidget extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircleAvatar(radius: 50.r, backgroundImage: NetworkImage(image)),
+          GestureDetector(
+            onTap: () {
+              Get.toNamed(
+                AppRoutes.publicProfile,
+                arguments: 'cc8J8XNLKLRlyXPr8jGPLN7RMqr2',
+              );
+            },
+            child: CircleAvatar(
+              radius: 50.r,
+              backgroundImage: NetworkImage(image),
+            ),
+          ),
           SizedBox(height: 6.h),
           Text(
             name,

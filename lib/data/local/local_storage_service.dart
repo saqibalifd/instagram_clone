@@ -5,7 +5,7 @@ import 'package:instagram/data/models/user_model.dart';
 class LocalStorageService {
   static const String _boxName = 'userBox';
   static const String _key = 'current_user';
-  static const String favBoxName = 'favorite_posts';
+  static const String favBoxName = 'favorite_post';
 
   late Box _box;
 
