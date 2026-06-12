@@ -54,7 +54,7 @@ class _CustomBottomNavbarState extends State<CustomBottomNavbar> {
 
     _pageController.animateToPage(
       index,
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 320),
       curve: Curves.easeInOut,
     );
   }
@@ -85,25 +85,25 @@ class _CustomBottomNavbarState extends State<CustomBottomNavbar> {
         showUnselectedLabels: false,
         items: [
           BottomNavigationBarItem(
-            icon: Icon(AppIcons.home, color: IGColors.bgDark),
-            activeIcon: Icon(AppIcons.homeFill),
+            icon: Icon(AppIcons.home, color: IGColors.bgDark, size: 32),
+            activeIcon: Icon(AppIcons.homeFill, size: 32),
 
             label: '',
           ),
           BottomNavigationBarItem(
-            icon: SvgPicture.asset(AppIcons.playSquare),
-            activeIcon: SvgPicture.asset(AppIcons.playSquareFill),
+            icon: SvgPicture.asset(AppIcons.playSquare, height: 32),
+            activeIcon: SvgPicture.asset(AppIcons.playSquareFill, height: 32),
             label: '',
           ),
           BottomNavigationBarItem(
-            icon: Icon(AppIcons.dm, color: IGColors.bgDark),
-            activeIcon: Icon(AppIcons.dmFill),
+            icon: Icon(AppIcons.dm, color: IGColors.bgDark, size: 32),
+            activeIcon: Icon(AppIcons.dmFill, size: 32),
 
             label: '',
           ),
           BottomNavigationBarItem(
-            icon: SvgPicture.asset(AppIcons.searchSvg),
-            activeIcon: SvgPicture.asset(AppIcons.searchFillSvg),
+            icon: SvgPicture.asset(AppIcons.searchSvg, height: 32),
+            activeIcon: SvgPicture.asset(AppIcons.searchFillSvg, height: 32),
             label: '',
           ),
           BottomNavigationBarItem(

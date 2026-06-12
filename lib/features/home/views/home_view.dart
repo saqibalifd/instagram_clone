@@ -125,6 +125,7 @@ class _HomeViewState extends State<HomeView> {
     final ts = Theme.of(context).textTheme;
 
     return Scaffold(
+      backgroundColor: IGColors.bgLight,
       appBar: AppBar(
         forceMaterialTransparency: true,
         leading: IconButton(
@@ -213,7 +214,6 @@ class _HomeViewState extends State<HomeView> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── Stories Row ──────────────────────────────────────
             SizedBox(
               height: 110.h,
               child: ListView.builder(
@@ -335,6 +335,7 @@ class _HomeViewState extends State<HomeView> {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: postsController.posts.length,
+              padding: EdgeInsets.zero,
               itemBuilder: (context, index) {
                 return PostsCardWidget(postModel: postsController.posts[index]);
               },

@@ -4,6 +4,7 @@ import 'package:iconsax_flutter/iconsax_flutter.dart';
 class AppIcons {
   // Search
   static const IconData search = Icons.search;
+  static const IconData searchOff = Icons.search_off_rounded;
   static const IconData searchFill = Icons.search_outlined;
   static const IconData cross = Icons.close;
 

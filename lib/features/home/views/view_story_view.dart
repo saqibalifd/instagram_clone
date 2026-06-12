@@ -18,11 +18,19 @@ class _ViewStoryViewState extends State<ViewStoryView>
   bool isFollowing = false;
   bool isLiked = false;
 
+  double _dragOffset = 0;
+  static const double _dragThreshold = 80;
+
   late List<StoryUserModel> allStories;
   late int currentIndex;
 
   late AnimationController _progressController;
   static const Duration _storyDuration = Duration(seconds: 5);
+
+  // ── NEW ──────────────────────────────────────────────
+  bool _isPaused = false; // long-press pause
+  final FocusNode _messageFocus = FocusNode();
+  // ─────────────────────────────────────────────────────
 
   StoryUserModel get currentStory => allStories[currentIndex];
 
@@ -46,10 +54,39 @@ class _ViewStoryViewState extends State<ViewStoryView>
           });
 
     _progressController.forward();
+
+    // ── NEW: pause timer when keyboard appears ───────────
+    _messageFocus.addListener(_onFocusChange);
+    // ─────────────────────────────────────────────────────
   }
+
+  // ── NEW ──────────────────────────────────────────────
+  void _onFocusChange() {
+    if (_messageFocus.hasFocus) {
+      _pauseTimer();
+    } else {
+      _resumeTimer();
+    }
+  }
+
+  void _pauseTimer() {
+    if (_progressController.isAnimating) {
+      _progressController.stop();
+    }
+  }
+
+  void _resumeTimer() {
+    // Only resume if not held by long-press AND keyboard is closed
+    if (!_isPaused && !_messageFocus.hasFocus) {
+      _progressController.forward();
+    }
+  }
+  // ─────────────────────────────────────────────────────
 
   @override
   void dispose() {
+    _messageFocus.removeListener(_onFocusChange); // NEW
+    _messageFocus.dispose(); // NEW
     _progressController.dispose();
     super.dispose();
   }
@@ -82,169 +119,221 @@ class _ViewStoryViewState extends State<ViewStoryView>
   Widget build(BuildContext context) {
     final story = currentStory;
 
-    return Scaffold(
-      backgroundColor: IGColors.bgDark,
-      body: SafeArea(
-        child: Stack(
-          children: [
-            SizedBox(
-              height: double.maxFinite,
-              width: double.maxFinite,
-              child: Image.network(
-                story.storyImage ?? '',
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) =>
-                    const ColoredBox(color: Colors.black54),
-              ),
-            ),
-
-            // Left tap → previous
-            Positioned(
-              top: 0,
-              bottom: 80, // leave bottom bar untouched
-              left: 0,
-              width: MediaQuery.of(context).size.width / 2,
-              child: GestureDetector(
-                onTap: _previousStory,
-                behavior: HitTestBehavior.translucent,
-              ),
-            ),
-
-            Positioned(
-              top: 0,
-              bottom: 80,
-              right: 0,
-              width: MediaQuery.of(context).size.width / 2,
-              child: GestureDetector(
-                onTap: _nextStory,
-                behavior: HitTestBehavior.translucent,
-              ),
-            ),
-
-            Positioned(
-              top: 8.h,
-              left: 12.w,
-              right: 12.w,
-              child: Row(
-                children: List.generate(allStories.length, (i) {
-                  return Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 2.w),
-                      child: _StoryProgressBar(
-                        isCurrent: i == currentIndex,
-                        isCompleted: i < currentIndex,
-                        controller: i == currentIndex
-                            ? _progressController
-                            : null,
-                      ),
-                    ),
-                  );
-                }),
-              ),
-            ),
-
-            Positioned(
-              top: 20.h,
-              left: 0,
-              right: 0,
-              child: ListTile(
-                leading: GestureDetector(
-                  onTap: () {
-                    Get.toNamed(
-                      AppRoutes.publicProfile,
-                      arguments: story.userId,
-                    );
-                  },
-                  child: CircleAvatar(
-                    backgroundImage: NetworkImage(story.profileImage ?? ''),
+    return GestureDetector(
+      onVerticalDragUpdate: (details) {
+        setState(() {
+          _dragOffset += details.delta.dy;
+        });
+        if (_dragOffset.abs() == details.delta.dy.abs()) {
+          _progressController.stop();
+        }
+      },
+      onVerticalDragEnd: (details) {
+        if (_dragOffset.abs() >= _dragThreshold) {
+          Get.back();
+        } else {
+          setState(() {
+            _dragOffset = 0;
+          });
+          _resumeTimer(); // NEW: use _resumeTimer instead of forward()
+        }
+      },
+      child: Transform.translate(
+        offset: Offset(0, _dragOffset),
+        child: Scaffold(
+          backgroundColor: IGColors.bgDark,
+          body: SafeArea(
+            child: Stack(
+              children: [
+                SizedBox(
+                  height: double.maxFinite,
+                  width: double.maxFinite,
+                  child: Image.network(
+                    story.storyImage ?? '',
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) =>
+                        const ColoredBox(color: Colors.black54),
                   ),
                 ),
-                title: Text(
-                  story.name ?? '',
-                  style: const TextStyle(color: IGColors.bgLight),
+
+                // ── Left tap → previous (+ long press pause) ──────────
+                Positioned(
+                  top: 0,
+                  bottom: 80,
+                  left: 0,
+                  width: MediaQuery.of(context).size.width / 2,
+                  child: GestureDetector(
+                    onTap: _previousStory,
+                    onLongPressStart: (_) {
+                      // NEW
+                      _isPaused = true;
+                      _pauseTimer();
+                    },
+                    onLongPressEnd: (_) {
+                      // NEW
+                      _isPaused = false;
+                      _resumeTimer();
+                    },
+                    behavior: HitTestBehavior.translucent,
+                  ),
                 ),
-                subtitle: Row(
-                  children: [
-                    Icon(
-                      AppIcons.music,
-                      size: 14,
-                      color: IGColors.bgLight.withValues(alpha: .6),
+
+                // ── Right tap → next (+ long press pause) ─────────────
+                Positioned(
+                  top: 0,
+                  bottom: 80,
+                  right: 0,
+                  width: MediaQuery.of(context).size.width / 2,
+                  child: GestureDetector(
+                    onTap: _nextStory,
+                    onLongPressStart: (_) {
+                      // NEW
+                      _isPaused = true;
+                      _pauseTimer();
+                    },
+                    onLongPressEnd: (_) {
+                      // NEW
+                      _isPaused = false;
+                      _resumeTimer();
+                    },
+                    behavior: HitTestBehavior.translucent,
+                  ),
+                ),
+
+                // Progress bars
+                Positioned(
+                  top: 8.h,
+                  left: 12.w,
+                  right: 12.w,
+                  child: Row(
+                    children: List.generate(allStories.length, (i) {
+                      return Expanded(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 2.w),
+                          child: _StoryProgressBar(
+                            isCurrent: i == currentIndex,
+                            isCompleted: i < currentIndex,
+                            controller: i == currentIndex
+                                ? _progressController
+                                : null,
+                          ),
+                        ),
+                      );
+                    }),
+                  ),
+                ),
+
+                // User info header
+                Positioned(
+                  top: 20.h,
+                  left: 0,
+                  right: 0,
+                  child: ListTile(
+                    leading: GestureDetector(
+                      onTap: () {
+                        Get.toNamed(
+                          AppRoutes.publicProfile,
+                          arguments: story.userId,
+                        );
+                      },
+                      child: CircleAvatar(
+                        backgroundImage: NetworkImage(story.profileImage ?? ''),
+                      ),
                     ),
-                    SizedBox(width: 5.w),
-                    SizedBox(
-                      width: 120.w,
-                      child: Text(
-                        story.songTitle ?? '',
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                        style: TextStyle(
+                    title: Text(
+                      story.name ?? '',
+                      style: const TextStyle(color: IGColors.bgLight),
+                    ),
+                    subtitle: Row(
+                      children: [
+                        Icon(
+                          AppIcons.music,
+                          size: 14,
                           color: IGColors.bgLight.withValues(alpha: .6),
                         ),
-                      ),
+                        SizedBox(width: 5.w),
+                        SizedBox(
+                          width: 120.w,
+                          child: Text(
+                            story.songTitle ?? '',
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            style: TextStyle(
+                              color: IGColors.bgLight.withValues(alpha: .6),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                trailing: SizedBox(
-                  height: 30.h,
-                  child: OutlinedButton(
-                    onPressed: () {
-                      setState(() {
-                        isFollowing = !isFollowing;
-                      });
-                    },
-                    child: Text(
-                      isFollowing ? 'Following' : 'Follow',
-                      style: const TextStyle(color: IGColors.bgLight),
+                    trailing: SizedBox(
+                      height: 30.h,
+                      child: OutlinedButton(
+                        onPressed: () {
+                          setState(() {
+                            isFollowing = !isFollowing;
+                          });
+                        },
+                        child: Text(
+                          isFollowing ? 'Following' : 'Follow',
+                          style: const TextStyle(color: IGColors.bgLight),
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ),
 
-            Positioned(
-              left: 10,
-              right: 10,
-              bottom: 20,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      style: const TextStyle(color: IGColors.bgLight),
-                      decoration: InputDecoration(
-                        hintText: 'Send message',
-                        filled: true,
-                        fillColor: Colors.transparent,
-                        hintStyle: const TextStyle(color: IGColors.bgLight),
-                        border: const OutlineInputBorder(),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30),
-                          borderSide: const BorderSide(color: IGColors.bgLight),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30),
-                          borderSide: const BorderSide(color: IGColors.bgLight),
+                // Bottom bar
+                Positioned(
+                  left: 10,
+                  right: 10,
+                  bottom: 20,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextFormField(
+                          focusNode: _messageFocus, // NEW
+                          style: const TextStyle(color: IGColors.bgLight),
+                          decoration: InputDecoration(
+                            hintText: 'Send message',
+                            filled: true,
+                            fillColor: Colors.transparent,
+                            hintStyle: const TextStyle(color: IGColors.bgLight),
+                            border: const OutlineInputBorder(),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30),
+                              borderSide: const BorderSide(
+                                color: IGColors.bgLight,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30),
+                              borderSide: const BorderSide(
+                                color: IGColors.bgLight,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
-                    ),
+                      const SizedBox(width: 10),
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            isLiked = !isLiked;
+                          });
+                        },
+                        child: Icon(
+                          isLiked ? AppIcons.heartFill : AppIcons.heart,
+                          color: isLiked ? IGColors.like : IGColors.bgLight,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Icon(AppIcons.dm, color: IGColors.bgLight),
+                    ],
                   ),
-                  const SizedBox(width: 10),
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        isLiked = !isLiked;
-                      });
-                    },
-                    child: Icon(
-                      isLiked ? AppIcons.heartFill : AppIcons.heart,
-                      color: isLiked ? IGColors.like : IGColors.bgLight,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Icon(AppIcons.dm, color: IGColors.bgLight),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

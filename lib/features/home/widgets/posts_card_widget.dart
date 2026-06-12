@@ -10,6 +10,7 @@ import 'package:instagram/data/models/post_model.dart';
 import 'package:instagram/routes/app_routes.dart';
 import 'package:instagram/utils/bottom_sheet_util.dart';
 import 'package:instagram/utils/custom_toast_util.dart';
+import 'package:readmore/readmore.dart';
 
 class PostsCardWidget extends StatefulWidget {
   final PostModel postModel;
@@ -121,7 +122,7 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
         // Post image
         SizedBox(
           width: double.maxFinite,
-          height: 300.h,
+          height: 510.h,
           child: ClipRRect(
             child: InteractiveViewer(
               panEnabled: false,
@@ -148,6 +149,8 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               IconButton(
                 splashColor: Colors.transparent,
@@ -156,25 +159,57 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
                   setState(() => isLiked = !isLiked);
                 },
                 icon: isLiked
-                    ? Icon(AppIcons.heartFill, color: IGColors.like, size: 29)
-                    : Stack(
+                    ? Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Icon(
-                            AppIcons.heart,
-                            color: IGColors.bgDark,
-                            size: 28,
-                          ),
-                          Icon(
-                            AppIcons.heart,
-                            color: IGColors.bgDark,
+                            AppIcons.heartFill,
+                            color: IGColors.like,
                             size: 29,
+                          ),
+                          SizedBox(width: 5.w),
+
+                          Text(
+                            widget.postModel.likes.length.toString(),
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      )
+                    : Row(
+                        children: [
+                          Stack(
+                            children: [
+                              Icon(
+                                AppIcons.heart,
+                                color: IGColors.bgDark,
+                                size: 28,
+                              ),
+                              Icon(
+                                AppIcons.heart,
+                                color: IGColors.bgDark,
+                                size: 29,
+                              ),
+                            ],
+                          ),
+                          SizedBox(width: 5.w),
+
+                          Text(
+                            widget.postModel.likes.length.toString(),
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
                           ),
                         ],
                       ),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
               ),
-              SizedBox(width: 4.w),
+              SizedBox(width: 8.w),
               IconButton(
                 splashColor: Colors.transparent,
                 highlightColor: Colors.transparent,
@@ -220,12 +255,28 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
                     },
                   );
                 },
-                icon: SvgPicture.asset(AppIcons.messageCircle),
+                icon: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SvgPicture.asset(AppIcons.messageCircle),
+                    SizedBox(width: 5.w),
+                    Text(
+                      widget.postModel.comments.length.toString(),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+
                 // Icon(AppIcons.comment, color: IGColors.bgDark),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
               ),
-              SizedBox(width: 4.w),
+
+              SizedBox(width: 8.w),
               IconButton(
                 splashColor: Colors.transparent,
                 highlightColor: Colors.transparent,
@@ -258,10 +309,23 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
                     ],
                   );
                 },
-                icon: Stack(
+                icon: Row(
                   children: [
-                    Icon(AppIcons.dm, color: IGColors.bgDark, size: 28),
-                    Icon(AppIcons.dm, color: IGColors.bgDark, size: 29),
+                    Stack(
+                      children: [
+                        Icon(AppIcons.dm, color: IGColors.bgDark, size: 28),
+                        Icon(AppIcons.dm, color: IGColors.bgDark, size: 29),
+                      ],
+                    ),
+                    SizedBox(width: 5.w),
+
+                    // Text(
+                    //   widget.postModel.comments.length.toString(),
+                    //   style: TextStyle(
+                    //     fontWeight: FontWeight.bold,
+                    //     fontSize: 18,
+                    //   ),
+                    // ),
                   ],
                 ),
                 padding: EdgeInsets.zero,
@@ -294,12 +358,6 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
                       message: 'Post removed from favorites',
                     );
                   }
-
-                  // try {
-                  //   await FavoritePostService.addToFavorites(widget.postModel);
-                  // } catch (e) {
-                  //   print(e.toString());
-                  // }
                 },
                 icon: Icon(
                   isFav ? AppIcons.favoriteFill : AppIcons.favorite,
@@ -318,14 +376,6 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                '${widget.postModel.likes.length.toString()} likes',
-                style: ts.bodyMedium!.copyWith(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 13.sp,
-                ),
-              ),
-              SizedBox(height: 2.h),
               RichText(
                 text: TextSpan(
                   children: [
@@ -336,29 +386,35 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
                         fontSize: 13.sp,
                       ),
                     ),
-                    TextSpan(
-                      text: widget.postModel.caption,
-                      style: ts.bodyMedium!.copyWith(fontSize: 13.sp),
+                    WidgetSpan(
+                      alignment: PlaceholderAlignment.middle,
+                      child: ReadMoreText(
+                        widget.postModel.caption,
+                        trimMode: TrimMode.Line,
+                        trimLines: 2,
+                        trimCollapsedText: ' more',
+                        trimExpandedText: ' less',
+                        colorClickableText: IGColors.bgDark,
+                        style: ts.bodyMedium!.copyWith(fontSize: 13.sp),
+                        moreStyle: TextStyle(
+                          fontSize: 13.sp,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        lessStyle: TextStyle(
+                          fontSize: 13.sp,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ],
                 ),
               ),
-              SizedBox(height: 4.h),
-              GestureDetector(
-                onTap: () {
-                  BottomSheetUtil.show(context, type: IGBottomSheet.comment);
-                },
-                child: Text(
-                  'View all ${widget.postModel.comments.length.toString()} comments',
 
-                  style: ts.bodySmall!.copyWith(fontSize: 12.sp),
-                ),
-              ),
               SizedBox(height: 4.h),
               Text(
-                widget.postModel.createdAt.toString(),
+                '5 min ago',
                 style: ts.bodySmall!.copyWith(
-                  fontSize: 10.sp,
+                  fontSize: 13.sp,
                   letterSpacing: 0.5,
                 ),
               ),
