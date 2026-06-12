@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/route_manager.dart';
+import 'package:get/state_manager.dart';
 import 'package:instagram/core/constants/app_icons.dart';
 import 'package:instagram/core/theme/app_theme.dart';
 import 'package:instagram/data/models/post_model.dart';
 import 'package:instagram/features/profile/widgets/empty_tab_widget.dart';
+import 'package:instagram/routes/app_routes.dart';
 
 class ProfileTabView extends StatelessWidget {
   final List<PostModel> posts;
@@ -13,14 +16,6 @@ class ProfileTabView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ts = Theme.of(context).textTheme;
-    // final
-    //  myData = tabType == 'isFav'
-    //     ? posts.where((post) => post.isVideo == true).toList()
-    //     : tabType == 'isRepost'
-    //     ? posts.where((post) => post.re == true).toList()
-    //     : tabType == 'isTag'
-    //     ? data.where((post) => post['isTag'] == true).toList()
-    //     : data;
 
     if (posts.isEmpty) {
       if (tabType == 'isVideo') {
@@ -69,7 +64,15 @@ class ProfileTabView extends StatelessWidget {
         return Stack(
           fit: StackFit.expand,
           children: [
-            Image.network(posts[index].mediaUrl, fit: BoxFit.cover),
+            GestureDetector(
+              onTap: () {
+                Get.toNamed(
+                  AppRoutes.allPosts,
+                  arguments: {'posts': posts, 'index': index},
+                );
+              },
+              child: Image.network(posts[index].mediaUrl, fit: BoxFit.cover),
+            ),
             Positioned(
               bottom: 10.h,
               left: 10.w,

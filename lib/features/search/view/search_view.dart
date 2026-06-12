@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:instagram/core/constants/app_constants.dart';
 import 'package:instagram/core/constants/app_icons.dart';
 import 'package:instagram/core/theme/app_theme.dart';
+import 'package:instagram/data/models/post_model.dart';
 
 class SearchView extends StatefulWidget {
   const SearchView({super.key});
@@ -14,90 +15,73 @@ class SearchView extends StatefulWidget {
 class _SearchViewState extends State<SearchView> {
   final TextEditingController searchController = TextEditingController();
 
-  final List<Map<String, dynamic>> dummyPosts = [
-    {
-      "image": "https://picsum.photos/300/300?random=1",
-      "viewsCount": 120,
-      "userName": "saqib_ali",
-      "caption": "Flutter development is amazing 🚀",
-      "location": "Lahore Pakistan",
-      "hashtags": "#flutter #dart",
-    },
-    {
-      "image": "https://picsum.photos/300/300?random=2",
-      "viewsCount": 340,
-      "userName": "ali_khan",
-      "caption": "Beautiful sunset photography 🌅",
-      "location": "Islamabad",
-      "hashtags": "#nature #sunset",
-    },
-    {
-      "image": "https://picsum.photos/300/300?random=3",
-      "viewsCount": 89,
-      "userName": "developer_world",
-      "caption": "Building mobile apps with Flutter",
-      "location": "Karachi",
-      "hashtags": "#coding #flutter",
-    },
-    {
-      "image": "https://picsum.photos/300/300?random=4",
-      "viewsCount": 560,
-      "userName": "travel_diary",
-      "caption": "Exploring beautiful places",
-      "location": "Murree",
-      "hashtags": "#travel #mountains",
-    },
-    {
-      "image": "https://picsum.photos/300/300?random=5",
-      "viewsCount": 1020,
-      "userName": "food_lovers",
-      "caption": "Delicious Pakistani food",
-      "location": "Peshawar",
-      "hashtags": "#food #restaurant",
-    },
-    {
-      "image": "https://picsum.photos/300/300?random=6",
-      "viewsCount": 450,
-      "userName": "tech_guru",
-      "caption": "Latest technology updates",
-      "location": "Dubai",
-      "hashtags": "#technology #ai",
-    },
-    {
-      "image": "https://picsum.photos/300/300?random=7",
-      "viewsCount": 780,
-      "userName": "fitness_zone",
-      "caption": "Daily workout motivation",
-      "location": "New York",
-      "hashtags": "#fitness #gym",
-    },
-    {
-      "image": "https://picsum.photos/300/300?random=8",
-      "viewsCount": 230,
-      "userName": "music_world",
-      "caption": "My favorite music playlist",
-      "location": "London",
-      "hashtags": "#music #songs",
-    },
-    {
-      "image": "https://picsum.photos/300/300?random=9",
-      "viewsCount": 900,
-      "userName": "photography_hub",
-      "caption": "Camera and photography tips",
-      "location": "Turkey",
-      "hashtags": "#photo #camera",
-    },
-    {
-      "image": "https://picsum.photos/300/300?random=10",
-      "viewsCount": 1500,
-      "userName": "flutter_pro",
-      "caption": "Advanced Flutter UI designs",
-      "location": "Pakistan",
-      "hashtags": "#flutter #ui",
-    },
+  final List<PostModel> dummyPosts = [
+    PostModel(
+      postId: '1',
+      userId: 'user_001',
+      userName: 'Saqib Ali',
+      profileImageUrl: 'https://i.pravatar.cc/150?img=1',
+      caption: 'Enjoying Flutter development 🚀',
+      mediaUrl: 'https://picsum.photos/id/1011/600/800',
+      mediaType: 'image',
+      isVideo: false,
+      createdAt: DateTime.now().subtract(const Duration(hours: 2)),
+      location: 'Lahore, Pakistan',
+      likes: ['user_2', 'user_3'],
+      comments: ['Nice!', 'Awesome 🔥'],
+      tags: ['flutter', 'dart'],
+      repostBy: [],
+      favorites: [],
+      viewsBy: ['user_4'],
+      visibility: 'public',
+      allowComments: true,
+      hideFrom: [],
+    ),
+    PostModel(
+      postId: '2',
+      userId: 'user_002',
+      userName: 'Ali Khan',
+      profileImageUrl: 'https://i.pravatar.cc/150?img=12',
+      caption: 'Beautiful evening at the mountains 🌄',
+      mediaUrl: 'https://picsum.photos/id/1018/600/800',
+      mediaType: 'image',
+      isVideo: false,
+      createdAt: DateTime.now().subtract(const Duration(days: 1)),
+      location: 'Murree, Pakistan',
+      likes: ['user_1', 'user_5', 'user_6'],
+      comments: ['Amazing view!', 'Nature ❤️'],
+      tags: ['travel', 'mountains'],
+      repostBy: ['user_7'],
+      favorites: ['user_3'],
+      viewsBy: ['user_2', 'user_4'],
+      visibility: 'public',
+      allowComments: true,
+      hideFrom: [],
+    ),
+    PostModel(
+      postId: '3',
+      userId: 'user_003',
+      userName: 'Ahmed Raza',
+      profileImageUrl: 'https://i.pravatar.cc/150?img=20',
+      caption: 'Coding late night with coffee ☕💻',
+      mediaUrl: 'https://picsum.photos/id/0/600/800',
+      mediaType: 'image',
+      isVideo: false,
+      createdAt: DateTime.now().subtract(const Duration(days: 3)),
+      location: 'Islamabad, Pakistan',
+      likes: ['user_1', 'user_2'],
+      comments: ['Developer life 🔥', 'Keep coding'],
+      tags: ['coding', 'developer'],
+      repostBy: [],
+      favorites: ['user_5'],
+      viewsBy: ['user_1', 'user_8'],
+      visibility: 'public',
+      allowComments: true,
+      hideFrom: [],
+    ),
   ];
 
-  late List<Map<String, dynamic>> filteredPosts;
+  late List<PostModel> filteredPosts;
 
   @override
   void initState() {
@@ -117,15 +101,15 @@ class _SearchViewState extends State<SearchView> {
 
     setState(() {
       filteredPosts = dummyPosts.where((post) {
-        final userName = post['userName'].toString().toLowerCase();
-        final caption = post['caption'].toString().toLowerCase();
-        final location = post['location'].toString().toLowerCase();
-        final hashtags = post['hashtags'].toString().toLowerCase();
+        final userName = post.userName.toLowerCase();
+        final caption = post.caption.toLowerCase();
+        final location = post.location?.toLowerCase() ?? '';
+        final tags = post.tags.join(' ').toLowerCase();
 
         return userName.contains(query) ||
             caption.contains(query) ||
             location.contains(query) ||
-            hashtags.contains(query);
+            tags.contains(query);
       }).toList();
     });
   }
@@ -143,6 +127,7 @@ class _SearchViewState extends State<SearchView> {
         children: [
           SizedBox(height: 45.h),
 
+          /// SEARCH BAR
           Padding(
             padding: EdgeInsets.symmetric(
               horizontal: AppConstants.horizontalSmallPadding,
@@ -154,7 +139,7 @@ class _SearchViewState extends State<SearchView> {
                 prefixIcon: Icon(AppIcons.search),
                 fillColor: IGColors.gray.withValues(alpha: .2),
                 filled: true,
-                hintText: 'Search with Meta AI',
+                hintText: 'Search posts...',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(50),
                   borderSide: BorderSide.none,
@@ -169,6 +154,7 @@ class _SearchViewState extends State<SearchView> {
 
           SizedBox(height: 10.h),
 
+          /// GRID VIEW
           Expanded(
             child: filteredPosts.isEmpty
                 ? Center(
@@ -192,8 +178,16 @@ class _SearchViewState extends State<SearchView> {
                       return Stack(
                         fit: StackFit.expand,
                         children: [
-                          Image.network(post['image'], fit: BoxFit.cover),
+                          /// IMAGE
+                          GestureDetector(
+                            onTap: () {},
+                            child: Image.network(
+                              post.mediaUrl,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
 
+                          /// VIEWS
                           Positioned(
                             bottom: 10.h,
                             left: 10.w,
@@ -206,7 +200,7 @@ class _SearchViewState extends State<SearchView> {
                                 ),
                                 SizedBox(width: 5.w),
                                 Text(
-                                  post['viewsCount'].toString(),
+                                  post.viewsBy.length.toString(),
                                   style: TextStyle(
                                     color: IGColors.bgLight,
                                     fontSize: 10.sp,

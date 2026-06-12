@@ -23,6 +23,8 @@ class AppRoutes {
   static const String chat = '/chat';
   static const String publicProfile = '/publicProfile';
   static const String viewStory = '/viewStory';
+  static const String allPosts = '/allPosts';
+  static const String allFollow = '/allFollow';
 
   static const String createPost = '/post/create';
   static const String profile = '/profile/:userId';

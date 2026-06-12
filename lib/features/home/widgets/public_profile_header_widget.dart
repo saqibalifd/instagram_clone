@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:instagram/core/constants/app_constants.dart';
+import 'package:instagram/data/models/stories_model.dart';
 import 'package:instagram/routes/app_routes.dart';
 import 'package:instagram/shared_widgets/story_border_wraper_widget.dart';
 
@@ -30,6 +31,18 @@ class PublicProfileHeaderWidget extends StatefulWidget {
 
 class _PublicProfileHeaderWidgetState extends State<PublicProfileHeaderWidget> {
   bool isStoryAvailable = true;
+  final List<StoryUserModel> storiesUsers = [
+    StoryUserModel(
+      name: 'Ali',
+      profileImage: 'https://i.pravatar.cc/150?img=1',
+      storyImage:
+          'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800',
+      songTitle: 'Blinding Lights • The Weeknd',
+      timeAgo: '5m ago',
+      isPlayed: false,
+      userId: 'user_001',
+    ),
+  ];
   @override
   Widget build(BuildContext context) {
     final ts = Theme.of(context).textTheme;
@@ -50,13 +63,8 @@ class _PublicProfileHeaderWidgetState extends State<PublicProfileHeaderWidget> {
                   Get.toNamed(
                     AppRoutes.viewStory,
                     arguments: {
-                      'name': 'Saqib Ali',
-                      'profileImage':
-                          'https://media.easy-peasy.ai/4e600a82-8aac-4abb-95cd-f87cc9125a0f/18ea5802-d34e-4fbb-91e2-99baebb2eac9_medium.webp',
-                      'storyImage':
-                          'https://mir-s3-cdn-cf.behance.net/project_modules/1400_webp/ad8905184701275.655664a44c13f.jpg',
-                      'songTitle': 'Blinding Lights , The Weeknd',
-                      'timeAgo': '2 min ago',
+                      'currentStory': storiesUsers[0],
+                      'allStories': storiesUsers,
                     },
                   );
                 },

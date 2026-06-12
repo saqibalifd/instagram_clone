@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get_navigation/src/extension_navigation.dart';
+import 'package:get/instance_manager.dart';
 import 'package:instagram/core/constants/app_constants.dart';
+import 'package:instagram/routes/app_routes.dart';
 
 class ProfileHeader extends StatelessWidget {
   final String image;
@@ -55,15 +58,18 @@ class ProfileHeader extends StatelessWidget {
               Spacer(),
               Row(
                 children: [
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(height: 30.h),
+                  GestureDetector(
+                    onTap: () => Get.toNamed(AppRoutes.allFollow),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 30.h),
 
-                      Text(followersCount.toString(), style: ts.titleLarge),
-                      Text('followers'),
-                    ],
+                        Text(followersCount.toString(), style: ts.titleLarge),
+                        Text('followers'),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -71,15 +77,18 @@ class ProfileHeader extends StatelessWidget {
 
               Row(
                 children: [
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(height: 30.h),
+                  GestureDetector(
+                    onTap: () => Get.toNamed(AppRoutes.allFollow),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 30.h),
 
-                      Text(followingCount.toString(), style: ts.titleLarge),
-                      Text('following'),
-                    ],
+                        Text(followingCount.toString(), style: ts.titleLarge),
+                        Text('following'),
+                      ],
+                    ),
                   ),
                   SizedBox(width: 50.w),
                 ],
