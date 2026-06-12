@@ -31,6 +31,12 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
     print('Initial isFav: $isFav');
   }
 
+  final TransformationController _controller = TransformationController();
+
+  void _resetZoom() {
+    _controller.value = Matrix4.identity();
+  }
+
   @override
   Widget build(BuildContext context) {
     final ts = Theme.of(context).textTheme;
@@ -116,16 +122,25 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
         SizedBox(
           width: double.maxFinite,
           height: 300.h,
-          child: Image.network(
-            widget.postModel.mediaUrl,
-            fit: BoxFit.cover,
-            loadingBuilder: (context, child, loadingProgress) {
-              if (loadingProgress == null) return child;
-              return Container(
-                color: IGColors.gray,
-                child: const Center(child: CircularProgressIndicator()),
-              );
-            },
+          child: ClipRRect(
+            child: InteractiveViewer(
+              panEnabled: false,
+              minScale: 1.0,
+              maxScale: 4.0,
+              boundaryMargin: const EdgeInsets.all(20),
+              clipBehavior: Clip.hardEdge,
+              child: Image.network(
+                widget.postModel.mediaUrl,
+                fit: BoxFit.cover,
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return Container(
+                    color: IGColors.gray,
+                    child: const Center(child: CircularProgressIndicator()),
+                  );
+                },
+              ),
+            ),
           ),
         ),
 

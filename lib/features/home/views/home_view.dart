@@ -108,6 +108,8 @@ class _HomeViewState extends State<HomeView> {
     },
   ];
 
+  late File slectedStory;
+
   @override
   Widget build(BuildContext context) {
     final ts = Theme.of(context).textTheme;
@@ -230,11 +232,18 @@ class _HomeViewState extends State<HomeView> {
                         },
                         onAddStory: () async {
                           // print('add story');
-                          await ImagePickerUtil.pickFromGallery(
-                            context,
-                            maxWidth: 1024,
-                            imageQuality: 85,
-                          );
+                          final File? pickedImage =
+                              await ImagePickerUtil.pickFromGallery(
+                                context,
+                                maxWidth: 1024,
+                                imageQuality: 85,
+                              );
+
+                          if (pickedImage != null) {
+                            setState(() {
+                              slectedStory = pickedImage;
+                            });
+                          }
                         },
                       ),
                     );
