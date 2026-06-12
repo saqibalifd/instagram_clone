@@ -73,7 +73,7 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
                       widget.postModel.userName,
                       style: ts.bodyMedium!.copyWith(
                         fontWeight: FontWeight.bold,
-                        fontSize: 13.sp,
+                        fontSize: 14.sp,
                       ),
                     ),
                     Text(
@@ -318,14 +318,6 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
                       ],
                     ),
                     SizedBox(width: 5.w),
-
-                    // Text(
-                    //   widget.postModel.comments.length.toString(),
-                    //   style: TextStyle(
-                    //     fontWeight: FontWeight.bold,
-                    //     fontSize: 18,
-                    //   ),
-                    // ),
                   ],
                 ),
                 padding: EdgeInsets.zero,
@@ -423,7 +415,6 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
         ),
 
         SizedBox(height: 12.h),
-        Divider(color: IGColors.gray, thickness: 0.3),
       ],
     );
   }
