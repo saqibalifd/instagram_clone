@@ -46,7 +46,7 @@ class MyStorieCircleWidget extends StatelessWidget {
                   width: 22.w,
                   height: 22.h,
                   decoration: BoxDecoration(
-                    color: IGColors.blue,
+                    color: IGColors.bgDark,
                     shape: BoxShape.circle,
                     border: Border.all(color: IGColors.bgLight, width: 2),
                   ),

@@ -4,7 +4,6 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:instagram/core/theme/app_theme.dart';
-import 'package:instagram/data/local/favourite_post_services.dart';
 import 'package:instagram/data/local/local_storage_service.dart';
 import 'package:instagram/firebase_options.dart';
 import 'package:instagram/routes/app_pages.dart';

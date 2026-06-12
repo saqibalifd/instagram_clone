@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/route_manager.dart';
 import 'package:get/state_manager.dart';
 import 'package:instagram/core/constants/app_icons.dart';
@@ -140,12 +141,25 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
                   setState(() => isLiked = !isLiked);
                 },
                 icon: isLiked
-                    ? Icon(AppIcons.heartFill, color: IGColors.like)
-                    : Icon(AppIcons.heart, color: IGColors.bgDark),
+                    ? Icon(AppIcons.heartFill, color: IGColors.like, size: 29)
+                    : Stack(
+                        children: [
+                          Icon(
+                            AppIcons.heart,
+                            color: IGColors.bgDark,
+                            size: 28,
+                          ),
+                          Icon(
+                            AppIcons.heart,
+                            color: IGColors.bgDark,
+                            size: 29,
+                          ),
+                        ],
+                      ),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
               ),
-              SizedBox(width: 16.w),
+              SizedBox(width: 4.w),
               IconButton(
                 splashColor: Colors.transparent,
                 highlightColor: Colors.transparent,
@@ -191,11 +205,12 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
                     },
                   );
                 },
-                icon: Icon(AppIcons.comment, color: IGColors.bgDark),
+                icon: SvgPicture.asset(AppIcons.messageCircle),
+                // Icon(AppIcons.comment, color: IGColors.bgDark),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
               ),
-              SizedBox(width: 16.w),
+              SizedBox(width: 4.w),
               IconButton(
                 splashColor: Colors.transparent,
                 highlightColor: Colors.transparent,
@@ -206,6 +221,7 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
                     shareOptions: [
                       IGShareOption(
                         icon: Icons.send_outlined,
+
                         label: 'Send in DM',
                         onTap: () {},
                       ),
@@ -227,7 +243,12 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
                     ],
                   );
                 },
-                icon: Icon(AppIcons.dm, color: IGColors.bgDark),
+                icon: Stack(
+                  children: [
+                    Icon(AppIcons.dm, color: IGColors.bgDark, size: 28),
+                    Icon(AppIcons.dm, color: IGColors.bgDark, size: 29),
+                  ],
+                ),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
               ),

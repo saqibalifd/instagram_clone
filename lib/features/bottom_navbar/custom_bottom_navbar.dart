@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
 import 'package:instagram/core/constants/app_icons.dart';
 import 'package:instagram/core/theme/app_theme.dart';
 import 'package:instagram/features/dm/view/dm_view.dart';
 import 'package:instagram/features/feed/views/feed_view.dart';
 import 'package:instagram/features/home/views/home_view.dart';
+import 'package:instagram/features/profile/controllers/profile_controller.dart';
 import 'package:instagram/features/profile/views/profile_view.dart';
 import 'package:instagram/features/search/view/search_view.dart';
 
@@ -19,6 +23,7 @@ class CustomBottomNavbar extends StatefulWidget {
 class _CustomBottomNavbarState extends State<CustomBottomNavbar> {
   late final PageController _pageController;
   late int _currentIndex;
+  final ProfileController _profileController = Get.put(ProfileController());
 
   final List<Widget> _screens = const [
     HomeView(),
@@ -33,6 +38,7 @@ class _CustomBottomNavbarState extends State<CustomBottomNavbar> {
     super.initState();
     _currentIndex = widget.index;
     _pageController = PageController(initialPage: _currentIndex);
+    _profileController.loadLocalProfile();
   }
 
   @override
@@ -78,11 +84,45 @@ class _CustomBottomNavbarState extends State<CustomBottomNavbar> {
         showSelectedLabels: false,
         showUnselectedLabels: false,
         items: [
-          BottomNavigationBarItem(icon: Icon(AppIcons.home), label: ''),
-          BottomNavigationBarItem(icon: Icon(AppIcons.reels), label: ''),
-          BottomNavigationBarItem(icon: Icon(AppIcons.dm), label: ''),
-          BottomNavigationBarItem(icon: Icon(AppIcons.search), label: ''),
-          BottomNavigationBarItem(icon: Icon(AppIcons.profile), label: ''),
+          BottomNavigationBarItem(
+            icon: Icon(AppIcons.home, color: IGColors.bgDark),
+            activeIcon: Icon(AppIcons.homeFill),
+
+            label: '',
+          ),
+          BottomNavigationBarItem(
+            icon: SvgPicture.asset(AppIcons.playSquare),
+            activeIcon: SvgPicture.asset(AppIcons.playSquareFill),
+            label: '',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(AppIcons.dm, color: IGColors.bgDark),
+            activeIcon: Icon(AppIcons.dmFill),
+
+            label: '',
+          ),
+          BottomNavigationBarItem(
+            icon: SvgPicture.asset(AppIcons.searchSvg),
+            activeIcon: SvgPicture.asset(AppIcons.searchFillSvg),
+            label: '',
+          ),
+          BottomNavigationBarItem(
+            icon: CircleAvatar(
+              backgroundColor: IGColors.bgLight,
+              radius: 14.r,
+              backgroundImage: NetworkImage(
+                _profileController.profileUser.value!.profileImageUrl,
+              ),
+            ),
+            activeIcon: CircleAvatar(
+              backgroundColor: IGColors.bgLight,
+              radius: 14.r,
+              backgroundImage: NetworkImage(
+                _profileController.profileUser.value!.profileImageUrl,
+              ),
+            ),
+            label: '',
+          ),
         ],
       ),
     );

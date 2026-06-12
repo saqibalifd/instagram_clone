@@ -169,7 +169,29 @@ class _HomeViewState extends State<HomeView> {
             onPressed: () {
               Get.toNamed(AppRoutes.notification);
             },
-            icon: Icon(AppIcons.heart),
+            icon: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Icon(AppIcons.heart),
+
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+
+                    decoration: BoxDecoration(
+                      color: IGColors.like,
+                      shape: BoxShape.circle,
+                    ),
+                    constraints: const BoxConstraints(
+                      minWidth: 4,
+                      minHeight: 4,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -277,6 +299,11 @@ class _HomeViewState extends State<HomeView> {
                           padding: EdgeInsets.symmetric(horizontal: 12.w),
                           itemBuilder: (context, index) {
                             return SuggestedCardWidget(
+                              onCancel: () {
+                                setState(() {
+                                  suggestedPosts.removeAt(index);
+                                });
+                              },
                               onFollow: () {
                                 setState(() {
                                   suggestedPosts.removeAt(index);
