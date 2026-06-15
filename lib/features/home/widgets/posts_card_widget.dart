@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/route_manager.dart';
-import 'package:get/state_manager.dart';
 import 'package:instagram/core/constants/app_icons.dart';
 import 'package:instagram/core/theme/app_theme.dart';
 import 'package:instagram/data/local/favourite_post_services.dart';
@@ -186,7 +185,7 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
                               Icon(
                                 AppIcons.heart,
                                 color: IGColors.bgDark,
-                                size: 28,
+                                size: 29,
                               ),
                             ],
                           ),

@@ -38,6 +38,7 @@ class PostsController extends GetxController {
       visibility: 'public',
       allowComments: true,
       hideFrom: [],
+      reports: [],
     ),
 
     PostModel(
@@ -61,6 +62,7 @@ class PostsController extends GetxController {
       visibility: 'public',
       allowComments: true,
       hideFrom: [],
+      reports: [],
     ),
 
     PostModel(
@@ -83,6 +85,7 @@ class PostsController extends GetxController {
       visibility: 'public',
       allowComments: true,
       hideFrom: [],
+      reports: [],
     ),
 
     PostModel(
@@ -105,6 +108,7 @@ class PostsController extends GetxController {
       visibility: 'public',
       allowComments: true,
       hideFrom: [],
+      reports: [],
     ),
 
     PostModel(
@@ -127,6 +131,7 @@ class PostsController extends GetxController {
       visibility: 'public',
       allowComments: true,
       hideFrom: [],
+      reports: [],
     ),
 
     PostModel(
@@ -149,6 +154,7 @@ class PostsController extends GetxController {
       visibility: 'public',
       allowComments: true,
       hideFrom: [],
+      reports: [],
     ),
 
     PostModel(
@@ -171,6 +177,7 @@ class PostsController extends GetxController {
       visibility: 'public',
       allowComments: true,
       hideFrom: [],
+      reports: [],
     ),
 
     PostModel(
@@ -193,6 +200,7 @@ class PostsController extends GetxController {
       visibility: 'public',
       allowComments: true,
       hideFrom: [],
+      reports: [],
     ),
   ].obs;
   @override

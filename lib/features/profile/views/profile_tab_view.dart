@@ -52,7 +52,7 @@ class ProfileTabView extends StatelessWidget {
     }
 
     return GridView.builder(
-      physics: BouncingScrollPhysics(),
+      physics: NeverScrollableScrollPhysics(),
       shrinkWrap: true,
       itemCount: tabType == 'isFav' ? posts.length - 1 : posts.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(

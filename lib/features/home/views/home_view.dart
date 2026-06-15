@@ -128,7 +128,6 @@ class _HomeViewState extends State<HomeView> {
       backgroundColor: IGColors.bgLight,
 
       body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
         child: SafeArea(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,

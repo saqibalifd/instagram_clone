@@ -64,6 +64,7 @@ class _ProfileViewState extends State<ProfileView>
       visibility: 'public',
       allowComments: true,
       hideFrom: [],
+      reports: [],
     ),
 
     PostModel(
@@ -86,6 +87,7 @@ class _ProfileViewState extends State<ProfileView>
       visibility: 'public',
       allowComments: true,
       hideFrom: [],
+      reports: [],
     ),
 
     PostModel(
@@ -108,50 +110,52 @@ class _ProfileViewState extends State<ProfileView>
       visibility: 'public',
       allowComments: true,
       hideFrom: [],
+      reports: [],
     ),
-
     PostModel(
-      postId: '4',
-      userId: 'user_004',
-      userName: 'Sara Ahmed',
-      profileImageUrl: 'https://i.pravatar.cc/150?img=32',
-      caption: 'Weekend vibes ✨🌸',
-      mediaUrl: 'https://picsum.photos/id/1027/600/800',
+      postId: '1',
+      userId: 'user_001',
+      userName: 'Saqib Ali',
+      profileImageUrl: 'https://i.pravatar.cc/150?img=1',
+      caption: 'Enjoying Flutter development 🚀',
+      mediaUrl: 'https://picsum.photos/id/1011/600/800',
       mediaType: 'image',
       isVideo: false,
-      createdAt: DateTime.now().subtract(const Duration(days: 5)),
-      location: 'Karachi, Pakistan',
-      likes: ['user_3', 'user_6', 'user_9'],
-      comments: ['Lovely ❤️', 'Beautiful picture'],
-      tags: ['fashion', 'lifestyle'],
+      createdAt: DateTime.now().subtract(const Duration(hours: 2)),
+      location: 'Lahore, Pakistan',
+      likes: ['user_2', 'user_3'],
+      comments: ['Nice!', 'Awesome 🔥'],
+      tags: ['flutter', 'dart'],
       repostBy: [],
       favorites: [],
-      viewsBy: ['user_1', 'user_2'],
+      viewsBy: ['user_4'],
       visibility: 'public',
       allowComments: true,
       hideFrom: [],
+      reports: [],
     ),
 
     PostModel(
-      postId: '5',
-      userId: 'user_005',
-      userName: 'Usman Malik',
-      profileImageUrl: 'https://i.pravatar.cc/150?img=45',
-      caption: 'New project coming soon 🚀🔥',
-      mediaUrl: 'https://picsum.photos/id/1040/600/800',
-      mediaType: 'video',
-      isVideo: true,
-      createdAt: DateTime.now().subtract(const Duration(days: 7)),
-      location: 'Peshawar, Pakistan',
-      likes: ['user_1', 'user_4', 'user_7'],
-      comments: ['Waiting for it!', 'Great work 👏'],
-      tags: ['startup', 'tech'],
-      repostBy: ['user_2'],
-      favorites: ['user_8'],
-      viewsBy: ['user_1', 'user_2', 'user_3'],
+      postId: '2',
+      userId: 'user_002',
+      userName: 'Ali Khan',
+      profileImageUrl: 'https://i.pravatar.cc/150?img=12',
+      caption: 'Beautiful evening at the mountains 🌄',
+      mediaUrl: 'https://picsum.photos/id/1018/600/800',
+      mediaType: 'image',
+      isVideo: false,
+      createdAt: DateTime.now().subtract(const Duration(days: 1)),
+      location: 'Murree, Pakistan',
+      likes: ['user_1', 'user_5', 'user_6'],
+      comments: ['Amazing view!', 'Nature ❤️'],
+      tags: ['travel', 'mountains'],
+      repostBy: ['user_7'],
+      favorites: ['user_3'],
+      viewsBy: ['user_2', 'user_4'],
       visibility: 'public',
       allowComments: true,
       hideFrom: [],
+      reports: [],
     ),
   ];
   final String bio = '''
@@ -190,263 +194,275 @@ Passionate Flutter Developer with 2+ years of experience building modern, scalab
     final ts = Theme.of(context).textTheme;
     return Scaffold(
       //appbar
-      appBar: AppBar(
-        forceMaterialTransparency: true,
-        leading: IconButton(
-          splashColor: Colors.transparent,
-          highlightColor: Colors.transparent,
-          iconSize: 35,
-
-          onPressed: () {
-            BottomSheetUtil.show(
-              context,
-              type: IGBottomSheet.addPost,
-              addPostActions: [
-                IGAddPostAction(
-                  icon: AppIcons.grid,
-                  label: 'Post',
-                  subtitle: 'Share a photo or video to your profile',
-                  onTap: () {},
-                ),
-                IGAddPostAction(
-                  icon: AppIcons.reels,
-                  label: 'Reel',
-                  subtitle: 'Create and share a short video',
-                  onTap: () {},
-                ),
-                IGAddPostAction(
-                  icon: AppIcons.stories,
-                  label: 'Story',
-                  subtitle:
-                      'Share a photo or video that disappears in 24 hours',
-                  onTap: () {},
-                ),
-                IGAddPostAction(
-                  icon: AppIcons.live,
-                  label: 'Live',
-                  subtitle:
-                      'Go live and connect with your followers in real time',
-                  onTap: () {},
-                ),
-              ],
-            );
-          },
-          icon: Icon(AppIcons.add),
-        ),
-        title: Text(
-          _profileController.profileUser.value!.username,
-          style: ts.displayMedium,
-        ),
-        actions: [
-          IconButton(
-            onPressed: () async {
-              await _authController.signOut();
-            },
-            icon: Icon(AppIcons.logout),
-          ),
-        ],
-      ),
       body: Obx(() {
         final user = _profileController.profileUser.value;
 
-        return Column(
-          children: [
-            SizedBox(height: 20.h),
+        return SingleChildScrollView(
+          child: SafeArea(
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    IconButton(
+                      splashColor: Colors.transparent,
+                      highlightColor: Colors.transparent,
+                      iconSize: 35,
+                      color: IGColors.bgDark,
 
-            //profile header row`
-            ProfileHeader(
-              image: user!.profileImageUrl,
-              name: user.fullName,
-              bio: user.bio,
-              totalPosts: user.posts.length,
-              followersCount: user.followers.length,
-              followingCount: user.following.length,
-            ),
-            SizedBox(height: 20.h),
-            //edit and share buttons
-            Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: AppConstants.horizontalSmallPadding,
-              ),
-              child: Row(
-                children: [
-                  SizedBox(
-                    height: 30.h,
-                    width: 155.w,
-
-                    child: ElevatedButton(
                       onPressed: () {
-                        Get.toNamed(AppRoutes.editProfile, arguments: user);
-                      },
-                      style: ButtonStyle(
-                        backgroundColor: WidgetStatePropertyAll(
-                          IGColors.gray.withValues(alpha: .3),
-                        ),
-                        overlayColor: WidgetStatePropertyAll(
-                          Colors.transparent,
-                        ),
-                        elevation: WidgetStatePropertyAll(0),
-                        shadowColor: WidgetStatePropertyAll(Colors.transparent),
-                      ),
-                      child: Text(
-                        'Edit profile',
-                        style: TextStyle(color: IGColors.bgDark),
-                      ),
-                    ),
-                  ),
-                  Spacer(),
-                  SizedBox(
-                    height: 30.h,
-                    width: 155.w,
-
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Get.toNamed(AppRoutes.shareProfile);
-                      },
-                      style:
-                          ElevatedButton.styleFrom(
-                            backgroundColor: IGColors.gray.withValues(
-                              alpha: .3,
+                        BottomSheetUtil.show(
+                          context,
+                          type: IGBottomSheet.addPost,
+                          addPostActions: [
+                            IGAddPostAction(
+                              icon: AppIcons.grid,
+                              label: 'Post',
+                              subtitle:
+                                  'Share a photo or video to your profile',
+                              onTap: () {},
                             ),
-                            elevation: 0,
-                            shadowColor: Colors.transparent,
-                          ).copyWith(
-                            overlayColor: WidgetStateProperty.all(
+                            IGAddPostAction(
+                              icon: AppIcons.reels,
+                              label: 'Reel',
+                              subtitle: 'Create and share a short video',
+                              onTap: () {},
+                            ),
+                            IGAddPostAction(
+                              icon: AppIcons.stories,
+                              label: 'Story',
+                              subtitle:
+                                  'Share a photo or video that disappears in 24 hours',
+                              onTap: () {},
+                            ),
+                            IGAddPostAction(
+                              icon: AppIcons.live,
+                              label: 'Live',
+                              subtitle:
+                                  'Go live and connect with your followers in real time',
+                              onTap: () {},
+                            ),
+                          ],
+                        );
+                      },
+                      icon: Icon(AppIcons.add),
+                    ),
+                    Spacer(),
+                    Text(
+                      _profileController.profileUser.value!.username,
+                      style: ts.displayMedium,
+                    ),
+                    Spacer(),
+                    IconButton(
+                      onPressed: () async {
+                        await _authController.signOut();
+                      },
+                      icon: Icon(AppIcons.logout, color: IGColors.bgDark),
+                    ),
+                  ],
+                ),
+
+                SizedBox(height: 20.h),
+
+                //profile header row`
+                ProfileHeader(
+                  image: user!.profileImageUrl,
+                  name: user.fullName,
+                  bio: user.bio,
+                  totalPosts: user.posts.length,
+                  followersCount: user.followers.length,
+                  followingCount: user.following.length,
+                ),
+                SizedBox(height: 20.h),
+                //edit and share buttons
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: AppConstants.horizontalSmallPadding,
+                  ),
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        height: 30.h,
+                        width: 155.w,
+
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Get.toNamed(AppRoutes.editProfile, arguments: user);
+                          },
+                          style: ButtonStyle(
+                            backgroundColor: WidgetStatePropertyAll(
+                              IGColors.gray.withValues(alpha: .3),
+                            ),
+                            overlayColor: WidgetStatePropertyAll(
+                              Colors.transparent,
+                            ),
+                            elevation: WidgetStatePropertyAll(0),
+                            shadowColor: WidgetStatePropertyAll(
                               Colors.transparent,
                             ),
                           ),
-                      child: Text(
-                        'Share profile',
-                        style: TextStyle(color: IGColors.bgDark),
-                      ),
-                    ),
-                  ),
-                  Spacer(),
-
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        showSuggestion = !showSuggestion;
-                      });
-                    },
-                    child: Container(
-                      height: 30.h,
-                      width: 30.w,
-
-                      decoration: BoxDecoration(
-                        color: IGColors.gray.withValues(alpha: .3),
-
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Center(
-                        child: Icon(AppIcons.addPerson, size: 18.sp),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            suggestedPosts.isEmpty
-                ? SizedBox()
-                : Visibility(
-                    visible: showSuggestion,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 16.w,
-                            vertical: 14.h,
-                          ),
                           child: Text(
-                            'Discover people',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 13.sp,
-                            ),
+                            'Edit profile',
+                            style: TextStyle(color: IGColors.bgDark),
                           ),
                         ),
+                      ),
+                      Spacer(),
+                      SizedBox(
+                        height: 30.h,
+                        width: 155.w,
 
-                        SizedBox(
-                          height: 245.h,
-                          child: ListView.builder(
-                            itemCount: suggestedPosts.length,
-                            scrollDirection: Axis.horizontal,
-
-                            padding: EdgeInsets.symmetric(horizontal: 12.w),
-                            itemBuilder: (context, index) {
-                              return SuggestedCardWidget(
-                                onCancel: () {
-                                  setState(() {
-                                    suggestedPosts.removeAt(index);
-                                  });
-                                },
-                                onFollow: () {
-                                  setState(() {
-                                    suggestedPosts.removeAt(index);
-                                  });
-                                },
-                                name: suggestedPosts[index]['name'].toString(),
-
-                                image: suggestedPosts[index]['imageUrl']
-                                    .toString(),
-
-                                totalMutual:
-                                    suggestedPosts[index]['mutualFriends']
-                                        as int,
-                              );
-                            },
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Get.toNamed(AppRoutes.shareProfile);
+                          },
+                          style:
+                              ElevatedButton.styleFrom(
+                                backgroundColor: IGColors.gray.withValues(
+                                  alpha: .3,
+                                ),
+                                elevation: 0,
+                                shadowColor: Colors.transparent,
+                              ).copyWith(
+                                overlayColor: WidgetStateProperty.all(
+                                  Colors.transparent,
+                                ),
+                              ),
+                          child: Text(
+                            'Share profile',
+                            style: TextStyle(color: IGColors.bgDark),
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                      Spacer(),
+
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            showSuggestion = !showSuggestion;
+                          });
+                        },
+                        child: Container(
+                          height: 30.h,
+                          width: 30.w,
+
+                          decoration: BoxDecoration(
+                            color: IGColors.gray.withValues(alpha: .3),
+
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Center(
+                            child: Icon(AppIcons.addPerson, size: 18.sp),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-            SizedBox(height: 20.h),
-            //tab bar *****************
-            TabBar(
-              controller: tabController,
-              splashFactory: NoSplash.splashFactory,
+                ),
+                suggestedPosts.isEmpty
+                    ? SizedBox()
+                    : Visibility(
+                        visible: showSuggestion,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 16.w,
+                                vertical: 14.h,
+                              ),
+                              child: Text(
+                                'Discover people',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13.sp,
+                                ),
+                              ),
+                            ),
 
-              labelColor: IGColors.bgDark,
-              unselectedLabelColor: IGColors.gray,
-              indicatorColor: IGColors.bgDark,
-              dividerColor: Colors.transparent,
-              tabs: [
-                Padding(
-                  padding: EdgeInsets.only(bottom: 8.h),
-                  child: Icon(AppIcons.grid),
+                            SizedBox(
+                              height: 245.h,
+                              child: ListView.builder(
+                                itemCount: suggestedPosts.length,
+                                scrollDirection: Axis.horizontal,
+
+                                padding: EdgeInsets.symmetric(horizontal: 12.w),
+                                itemBuilder: (context, index) {
+                                  return SuggestedCardWidget(
+                                    onCancel: () {
+                                      setState(() {
+                                        suggestedPosts.removeAt(index);
+                                      });
+                                    },
+                                    onFollow: () {
+                                      setState(() {
+                                        suggestedPosts.removeAt(index);
+                                      });
+                                    },
+                                    name: suggestedPosts[index]['name']
+                                        .toString(),
+
+                                    image: suggestedPosts[index]['imageUrl']
+                                        .toString(),
+
+                                    totalMutual:
+                                        suggestedPosts[index]['mutualFriends']
+                                            as int,
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                SizedBox(height: 20.h),
+                //tab bar *****************
+                TabBar(
+                  controller: tabController,
+                  splashFactory: NoSplash.splashFactory,
+
+                  labelColor: IGColors.bgDark,
+                  unselectedLabelColor: IGColors.gray,
+                  indicatorColor: IGColors.bgDark,
+                  dividerColor: Colors.transparent,
+                  tabs: [
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 8.h),
+                      child: Icon(AppIcons.grid),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 8.h),
+                      child: Icon(AppIcons.reels),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 8.h),
+                      child: Icon(AppIcons.repost),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 8.h),
+                      child: Icon(AppIcons.favorite),
+                    ),
+                  ],
                 ),
-                Padding(
-                  padding: EdgeInsets.only(bottom: 8.h),
-                  child: Icon(AppIcons.reels),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(bottom: 8.h),
-                  child: Icon(AppIcons.repost),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(bottom: 8.h),
-                  child: Icon(AppIcons.favorite),
+
+                SizedBox(
+                  height: MediaQuery.of(context).size.height,
+                  child: TabBarView(
+                    controller: tabController,
+                    children: [
+                      ProfileTabView(posts: dummyPosts, tabType: 'isFavorite'),
+                      ProfileTabView(posts: dummyPosts, tabType: 'isVideo'),
+                      ProfileTabView(posts: dummyPosts, tabType: 'isRepost'),
+                      ProfileTabView(
+                        posts: favoritePosts,
+                        tabType: 'isFav',
+                      ), // no Obx
+                    ],
+                  ),
                 ),
               ],
             ),
-
-            Expanded(
-              child: TabBarView(
-                controller: tabController,
-                children: [
-                  ProfileTabView(posts: dummyPosts, tabType: 'isFavorite'),
-                  ProfileTabView(posts: dummyPosts, tabType: 'isVideo'),
-                  ProfileTabView(posts: dummyPosts, tabType: 'isRepost'),
-                  ProfileTabView(
-                    posts: favoritePosts,
-                    tabType: 'isFav',
-                  ), // no Obx
-                ],
-              ),
-            ),
-          ],
+          ),
         );
       }),
     );

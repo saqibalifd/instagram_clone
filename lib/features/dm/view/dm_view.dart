@@ -1,11 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:get/state_manager.dart';
 import 'package:instagram/core/constants/app_constants.dart';
 import 'package:instagram/core/constants/app_icons.dart';
 import 'package:instagram/core/theme/app_theme.dart';
 import 'package:instagram/data/models/stories_model.dart';
+import 'package:instagram/data/models/user_model.dart';
 import 'package:instagram/features/dm/widgets/dm_my_stories_circle_widget.dart';
 import 'package:instagram/features/dm/widgets/dm_stories_circle_widget.dart';
 import 'package:instagram/routes/app_routes.dart';
@@ -19,6 +20,9 @@ class DmView extends StatefulWidget {
 }
 
 class _DmViewState extends State<DmView> {
+  final TextEditingController _searchController = TextEditingController();
+  bool _isSearching = false;
+
   final List<StoryUserModel> storiesUsers = [
     StoryUserModel(
       name: 'Ali',
@@ -92,64 +96,138 @@ class _DmViewState extends State<DmView> {
     ),
   ];
 
-  final List<Map<String, String>> users = [
-    {
-      'name': 'Elsa',
-      'status': 'Active 16 min ago.',
-      'image':
-          'https://plus.unsplash.com/premium_photo-1690407617542-2f210cf20d7e?fm=jpg&q=60&w=3000&auto=format&fit=crop',
-      "userId": "cc8J8XNLKLRlyXPr8jGPLN7RMqr2",
-    },
-    {
-      'name': 'John',
-      'status': 'Active now',
-      'image':
-          'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=500',
-      "userId": "cc8J8XNLKLRlyXPr8jGPLN7RMqr2",
-    },
-    {
-      'name': 'Sophia',
-      'status': 'Active 5 min ago.',
-      'image':
-          'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=500',
-      "userId": "cc8J8XNLKLRlyXPr8jGPLN7RMqr2",
-    },
-    {
-      'name': 'Michael',
-      'status': 'Active 1 hour ago.',
-      'image':
-          'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=500',
-      "userId": "cc8J8XNLKLRlyXPr8jGPLN7RMqr2",
-    },
-    {
-      'name': 'Emma',
-      'status': 'Active yesterday',
-      'image':
-          'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=500',
-      "userId": "cc8J8XNLKLRlyXPr8jGPLN7RMqr2",
-    },
-    {
-      'name': 'David',
-      'status': 'Online',
-      'image':
-          'https://images.unsplash.com/photo-1504593811423-6dd665756598?w=500',
-      "userId": "cc8J8XNLKLRlyXPr8jGPLN7RMqr2",
-    },
-    {
-      'name': 'Olivia',
-      'status': 'Active 30 min ago.',
-      'image':
-          'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=500',
-      "userId": "cc8J8XNLKLRlyXPr8jGPLN7RMqr2",
-    },
-    {
-      'name': 'James',
-      'status': 'Active 2 hours ago.',
-      'image':
-          'https://images.unsplash.com/photo-1504257432389-52343af06ae3?w=500',
-      "userId": "cc8J8XNLKLRlyXPr8jGPLN7RMqr2",
-    },
+  final List<UserModel> _allUsers = [
+    UserModel(
+      fullName: "Saqib Ali",
+      email: "saqib@gmail.com",
+      username: "saqib_dev",
+      profileImageUrl: "https://i.pravatar.cc/150?img=1",
+      gender: "Male",
+      userId: "u1",
+      deviceToken: "token1",
+      bio: "Flutter Developer",
+      website: "https://saqib.dev",
+      isPrivate: false,
+      isVerified: true,
+      createdAt: Timestamp.now(),
+      following: [],
+      followers: [],
+      posts: [],
+      blocked: [],
+      likedPosts: [],
+      location: "Lahore",
+      phone: "+923001112233",
+      status: "Active",
+      updatedAt: Timestamp.now(),
+    ),
+    UserModel(
+      fullName: "Ali Raza",
+      email: "ali@gmail.com",
+      username: "ali_raza",
+      profileImageUrl: "https://i.pravatar.cc/150?img=2",
+      gender: "Male",
+      userId: "u2",
+      deviceToken: "token2",
+      bio: "Mobile App Developer",
+      website: "",
+      isPrivate: false,
+      isVerified: false,
+      createdAt: Timestamp.now(),
+      following: [],
+      followers: [],
+      posts: [],
+      blocked: [],
+      likedPosts: [],
+      location: "Islamabad",
+      phone: "+923002223344",
+      status: "Active",
+      updatedAt: Timestamp.now(),
+    ),
+    UserModel(
+      fullName: "Ayesha Khan",
+      email: "ayesha@gmail.com",
+      username: "ayesha_k",
+      profileImageUrl: "https://i.pravatar.cc/150?img=3",
+      gender: "Female",
+      userId: "u3",
+      deviceToken: "token3",
+      bio: "UI/UX Designer",
+      website: "",
+      isPrivate: true,
+      isVerified: true,
+      createdAt: Timestamp.now(),
+      following: [],
+      followers: [],
+      posts: [],
+      blocked: [],
+      likedPosts: [],
+      location: "Karachi",
+      phone: "+923003334455",
+      status: "Online",
+      updatedAt: Timestamp.now(),
+    ),
+    UserModel(
+      fullName: "Hamza Ahmed",
+      email: "hamza@gmail.com",
+      username: "hamza_dev",
+      profileImageUrl: "https://i.pravatar.cc/150?img=4",
+      gender: "Male",
+      userId: "u4",
+      deviceToken: "token4",
+      bio: "Firebase Expert",
+      website: "",
+      isPrivate: false,
+      isVerified: false,
+      createdAt: Timestamp.now(),
+      following: [],
+      followers: [],
+      posts: [],
+      blocked: [],
+      likedPosts: [],
+      location: "Faisalabad",
+      phone: "+923004445566",
+      status: "Active now",
+      updatedAt: Timestamp.now(),
+    ),
   ];
+
+  List<UserModel> _filteredUsers = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _filteredUsers = List.from(_allUsers);
+    _searchController.addListener(_onSearchChanged);
+  }
+
+  @override
+  void dispose() {
+    _searchController.removeListener(_onSearchChanged);
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _onSearchChanged() {
+    final query = _searchController.text.trim().toLowerCase();
+    setState(() {
+      _isSearching = query.isNotEmpty;
+      if (query.isEmpty) {
+        _filteredUsers = List.from(_allUsers);
+      } else {
+        _filteredUsers = _allUsers.where((user) {
+          return user.fullName.toLowerCase().contains(query) ||
+              user.username.toLowerCase().contains(query) ||
+              user.bio.toLowerCase().contains(query);
+        }).toList();
+      }
+    });
+  }
+
+  void _clearSearch() {
+    _searchController.clear();
+    FocusScope.of(context).unfocus();
+  }
+
   @override
   Widget build(BuildContext context) {
     final ts = Theme.of(context).textTheme;
@@ -158,11 +236,8 @@ class _DmViewState extends State<DmView> {
       appBar: AppBar(
         forceMaterialTransparency: true,
         title: Text('saqibali.fd', style: ts.displayMedium),
-        // actions: [IconButton(onPressed: () {}, icon: Icon(AppIcons.editNote))],
       ),
-
       body: SingleChildScrollView(
-        physics: BouncingScrollPhysics(),
         child: Column(
           children: [
             Padding(
@@ -170,11 +245,18 @@ class _DmViewState extends State<DmView> {
                 horizontal: AppConstants.horizontalSmallPadding,
               ),
               child: TextFormField(
+                controller: _searchController,
                 decoration: InputDecoration(
-                  prefixIcon: Icon(AppIcons.search),
+                  prefixIcon: const Icon(AppIcons.search),
+                  suffixIcon: _isSearching
+                      ? IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: _clearSearch,
+                        )
+                      : null,
                   fillColor: IGColors.gray.withValues(alpha: .2),
                   filled: true,
-                  hintText: 'Search with Meta AI',
+                  hintText: 'Search',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(50),
                     borderSide: BorderSide.none,
@@ -186,19 +268,43 @@ class _DmViewState extends State<DmView> {
                 ),
               ),
             ),
-            SizedBox(height: 40.h),
-            SizedBox(
-              height: 110.h,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: storiesUsers.length,
-                itemBuilder: (context, index) {
-                  if (index == 0) {
+
+            if (!_isSearching) ...[
+              SizedBox(height: 40.h),
+              SizedBox(
+                height: 110.h,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: storiesUsers.length,
+                  itemBuilder: (context, index) {
+                    if (index == 0) {
+                      return Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 10.w),
+                        child: DmMyStoriesCircleWidget(
+                          imageUrl:
+                              'https://img.magnific.com/free-psd/modern-dynamic-banner_125755-403.jpg',
+                          onStoryTap: () {
+                            Get.toNamed(
+                              AppRoutes.viewStory,
+                              arguments: {
+                                'currentStory': storiesUsers[index],
+                                'allStories': storiesUsers,
+                              },
+                            );
+                          },
+                          onAddStory: () async {
+                            await ImagePickerUtil.pickFromGallery(
+                              context,
+                              maxWidth: 1024,
+                              imageQuality: 85,
+                            );
+                          },
+                        ),
+                      );
+                    }
                     return Padding(
                       padding: EdgeInsets.symmetric(horizontal: 10.w),
-                      child: DmMyStoriesCircleWidget(
-                        imageUrl:
-                            'https://img.magnific.com/free-psd/modern-dynamic-banner_125755-403.jpg?semt=ais_hybrid&w=740&q=80',
+                      child: DmStoriesCircleWidget(
                         onStoryTap: () {
                           Get.toNamed(
                             AppRoutes.viewStory,
@@ -208,41 +314,18 @@ class _DmViewState extends State<DmView> {
                             },
                           );
                         },
-                        onAddStory: () async {
-                          // print('add story');
-                          await ImagePickerUtil.pickFromGallery(
-                            context,
-                            maxWidth: 1024,
-                            imageQuality: 85,
-                          );
-                        },
+                        imageUrl: storiesUsers[index].storyImage.toString(),
+                        name: storiesUsers[index].name.toString().length > 10
+                            ? '${storiesUsers[index].name.toString().substring(0, 10)}...'
+                            : storiesUsers[index].name.toString(),
+                        isPlayed: storiesUsers[index].isPlayed,
                       ),
                     );
-                  }
-
-                  final storyIndex = index - 1;
-                  return Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 10.w),
-                    child: DmStoriesCircleWidget(
-                      onStoryTap: () {
-                        Get.toNamed(
-                          AppRoutes.viewStory,
-                          arguments: {
-                            'currentStory': storiesUsers[index],
-                            'allStories': storiesUsers,
-                          },
-                        );
-                      },
-                      imageUrl: storiesUsers[index].storyImage.toString(),
-                      name: storiesUsers[index].name.toString().length > 10
-                          ? '${storiesUsers[index].name.toString().substring(0, 10)}...'
-                          : storiesUsers[index].name.toString(),
-                      isPlayed: storiesUsers[index].isPlayed,
-                    ),
-                  );
-                },
+                  },
+                ),
               ),
-            ),
+            ],
+
             Align(
               alignment: Alignment.bottomLeft,
               child: Padding(
@@ -250,61 +333,114 @@ class _DmViewState extends State<DmView> {
                   horizontal: AppConstants.horizontalSmallPadding,
                   vertical: 8,
                 ),
-                child: Text('Messages', style: ts.displaySmall),
+                child: Text(
+                  _isSearching ? 'Results' : 'Messages',
+                  style: ts.displaySmall,
+                ),
               ),
             ),
-            ListView.builder(
-              physics: NeverScrollableScrollPhysics(),
-              itemCount: users.length,
-              shrinkWrap: true,
-              itemBuilder: (context, index) {
-                final user = users[index];
 
-                return Column(
-                  children: [
-                    ListTile(
-                      onTap: () {
-                        Get.toNamed(
-                          AppRoutes.chat,
-                          arguments: {
-                            'name': user['name'],
-                            'status': user['status'],
-                            'image': user['image'],
-                            'userId': user['userId'],
-                          },
-                        );
-                      },
-                      leading: Stack(
-                        children: [
-                          CircleAvatar(
-                            backgroundImage: NetworkImage(user['image']!),
-                          ),
-                          Visibility(
-                            visible:
-                                user['status'] == 'Online' ||
-                                    user['status'] == 'Active now'
-                                ? true
-                                : false,
-                            child: Positioned(
-                              bottom: 0,
-                              right: 0,
-                              child: CircleAvatar(
-                                radius: 5,
-                                backgroundColor: IGColors.green,
+            _filteredUsers.isEmpty
+                ? _buildEmptyState()
+                : ListView.builder(
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: _filteredUsers.length,
+                    shrinkWrap: true,
+                    itemBuilder: (context, index) {
+                      final user = _filteredUsers[index];
+                      final bool isOnline =
+                          user.status == 'Online' ||
+                          user.status == 'Active now';
+
+                      return ListTile(
+                        onTap: () {
+                          Get.toNamed(
+                            AppRoutes.chat,
+                            arguments: {
+                              'name': user.fullName,
+                              'status': user.status,
+                              'image': user.profileImageUrl,
+                              'userId': user.userId,
+                            },
+                          );
+                        },
+                        leading: Stack(
+                          children: [
+                            CircleAvatar(
+                              backgroundImage: NetworkImage(
+                                user.profileImageUrl,
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                      title: Text(user['name']!),
-                      subtitle: Text(user['status']!),
-                    ),
-                  ],
-                );
-              },
-            ),
+                            if (isOnline)
+                              Positioned(
+                                bottom: 0,
+                                right: 0,
+                                child: CircleAvatar(
+                                  radius: 5,
+                                  backgroundColor: IGColors.green,
+                                ),
+                              ),
+                          ],
+                        ),
+                        title: _isSearching
+                            ? _buildHighlightedText(
+                                user.fullName,
+                                _searchController.text.trim(),
+                                ts.bodyMedium!,
+                              )
+                            : Text(user.fullName),
+                        subtitle: Text(user.status),
+                      );
+                    },
+                  ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 60.h),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.search_off_rounded, size: 48.sp, color: IGColors.gray),
+          SizedBox(height: 12.h),
+          Text(
+            'No results for "${_searchController.text.trim()}"',
+            style: TextStyle(color: IGColors.gray),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Highlights the matched [query] substring inside [text].
+  Widget _buildHighlightedText(String text, String query, TextStyle base) {
+    if (query.isEmpty) return Text(text, style: base);
+
+    final lowerText = text.toLowerCase();
+    final lowerQuery = query.toLowerCase();
+    final start = lowerText.indexOf(lowerQuery);
+
+    if (start == -1) return Text(text, style: base);
+
+    final end = start + query.length;
+    return RichText(
+      text: TextSpan(
+        style: base,
+        children: [
+          if (start > 0) TextSpan(text: text.substring(0, start)),
+          TextSpan(
+            text: text.substring(start, end),
+            style: base.copyWith(
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+          if (end < text.length) TextSpan(text: text.substring(end)),
+        ],
       ),
     );
   }

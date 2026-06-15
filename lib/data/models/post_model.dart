@@ -8,24 +8,19 @@ class PostModel {
   final String caption;
   final String mediaUrl;
   final String mediaType;
-
   final bool isVideo;
-
   final DateTime createdAt;
-
   final String location;
-
   final List<String> likes;
   final List<String> comments;
-
   final List<String> tags;
   final List<String> repostBy;
   final List<String> favorites;
   final List<String> viewsBy;
-
   final String visibility;
   final bool allowComments;
   final List<String> hideFrom;
+  final List<String> reports;
 
   const PostModel({
     required this.postId,
@@ -44,10 +39,10 @@ class PostModel {
     required this.repostBy,
     required this.favorites,
     required this.viewsBy,
-
     required this.visibility,
     required this.allowComments,
     required this.hideFrom,
+    required this.reports,
   });
 
   factory PostModel.fromJson(Map<String, dynamic> json) {
@@ -59,23 +54,19 @@ class PostModel {
       caption: json['caption'] ?? '',
       mediaUrl: json['mediaUrl'] ?? '',
       mediaType: json['mediaType'] ?? 'image',
-
       isVideo: json['isVideo'] ?? false,
-
       createdAt: _parseDateTime(json['createdAt']),
-
       location: json['location'] ?? '',
       likes: List<String>.from(json['likes'] ?? []),
       comments: List<String>.from(json['comments'] ?? []),
-
       tags: List<String>.from(json['tags'] ?? []),
       repostBy: List<String>.from(json['repostBy'] ?? []),
       favorites: List<String>.from(json['favorites'] ?? []),
       viewsBy: List<String>.from(json['viewsBy'] ?? []),
-
       visibility: json['visibility'] ?? 'public',
       allowComments: json['allowComments'] ?? true,
       hideFrom: List<String>.from(json['hideFrom'] ?? []),
+      reports: List<String>.from(json['reports'] ?? []),
     );
   }
 
@@ -104,23 +95,19 @@ class PostModel {
       'caption': caption,
       'mediaUrl': mediaUrl,
       'mediaType': mediaType,
-
       'isVideo': isVideo,
-
       'createdAt': createdAt.millisecondsSinceEpoch,
-
       'location': location,
       'likes': likes,
       'comments': comments,
-
       'tags': tags,
       'repostBy': repostBy,
       'favorites': favorites,
       'viewsBy': viewsBy,
-
       'visibility': visibility,
       'allowComments': allowComments,
       'hideFrom': hideFrom,
+      'reports': reports,
     };
   }
 
@@ -144,6 +131,7 @@ class PostModel {
     String? visibility,
     bool? allowComments,
     List<String>? hideFrom,
+    List<String>? reports,
   }) {
     return PostModel(
       postId: postId ?? this.postId,
@@ -165,6 +153,7 @@ class PostModel {
       visibility: visibility ?? this.visibility,
       allowComments: allowComments ?? this.allowComments,
       hideFrom: hideFrom ?? this.hideFrom,
+      reports: reports ?? this.reports,
     );
   }
 }

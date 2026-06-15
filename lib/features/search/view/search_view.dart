@@ -114,6 +114,7 @@ class _SearchViewState extends State<SearchView> {
       visibility: 'public',
       allowComments: true,
       hideFrom: [],
+      reports: [],
     ),
     PostModel(
       postId: '2',
@@ -135,6 +136,7 @@ class _SearchViewState extends State<SearchView> {
       visibility: 'public',
       allowComments: true,
       hideFrom: [],
+      reports: [],
     ),
     PostModel(
       postId: '3',
@@ -156,6 +158,7 @@ class _SearchViewState extends State<SearchView> {
       visibility: 'public',
       allowComments: true,
       hideFrom: [],
+      reports: [],
     ),
   ];
 
