@@ -9,6 +9,7 @@ import 'package:instagram/data/local/favourite_post_services.dart';
 import 'package:instagram/data/models/post_model.dart';
 import 'package:instagram/routes/app_routes.dart';
 import 'package:instagram/utils/bottom_sheet_util.dart';
+import 'package:instagram/utils/chached_images_manager.dart';
 import 'package:instagram/utils/custom_toast_util.dart';
 
 class AllPostCardWidget extends StatefulWidget {
@@ -129,16 +130,9 @@ class _AllPostCardWidgetState extends State<AllPostCardWidget> {
               maxScale: 4.0,
               boundaryMargin: const EdgeInsets.all(20),
               clipBehavior: Clip.hardEdge,
-              child: Image.network(
-                widget.postModel.mediaUrl,
+              child: CachedImageManager.image(
+                url: widget.postModel.mediaUrl,
                 fit: BoxFit.cover,
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return Container(
-                    color: IGColors.gray,
-                    child: const Center(child: CircularProgressIndicator()),
-                  );
-                },
               ),
             ),
           ),

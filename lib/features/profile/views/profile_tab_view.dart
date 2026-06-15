@@ -7,6 +7,7 @@ import 'package:instagram/core/theme/app_theme.dart';
 import 'package:instagram/data/models/post_model.dart';
 import 'package:instagram/features/profile/widgets/empty_tab_widget.dart';
 import 'package:instagram/routes/app_routes.dart';
+import 'package:instagram/utils/chached_images_manager.dart';
 
 class ProfileTabView extends StatelessWidget {
   final List<PostModel> posts;
@@ -71,7 +72,10 @@ class ProfileTabView extends StatelessWidget {
                   arguments: {'posts': posts, 'index': index},
                 );
               },
-              child: Image.network(posts[index].mediaUrl, fit: BoxFit.cover),
+              child: CachedImageManager.image(
+                url: posts[index].mediaUrl,
+                fit: BoxFit.cover,
+              ),
             ),
             Positioned(
               bottom: 10.h,

@@ -10,6 +10,7 @@ import 'package:instagram/features/home/views/home_view.dart';
 import 'package:instagram/features/profile/controllers/profile_controller.dart';
 import 'package:instagram/features/profile/views/profile_view.dart';
 import 'package:instagram/features/search/view/search_view.dart';
+import 'package:instagram/utils/chached_images_manager.dart';
 
 class CustomBottomNavbar extends StatefulWidget {
   final int index;
@@ -107,20 +108,21 @@ class _CustomBottomNavbarState extends State<CustomBottomNavbar> {
             label: '',
           ),
           BottomNavigationBarItem(
-            icon: CircleAvatar(
-              backgroundColor: IGColors.bgLight,
-              radius: 14.r,
-              backgroundImage: NetworkImage(
-                _profileController.profileUser.value!.profileImageUrl,
+            icon: Container(
+              height: 28.r,
+              width: 28.r,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.transparent,
+              ),
+              child: CachedImageManager.image(
+                url: _profileController.profileUser.value!.profileImageUrl,
+                fit: BoxFit.cover,
+                placeholder: Icon(AppIcons.profile, color: IGColors.bgDark),
+                errorWidget: Icon(AppIcons.profile, color: IGColors.bgDark),
               ),
             ),
-            activeIcon: CircleAvatar(
-              backgroundColor: IGColors.bgLight,
-              radius: 14.r,
-              backgroundImage: NetworkImage(
-                _profileController.profileUser.value!.profileImageUrl,
-              ),
-            ),
+
             label: '',
           ),
         ],

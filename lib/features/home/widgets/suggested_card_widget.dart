@@ -4,6 +4,7 @@ import 'package:get/route_manager.dart';
 import 'package:instagram/core/constants/app_icons.dart';
 import 'package:instagram/core/theme/app_theme.dart';
 import 'package:instagram/routes/app_routes.dart';
+import 'package:instagram/utils/chached_images_manager.dart';
 
 class SuggestedCardWidget extends StatelessWidget {
   final String name;
@@ -45,9 +46,17 @@ class SuggestedCardWidget extends StatelessWidget {
                     arguments: 'cc8J8XNLKLRlyXPr8jGPLN7RMqr2',
                   );
                 },
-                child: CircleAvatar(
-                  radius: 50.r,
-                  backgroundImage: NetworkImage(image),
+                child: Container(
+                  width: 100.r,
+                  height: 100.r,
+                  decoration: BoxDecoration(shape: BoxShape.circle),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(50.r),
+                    child: CachedImageManager.image(
+                      url: image,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                 ),
               ),
               SizedBox(height: 6.h),

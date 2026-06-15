@@ -9,6 +9,7 @@ import 'package:instagram/data/local/favourite_post_services.dart';
 import 'package:instagram/data/models/post_model.dart';
 import 'package:instagram/routes/app_routes.dart';
 import 'package:instagram/utils/bottom_sheet_util.dart';
+import 'package:instagram/utils/chached_images_manager.dart';
 import 'package:instagram/utils/custom_toast_util.dart';
 import 'package:readmore/readmore.dart';
 
@@ -57,10 +58,16 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
                     arguments: widget.postModel.userId,
                   );
                 },
-                child: CircleAvatar(
-                  radius: 18.r,
-                  backgroundImage: NetworkImage(
-                    widget.postModel.profileImageUrl,
+                child: Container(
+                  width: 36.r,
+                  height: 36.r,
+                  decoration: BoxDecoration(shape: BoxShape.circle),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(40.r),
+                    child: CachedImageManager.image(
+                      url: widget.postModel.profileImageUrl,
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
               ),
@@ -130,16 +137,9 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
               maxScale: 4.0,
               boundaryMargin: const EdgeInsets.all(20),
               clipBehavior: Clip.hardEdge,
-              child: Image.network(
-                widget.postModel.mediaUrl,
+              child: CachedImageManager.image(
+                url: widget.postModel.mediaUrl,
                 fit: BoxFit.cover,
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return Container(
-                    color: IGColors.gray,
-                    child: const Center(child: CircularProgressIndicator()),
-                  );
-                },
               ),
             ),
           ),

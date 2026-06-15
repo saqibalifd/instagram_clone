@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:instagram/core/theme/app_theme.dart';
+import 'package:instagram/utils/chached_images_manager.dart';
 
 class MyStorieCircleWidget extends StatelessWidget {
   final String imageUrl;
@@ -30,10 +31,17 @@ class MyStorieCircleWidget extends StatelessWidget {
               child: GestureDetector(
                 onTap: onStoryTap,
 
-                child: CircleAvatar(
-                  backgroundColor: IGColors.gray,
-                  radius: 40.r,
-                  backgroundImage: NetworkImage(imageUrl),
+                child: Container(
+                  width: 80.r,
+                  height: 80.r,
+                  decoration: BoxDecoration(shape: BoxShape.circle),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(40.r),
+                    child: CachedImageManager.image(
+                      url: imageUrl,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                 ),
               ),
             ),

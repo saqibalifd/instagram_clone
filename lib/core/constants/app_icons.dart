@@ -12,6 +12,7 @@ class AppIcons {
   static const IconData lock = Icons.lock_outline;
   static const IconData phone = Icons.phone_outlined;
   static const IconData message = Icons.message_outlined;
+  static const IconData playButton = Icons.play_circle_fill;
 
   // Common Icons
   static const IconData favorite = Icons.bookmark_outline;

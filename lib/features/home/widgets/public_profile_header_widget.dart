@@ -93,42 +93,49 @@ class _PublicProfileHeaderWidgetState extends State<PublicProfileHeaderWidget> {
                 ],
               ),
               Spacer(),
-              Row(
-                children: [
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(height: 30.h),
+              GestureDetector(
+                onTap: () => Get.toNamed(AppRoutes.allFollow),
+                child: Row(
+                  children: [
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 30.h),
 
-                      Text(
-                        widget.followersCount.toString(),
-                        style: ts.titleLarge,
-                      ),
-                      Text('followers'),
-                    ],
-                  ),
-                ],
+                        Text(
+                          widget.followersCount.toString(),
+                          style: ts.titleLarge,
+                        ),
+                        Text('followers'),
+                      ],
+                    ),
+                  ],
+                ),
               ),
               Spacer(),
 
-              Row(
-                children: [
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(height: 30.h),
+              GestureDetector(
+                onTap: () => Get.toNamed(AppRoutes.allFollow),
 
-                      Text(
-                        widget.followingCount.toString(),
-                        style: ts.titleLarge,
-                      ),
-                      Text('following'),
-                    ],
-                  ),
-                  SizedBox(width: 50.w),
-                ],
+                child: Row(
+                  children: [
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 30.h),
+
+                        Text(
+                          widget.followingCount.toString(),
+                          style: ts.titleLarge,
+                        ),
+                        Text('following'),
+                      ],
+                    ),
+                    SizedBox(width: 50.w),
+                  ],
+                ),
               ),
             ],
           ),
