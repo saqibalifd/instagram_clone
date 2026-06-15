@@ -64,6 +64,8 @@ dependencies:
   modal_bottom_sheet: ^3.0.0
   chat_bubbles: ^1.10.1
   readmore: ^3.0.0
+  cached_video_player_plus: ^4.1.0
+  video_player: ^2.11.1
 
 
 dev_dependencies:
