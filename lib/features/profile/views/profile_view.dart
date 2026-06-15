@@ -195,6 +195,8 @@ Passionate Flutter Developer with 2+ years of experience building modern, scalab
         leading: IconButton(
           splashColor: Colors.transparent,
           highlightColor: Colors.transparent,
+          iconSize: 35,
+
           onPressed: () {
             BottomSheetUtil.show(
               context,
