@@ -126,106 +126,229 @@ class _HomeViewState extends State<HomeView> {
 
     return Scaffold(
       backgroundColor: IGColors.bgLight,
-      appBar: AppBar(
-        forceMaterialTransparency: true,
-        leading: IconButton(
-          splashColor: Colors.transparent,
-          highlightColor: Colors.transparent,
-          onPressed: () {
-            BottomSheetUtil.show(
-              context,
-              type: IGBottomSheet.addPost,
-              addPostActions: [
-                IGAddPostAction(
-                  icon: AppIcons.grid,
-                  label: 'Post',
-                  subtitle: 'Share a photo or video to your profile',
-                  onTap: () {},
-                ),
-                IGAddPostAction(
-                  icon: AppIcons.reels,
-                  label: 'Reel',
-                  subtitle: 'Create and share a short video',
-                  onTap: () {},
-                ),
-                IGAddPostAction(
-                  icon: AppIcons.stories,
-                  label: 'Story',
-                  subtitle:
-                      'Share a photo or video that disappears in 24 hours',
-                  onTap: () {},
-                ),
-                IGAddPostAction(
-                  icon: AppIcons.live,
-                  label: 'Live',
-                  subtitle:
-                      'Go live and connect with your followers in real time',
-                  onTap: () {},
-                ),
-              ],
-            );
-          },
-          icon: Icon(AppIcons.add),
-        ),
-        title: Text(
-          'Instagram',
-          style: GoogleFonts.grandHotel(
-            fontSize: 30,
-            fontWeight: FontWeight.w400,
-            color: Theme.of(context).textTheme.bodyLarge?.color,
-          ),
-        ),
-        actions: [
-          IconButton(
-            splashColor: Colors.transparent,
-            highlightColor: Colors.transparent,
-            onPressed: () {
-              Get.toNamed(AppRoutes.notification);
-            },
-            icon: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Icon(AppIcons.heart),
+      // appBar: AppBar(
+      //   forceMaterialTransparency: true,
+      //   leading: IconButton(
+      //     splashColor: Colors.transparent,
+      //     highlightColor: Colors.transparent,
+      //     onPressed: () {
+      //       BottomSheetUtil.show(
+      //         context,
+      //         type: IGBottomSheet.addPost,
+      //         addPostActions: [
+      //           IGAddPostAction(
+      //             icon: AppIcons.grid,
+      //             label: 'Post',
+      //             subtitle: 'Share a photo or video to your profile',
+      //             onTap: () {},
+      //           ),
+      //           IGAddPostAction(
+      //             icon: AppIcons.reels,
+      //             label: 'Reel',
+      //             subtitle: 'Create and share a short video',
+      //             onTap: () {},
+      //           ),
+      //           IGAddPostAction(
+      //             icon: AppIcons.stories,
+      //             label: 'Story',
+      //             subtitle:
+      //                 'Share a photo or video that disappears in 24 hours',
+      //             onTap: () {},
+      //           ),
+      //           IGAddPostAction(
+      //             icon: AppIcons.live,
+      //             label: 'Live',
+      //             subtitle:
+      //                 'Go live and connect with your followers in real time',
+      //             onTap: () {},
+      //           ),
+      //         ],
+      //       );
+      //     },
+      //     icon: Icon(AppIcons.add),
+      //   ),
+      //   title: Text(
+      //     'Instagram',
+      //     style: GoogleFonts.grandHotel(
+      //       fontSize: 30,
+      //       fontWeight: FontWeight.w400,
+      //       color: Theme.of(context).textTheme.bodyLarge?.color,
+      //     ),
+      //   ),
+      //   actions: [
+      //     IconButton(
+      //       splashColor: Colors.transparent,
+      //       highlightColor: Colors.transparent,
+      //       onPressed: () {
+      //         Get.toNamed(AppRoutes.notification);
+      //       },
+      //       icon: Stack(
+      //         clipBehavior: Clip.none,
+      //         children: [
+      //           Icon(AppIcons.heart),
 
-                Positioned(
-                  right: 0,
-                  top: 0,
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
+      //           Positioned(
+      //             right: 0,
+      //             top: 0,
+      //             child: Container(
+      //               padding: const EdgeInsets.all(4),
 
-                    decoration: BoxDecoration(
-                      color: IGColors.like,
-                      shape: BoxShape.circle,
-                    ),
-                    constraints: const BoxConstraints(
-                      minWidth: 4,
-                      minHeight: 4,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+      //               decoration: BoxDecoration(
+      //                 color: IGColors.like,
+      //                 shape: BoxShape.circle,
+      //               ),
+      //               constraints: const BoxConstraints(
+      //                 minWidth: 4,
+      //                 minHeight: 4,
+      //               ),
+      //             ),
+      //           ),
+      //         ],
+      //       ),
+      //     ),
+      //   ],
+      // ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              height: 110.h,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: storiesUsers.length,
-                itemBuilder: (context, index) {
-                  if (index == 0) {
+        child: SafeArea(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  IconButton(
+                    splashColor: Colors.transparent,
+                    color: IGColors.bgDark,
+                    highlightColor: Colors.transparent,
+                    iconSize: 30,
+
+                    onPressed: () {
+                      BottomSheetUtil.show(
+                        context,
+                        type: IGBottomSheet.addPost,
+                        addPostActions: [
+                          IGAddPostAction(
+                            icon: AppIcons.grid,
+                            label: 'Post',
+                            subtitle: 'Share a photo or video to your profile',
+                            onTap: () {},
+                          ),
+                          IGAddPostAction(
+                            icon: AppIcons.reels,
+                            label: 'Reel',
+                            subtitle: 'Create and share a short video',
+                            onTap: () {},
+                          ),
+                          IGAddPostAction(
+                            icon: AppIcons.stories,
+                            label: 'Story',
+                            subtitle:
+                                'Share a photo or video that disappears in 24 hours',
+                            onTap: () {},
+                          ),
+                          IGAddPostAction(
+                            icon: AppIcons.live,
+                            label: 'Live',
+                            subtitle:
+                                'Go live and connect with your followers in real time',
+                            onTap: () {},
+                          ),
+                        ],
+                      );
+                    },
+                    icon: Icon(AppIcons.add),
+                  ),
+                  Spacer(),
+                  Text(
+                    'Instagram',
+                    style: GoogleFonts.grandHotel(
+                      fontSize: 30,
+                      fontWeight: FontWeight.w400,
+                      color: Theme.of(context).textTheme.bodyLarge?.color,
+                    ),
+                  ),
+                  Spacer(),
+                  IconButton(
+                    splashColor: Colors.transparent,
+                    highlightColor: Colors.transparent,
+                    color: IGColors.bgDark,
+                    iconSize: 30,
+
+                    onPressed: () {
+                      Get.toNamed(AppRoutes.notification);
+                    },
+                    icon: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        Icon(AppIcons.heart),
+
+                        Positioned(
+                          right: 0,
+                          top: 0,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+
+                            decoration: BoxDecoration(
+                              color: IGColors.like,
+                              shape: BoxShape.circle,
+                            ),
+                            constraints: const BoxConstraints(
+                              minWidth: 4,
+                              minHeight: 4,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 30.h),
+              SizedBox(
+                height: 110.h,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: storiesUsers.length,
+                  itemBuilder: (context, index) {
+                    if (index == 0) {
+                      return Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 10.w),
+                        child: MyStorieCircleWidget(
+                          imageUrl:
+                              'https://img.magnific.com/free-psd/modern-dynamic-banner_125755-403.jpg?semt=ais_hybrid&w=740&q=80',
+                          onStoryTap: () {
+                            Get.toNamed(
+                              AppRoutes.viewStory,
+                              arguments: {
+                                'currentStory': storiesUsers[index],
+                                'allStories': storiesUsers,
+                              },
+                            );
+                          },
+                          onAddStory: () async {
+                            // print('add story');
+                            final File? pickedImage =
+                                await ImagePickerUtil.pickFromGallery(
+                                  context,
+                                  maxWidth: 1024,
+                                  imageQuality: 85,
+                                );
+
+                            if (pickedImage != null) {
+                              setState(() {
+                                slectedStory = pickedImage;
+                              });
+                            }
+                          },
+                        ),
+                      );
+                    }
+
+                    final storyIndex = index - 1;
                     return Padding(
                       padding: EdgeInsets.symmetric(horizontal: 10.w),
-                      child: MyStorieCircleWidget(
-                        imageUrl:
-                            'https://img.magnific.com/free-psd/modern-dynamic-banner_125755-403.jpg?semt=ais_hybrid&w=740&q=80',
+                      child: StoriesCircleWidget(
                         onStoryTap: () {
                           Get.toNamed(
                             AppRoutes.viewStory,
@@ -235,112 +358,84 @@ class _HomeViewState extends State<HomeView> {
                             },
                           );
                         },
-                        onAddStory: () async {
-                          // print('add story');
-                          final File? pickedImage =
-                              await ImagePickerUtil.pickFromGallery(
-                                context,
-                                maxWidth: 1024,
-                                imageQuality: 85,
-                              );
-
-                          if (pickedImage != null) {
-                            setState(() {
-                              slectedStory = pickedImage;
-                            });
-                          }
-                        },
+                        imageUrl: storiesUsers[index].storyImage.toString(),
+                        name: storiesUsers[index].name.toString().length > 10
+                            ? '${storiesUsers[index].name.toString().substring(0, 10)}...'
+                            : storiesUsers[index].name.toString(),
+                        isPlayed: storiesUsers[index].isPlayed,
                       ),
                     );
-                  }
+                  },
+                ),
+              ),
+              suggestedPosts.isEmpty
+                  ? SizedBox()
+                  : Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 16.w,
+                            vertical: 8.h,
+                          ),
+                          child: Text(
+                            'Suggested for you',
+                            style: ts.headlineSmall!.copyWith(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15.sp,
+                            ),
+                          ),
+                        ),
 
-                  final storyIndex = index - 1;
-                  return Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 10.w),
-                    child: StoriesCircleWidget(
-                      onStoryTap: () {
-                        Get.toNamed(
-                          AppRoutes.viewStory,
-                          arguments: {
-                            'currentStory': storiesUsers[index],
-                            'allStories': storiesUsers,
-                          },
-                        );
-                      },
-                      imageUrl: storiesUsers[index].storyImage.toString(),
-                      name: storiesUsers[index].name.toString().length > 10
-                          ? '${storiesUsers[index].name.toString().substring(0, 10)}...'
-                          : storiesUsers[index].name.toString(),
-                      isPlayed: storiesUsers[index].isPlayed,
+                        SizedBox(
+                          height: 240.h,
+                          child: ListView.builder(
+                            itemCount: suggestedPosts.length,
+                            scrollDirection: Axis.horizontal,
+                            padding: EdgeInsets.symmetric(horizontal: 12.w),
+                            itemBuilder: (context, index) {
+                              return SuggestedCardWidget(
+                                onCancel: () {
+                                  setState(() {
+                                    suggestedPosts.removeAt(index);
+                                  });
+                                },
+                                onFollow: () {
+                                  setState(() {
+                                    suggestedPosts.removeAt(index);
+                                  });
+                                },
+                                name: suggestedPosts[index]['name'].toString(),
+
+                                image: suggestedPosts[index]['imageUrl']
+                                    .toString(),
+
+                                totalMutual:
+                                    suggestedPosts[index]['mutualFriends']
+                                        as int,
+                              );
+                            },
+                          ),
+                        ),
+                      ],
                     ),
+
+              SizedBox(height: 8.h),
+
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: postsController.posts.length,
+                padding: EdgeInsets.zero,
+                itemBuilder: (context, index) {
+                  return PostsCardWidget(
+                    postModel: postsController.posts[index],
                   );
                 },
               ),
-            ),
-            suggestedPosts.isEmpty
-                ? SizedBox()
-                : Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 16.w,
-                          vertical: 8.h,
-                        ),
-                        child: Text(
-                          'Suggested for you',
-                          style: ts.headlineSmall!.copyWith(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15.sp,
-                          ),
-                        ),
-                      ),
-
-                      SizedBox(
-                        height: 240.h,
-                        child: ListView.builder(
-                          itemCount: suggestedPosts.length,
-                          scrollDirection: Axis.horizontal,
-                          padding: EdgeInsets.symmetric(horizontal: 12.w),
-                          itemBuilder: (context, index) {
-                            return SuggestedCardWidget(
-                              onCancel: () {
-                                setState(() {
-                                  suggestedPosts.removeAt(index);
-                                });
-                              },
-                              onFollow: () {
-                                setState(() {
-                                  suggestedPosts.removeAt(index);
-                                });
-                              },
-                              name: suggestedPosts[index]['name'].toString(),
-
-                              image: suggestedPosts[index]['imageUrl']
-                                  .toString(),
-
-                              totalMutual:
-                                  suggestedPosts[index]['mutualFriends'] as int,
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-
-            SizedBox(height: 8.h),
-
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: postsController.posts.length,
-              padding: EdgeInsets.zero,
-              itemBuilder: (context, index) {
-                return PostsCardWidget(postModel: postsController.posts[index]);
-              },
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
