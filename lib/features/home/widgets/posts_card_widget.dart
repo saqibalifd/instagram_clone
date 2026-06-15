@@ -287,7 +287,6 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
                     shareOptions: [
                       IGShareOption(
                         icon: Icons.send_outlined,
-
                         label: 'Send in DM',
                         onTap: () {},
                       ),
