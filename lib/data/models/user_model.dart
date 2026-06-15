@@ -16,8 +16,13 @@ class UserModel {
   final List<String> following;
   final List<String> followers;
   final List<String> posts;
+  final List<String> blocked;
+  final List<String> likedPosts;
+
   final String location;
   final String phone;
+  final String status;
+
   final Timestamp updatedAt;
 
   const UserModel({
@@ -36,8 +41,12 @@ class UserModel {
     required this.following,
     required this.followers,
     required this.posts,
+    required this.blocked,
+    required this.likedPosts,
+
     required this.location,
     required this.phone,
+    required this.status,
     required this.updatedAt,
   });
 
@@ -59,8 +68,12 @@ class UserModel {
       following: List<String>.from(json['following'] ?? []),
       followers: List<String>.from(json['followers'] ?? []),
       posts: List<String>.from(json['posts'] ?? []),
+      blocked: List<String>.from(json['blocked'] ?? []),
+      likedPosts: List<String>.from(json['likedPosts'] ?? []),
+
       location: json['location'] ?? '',
       phone: json['phone'] ?? '',
+      status: json['status'] ?? '',
       updatedAt: json['updatedAt'] ?? Timestamp.now(),
     );
   }
@@ -82,9 +95,12 @@ class UserModel {
       'following': following,
       'followers': followers,
       'posts': posts,
+      'blocked': blocked,
+      'likedPosts': likedPosts,
 
       'location': location,
       'phone': phone,
+      'status': status,
       'updatedAt': updatedAt,
     };
   }
@@ -105,9 +121,13 @@ class UserModel {
     List<String>? following,
     List<String>? followers,
     List<String>? posts,
+    List<String>? blocked,
+    List<String>? likedPosts,
 
     String? location,
     String? phone,
+    String? status,
+
     Timestamp? updatedAt,
   }) {
     return UserModel(
@@ -126,9 +146,12 @@ class UserModel {
       following: following ?? this.following,
       followers: followers ?? this.followers,
       posts: posts ?? this.posts,
+      blocked: blocked ?? this.blocked,
+      likedPosts: likedPosts ?? this.likedPosts,
 
       location: location ?? this.location,
       phone: phone ?? this.phone,
+      status: status ?? this.status,
       updatedAt: updatedAt ?? this.updatedAt,
     );
   }

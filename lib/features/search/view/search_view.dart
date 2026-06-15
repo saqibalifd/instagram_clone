@@ -41,6 +41,9 @@ class _SearchViewState extends State<SearchView> {
       posts: [],
       location: 'Lahore, Pakistan',
       phone: '+923001234567',
+      blocked: [],
+      likedPosts: [],
+      status: 'offline',
     ),
     UserModel(
       fullName: 'Sara Ahmed',
@@ -61,6 +64,9 @@ class _SearchViewState extends State<SearchView> {
       posts: [],
       location: 'Karachi, Pakistan',
       phone: '+923112345678',
+      blocked: [],
+      likedPosts: [],
+      status: 'offline',
     ),
     UserModel(
       fullName: 'Usman Malik',
@@ -81,6 +87,9 @@ class _SearchViewState extends State<SearchView> {
       posts: [],
       location: 'Islamabad, Pakistan',
       phone: '+923223456789',
+      blocked: [],
+      likedPosts: [],
+      status: 'offline',
     ),
   ];
 

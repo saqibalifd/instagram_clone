@@ -141,6 +141,9 @@ class AuthController extends GetxController {
         location: '',
         phone: '',
         updatedAt: Timestamp.now(),
+        blocked: [],
+        likedPosts: [],
+        status: 'offline',
       );
 
       Get.offAllNamed(AppRoutes.bottomNavbar);
@@ -382,6 +385,9 @@ class AuthController extends GetxController {
         location: '',
         phone: phone,
         updatedAt: Timestamp.now(),
+        blocked: [],
+        likedPosts: [],
+        status: 'offline',
       );
 
       await _firestore

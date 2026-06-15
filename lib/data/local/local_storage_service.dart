@@ -131,9 +131,13 @@ class LocalStorageService {
       following: List<String>.from(json['following'] ?? []),
       followers: List<String>.from(json['followers'] ?? []),
       posts: List<String>.from(json['posts'] ?? []),
+      blocked: List<String>.from(json['blocked'] ?? []),
+      likedPosts: List<String>.from(json['likedPosts'] ?? []),
 
       location: json['location'] ?? '',
       phone: json['phone'] ?? '',
+      status: json['status'] ?? '',
+
       updatedAt: Timestamp.fromMillisecondsSinceEpoch(
         json['updatedAt'] ?? DateTime.now().millisecondsSinceEpoch,
       ),
