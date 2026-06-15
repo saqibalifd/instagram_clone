@@ -188,11 +188,6 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
                                 color: IGColors.bgDark,
                                 size: 28,
                               ),
-                              Icon(
-                                AppIcons.heart,
-                                color: IGColors.bgDark,
-                                size: 29,
-                              ),
                             ],
                           ),
                           SizedBox(width: 5.w),
@@ -312,7 +307,6 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
                   children: [
                     Stack(
                       children: [
-                        Icon(AppIcons.dm, color: IGColors.bgDark, size: 28),
                         Icon(AppIcons.dm, color: IGColors.bgDark, size: 29),
                       ],
                     ),

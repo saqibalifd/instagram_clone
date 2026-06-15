@@ -24,6 +24,7 @@ class AppIcons {
   // Post Actions
   static const IconData flag = Icons.flag_outlined;
   static const IconData personRemove = Icons.person_remove;
+  static const IconData addPerson = Icons.person_add;
   static const IconData hidePost = Icons.visibility_off;
   static const IconData copy = Icons.copy_outlined;
   static const IconData qrCode = Icons.qr_code;

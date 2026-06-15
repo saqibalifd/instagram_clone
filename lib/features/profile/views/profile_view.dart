@@ -7,6 +7,7 @@ import 'package:instagram/core/theme/app_theme.dart';
 import 'package:instagram/data/local/favourite_post_services.dart';
 import 'package:instagram/data/models/post_model.dart';
 import 'package:instagram/features/auth/controllers/auth_controller.dart';
+import 'package:instagram/features/home/widgets/suggested_card_widget.dart';
 import 'package:instagram/features/profile/controllers/profile_controller.dart';
 import 'package:instagram/features/profile/views/profile_tab_view.dart';
 import 'package:instagram/features/profile/widgets/profile_header.dart';
@@ -24,6 +25,24 @@ class _ProfileViewState extends State<ProfileView>
     with TickerProviderStateMixin {
   final AuthController _authController = AuthController();
   late TabController tabController;
+
+  final suggestedPosts = [
+    {
+      'name': 'Ali',
+      'imageUrl': 'https://i.pravatar.cc/150?img=1',
+      'mutualFriends': 5,
+    },
+    {
+      'name': 'Nadeem ali',
+      'imageUrl': 'https://i.pravatar.cc/150?img=4',
+      'mutualFriends': 5,
+    },
+    {
+      'name': 'Iftikhar ali',
+      'imageUrl': 'https://i.pravatar.cc/150?img=8',
+      'mutualFriends': 5,
+    },
+  ];
   final List<PostModel> dummyPosts = [
     PostModel(
       postId: '1',
@@ -143,6 +162,7 @@ Passionate Flutter Developer with 2+ years of experience building modern, scalab
   final ProfileController _profileController = Get.put(ProfileController());
   // Change this field declaration:
   List<PostModel> favoritePosts = FavoritePostService.getFavorites();
+  bool showSuggestion = false;
 
   // To this:
   RxList<PostModel> favoritePost = <PostModel>[].obs;
@@ -250,7 +270,7 @@ Passionate Flutter Developer with 2+ years of experience building modern, scalab
                 children: [
                   SizedBox(
                     height: 30.h,
-                    width: 165.w,
+                    width: 155.w,
 
                     child: ElevatedButton(
                       onPressed: () {
@@ -275,7 +295,7 @@ Passionate Flutter Developer with 2+ years of experience building modern, scalab
                   Spacer(),
                   SizedBox(
                     height: 30.h,
-                    width: 165.w,
+                    width: 155.w,
 
                     child: ElevatedButton(
                       onPressed: () {
@@ -299,9 +319,87 @@ Passionate Flutter Developer with 2+ years of experience building modern, scalab
                       ),
                     ),
                   ),
+                  Spacer(),
+
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        showSuggestion = !showSuggestion;
+                      });
+                    },
+                    child: Container(
+                      height: 30.h,
+                      width: 30.w,
+
+                      decoration: BoxDecoration(
+                        color: IGColors.gray.withValues(alpha: .3),
+
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Center(
+                        child: Icon(AppIcons.addPerson, size: 18.sp),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
+            suggestedPosts.isEmpty
+                ? SizedBox()
+                : Visibility(
+                    visible: showSuggestion,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 16.w,
+                            vertical: 14.h,
+                          ),
+                          child: Text(
+                            'Discover people',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13.sp,
+                            ),
+                          ),
+                        ),
+
+                        SizedBox(
+                          height: 245.h,
+                          child: ListView.builder(
+                            itemCount: suggestedPosts.length,
+                            scrollDirection: Axis.horizontal,
+
+                            padding: EdgeInsets.symmetric(horizontal: 12.w),
+                            itemBuilder: (context, index) {
+                              return SuggestedCardWidget(
+                                onCancel: () {
+                                  setState(() {
+                                    suggestedPosts.removeAt(index);
+                                  });
+                                },
+                                onFollow: () {
+                                  setState(() {
+                                    suggestedPosts.removeAt(index);
+                                  });
+                                },
+                                name: suggestedPosts[index]['name'].toString(),
+
+                                image: suggestedPosts[index]['imageUrl']
+                                    .toString(),
+
+                                totalMutual:
+                                    suggestedPosts[index]['mutualFriends']
+                                        as int,
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
             SizedBox(height: 20.h),
             //tab bar *****************
             TabBar(

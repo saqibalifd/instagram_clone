@@ -29,7 +29,7 @@ class SuggestedCardWidget extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 10.w),
       margin: EdgeInsets.symmetric(horizontal: 6.w),
-      width: 180.w,
+      width: 210.w,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: IGColors.gray, width: 0.5),
@@ -47,11 +47,11 @@ class SuggestedCardWidget extends StatelessWidget {
                   );
                 },
                 child: Container(
-                  width: 100.r,
-                  height: 100.r,
+                  width: 130.r,
+                  height: 130.r,
                   decoration: BoxDecoration(shape: BoxShape.circle),
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(50.r),
+                    borderRadius: BorderRadius.circular(100.r),
                     child: CachedImageManager.image(
                       url: image,
                       fit: BoxFit.cover,
@@ -59,18 +59,18 @@ class SuggestedCardWidget extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(height: 6.h),
+              SizedBox(height: 8.h),
               Text(
                 name,
-                style: ts.headlineSmall!.copyWith(fontSize: 13.sp),
+                style: ts.headlineSmall!.copyWith(fontSize: 14.sp),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
               Text(
                 '$totalMutual mutual friend',
-                style: ts.bodySmall!.copyWith(fontSize: 11.sp),
+                style: ts.bodySmall!.copyWith(fontSize: 12.sp),
               ),
-              SizedBox(height: 10.h),
+              SizedBox(height: 14.h),
               SizedBox(
                 width: double.maxFinite,
                 height: 32.h,

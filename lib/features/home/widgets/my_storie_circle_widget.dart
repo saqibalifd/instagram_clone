@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:instagram/core/constants/app_icons.dart';
 import 'package:instagram/core/theme/app_theme.dart';
 import 'package:instagram/utils/chached_images_manager.dart';
 
@@ -51,14 +52,18 @@ class MyStorieCircleWidget extends StatelessWidget {
               child: GestureDetector(
                 onTap: onAddStory,
                 child: Container(
-                  width: 22.w,
-                  height: 22.h,
+                  width: 26.w,
+                  height: 26.h,
                   decoration: BoxDecoration(
                     color: IGColors.bgDark,
                     shape: BoxShape.circle,
                     border: Border.all(color: IGColors.bgLight, width: 2),
                   ),
-                  child: Icon(Icons.add, color: IGColors.bgLight, size: 14.sp),
+                  child: Icon(
+                    AppIcons.add,
+                    color: IGColors.bgLight,
+                    size: 14.sp,
+                  ),
                 ),
               ),
             ),

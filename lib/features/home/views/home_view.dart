@@ -140,7 +140,7 @@ class _HomeViewState extends State<HomeView> {
                     splashColor: Colors.transparent,
                     color: IGColors.bgDark,
                     highlightColor: Colors.transparent,
-                    iconSize: 30,
+                    iconSize: 35,
 
                     onPressed: () {
                       BottomSheetUtil.show(
@@ -193,7 +193,6 @@ class _HomeViewState extends State<HomeView> {
                     highlightColor: Colors.transparent,
                     color: IGColors.bgDark,
                     iconSize: 30,
-
                     onPressed: () {
                       Get.toNamed(AppRoutes.notification);
                     },
@@ -223,7 +222,7 @@ class _HomeViewState extends State<HomeView> {
                   ),
                 ],
               ),
-              SizedBox(height: 30.h),
+              SizedBox(height: 20.h),
               SizedBox(
                 height: 110.h,
                 child: ListView.builder(
@@ -296,22 +295,23 @@ class _HomeViewState extends State<HomeView> {
                         Padding(
                           padding: EdgeInsets.symmetric(
                             horizontal: 16.w,
-                            vertical: 8.h,
+                            vertical: 14.h,
                           ),
                           child: Text(
                             'Suggested for you',
-                            style: ts.headlineSmall!.copyWith(
+                            style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              fontSize: 15.sp,
+                              fontSize: 13.sp,
                             ),
                           ),
                         ),
 
                         SizedBox(
-                          height: 240.h,
+                          height: 245.h,
                           child: ListView.builder(
                             itemCount: suggestedPosts.length,
                             scrollDirection: Axis.horizontal,
+
                             padding: EdgeInsets.symmetric(horizontal: 12.w),
                             itemBuilder: (context, index) {
                               return SuggestedCardWidget(
