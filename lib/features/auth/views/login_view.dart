@@ -116,7 +116,7 @@ class _LoginViewState extends State<LoginView> {
               SizedBox(height: 20.h),
               GestureDetector(
                 onTap: () async {
-                  await _authController.registerWithGoogle(context);
+                  await _authController.loginWithGoogle(context);
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,

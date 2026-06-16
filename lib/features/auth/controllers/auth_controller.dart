@@ -157,6 +157,7 @@ class AuthController extends GetxController {
     }
   }
 
+  // REPLACE registerWithGoogle with this:
   Future<void> registerWithGoogle(BuildContext context) async {
     try {
       LoadingUtil.show();
@@ -164,19 +165,39 @@ class AuthController extends GetxController {
       final GoogleSignIn googleSignIn = GoogleSignIn(
         scopes: ['email', 'profile'],
       );
-
       final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+      if (googleUser == null) return; // user cancelled
 
       final GoogleSignInAuthentication googleAuth =
-          await googleUser!.authentication;
-
+          await googleUser.authentication;
       final OAuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
-      await FirebaseAuth.instance.signInWithCredential(credential);
+      final UserCredential userCredential = await FirebaseAuth.instance
+          .signInWithCredential(credential);
+      final uid = userCredential.user!.uid;
 
+      // ✅ Check if user already exists in Firestore
+      final doc = await _firestore
+          .collection(AppConstants.usersCollection)
+          .doc(uid)
+          .get();
+
+      if (doc.exists) {
+        // User already registered — sign them out of Firebase and Google
+        await FirebaseAuth.instance.signOut();
+        await googleSignIn.signOut();
+        CustomToastUtil.showError(
+          context,
+          message:
+              'An account already exists with this Google account. Please log in instead.',
+        );
+        return;
+      }
+
+      // ✅ New user — create their Firestore record
       await storeUserData(
         context,
         fullName: googleUser.displayName ?? '',
@@ -185,8 +206,69 @@ class AuthController extends GetxController {
         profileImageUrl: googleUser.photoUrl ?? '',
         phone: '',
       );
+
       Get.offAllNamed(AppRoutes.bottomNavbar);
       CustomToastUtil.showGradient(context, message: 'Welcome to Instagram.');
+    } on FirebaseAuthException catch (e) {
+      CustomToastUtil.showError(context, message: e.message.toString());
+    } catch (e) {
+      CustomToastUtil.showError(context, message: e.toString());
+    } finally {
+      LoadingUtil.dismiss();
+    }
+  }
+
+  // ADD this new loginWithGoogle function:
+  Future<void> loginWithGoogle(BuildContext context) async {
+    try {
+      LoadingUtil.show();
+
+      final GoogleSignIn googleSignIn = GoogleSignIn(
+        scopes: ['email', 'profile'],
+      );
+      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+      if (googleUser == null) return; // user cancelled
+
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+      final OAuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      final UserCredential userCredential = await FirebaseAuth.instance
+          .signInWithCredential(credential);
+      final uid = userCredential.user!.uid;
+
+      // ✅ Check if user exists in Firestore
+      final doc = await _firestore
+          .collection(AppConstants.usersCollection)
+          .doc(uid)
+          .get();
+
+      if (!doc.exists || doc.data() == null) {
+        // Not registered yet — sign them out and ask to sign up
+        await FirebaseAuth.instance.signOut();
+        await googleSignIn.signOut();
+        CustomToastUtil.showError(
+          context,
+          message: 'No account found. Please sign up with Google first.',
+        );
+        return;
+      }
+
+      // ✅ Existing user — load their data and navigate
+      final userModel = UserModel.fromJson(doc.data() as Map<String, dynamic>);
+      final storage = Get.find<LocalStorageService>();
+      await storage.saveUser(userModel);
+
+      Get.offAllNamed(AppRoutes.bottomNavbar);
+      CustomToastUtil.showGradient(
+        context,
+        message: 'Welcome back to Instagram.',
+      );
+
+      updateDeviceToken();
     } on FirebaseAuthException catch (e) {
       CustomToastUtil.showError(context, message: e.message.toString());
     } catch (e) {

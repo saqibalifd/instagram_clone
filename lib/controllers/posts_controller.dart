@@ -81,7 +81,11 @@ class PostsController extends GetxController {
         reports: [],
       );
 
-      docRef.set(postModel.toJson());
+      docRef.set(postModel.toJson()).then((value) {
+        _firebase.collection(AppConstants.usersCollection).doc(userId).update({
+          'posts': FieldValue.arrayUnion([docRef.id]),
+        });
+      });
     } on FirebaseException catch (e) {
       error.value = e.message.toString();
     } catch (e) {
