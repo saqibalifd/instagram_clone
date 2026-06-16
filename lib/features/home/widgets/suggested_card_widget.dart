@@ -10,6 +10,7 @@ class SuggestedCardWidget extends StatelessWidget {
   final String name;
   final String image;
   final int totalMutual;
+  final String userId;
   final void Function() onFollow;
   final void Function() onCancel;
 
@@ -18,6 +19,7 @@ class SuggestedCardWidget extends StatelessWidget {
     required this.name,
     required this.image,
     required this.totalMutual,
+    required this.userId,
     required this.onFollow,
     required this.onCancel,
   });
@@ -41,10 +43,7 @@ class SuggestedCardWidget extends StatelessWidget {
             children: [
               GestureDetector(
                 onTap: () {
-                  Get.toNamed(
-                    AppRoutes.publicProfile,
-                    arguments: 'cc8J8XNLKLRlyXPr8jGPLN7RMqr2',
-                  );
+                  Get.toNamed(AppRoutes.publicProfile, arguments: userId);
                 },
                 child: Container(
                   width: 130.r,

@@ -9,6 +9,7 @@ class SuggestedUserController extends GetxController {
   final userId = FirebaseAuth.instance.currentUser!.uid;
   final RxString error = ''.obs;
   final RxBool showSuggestion = false.obs;
+  final RxBool isFollowed = false.obs;
 
   RxList<UserModel> suggestedUsersList = <UserModel>[].obs;
 
@@ -49,7 +50,7 @@ class SuggestedUserController extends GetxController {
     }
   }
 
-  Future<void> followUser(String toFollowUserId, int index) async {
+  Future<void> followUser(String toFollowUserId) async {
     try {
       isLoading.value = true;
 
@@ -66,7 +67,6 @@ class SuggestedUserController extends GetxController {
                 .update({
                   'followers': FieldValue.arrayUnion([userId]),
                 });
-            skipUser(index);
           });
     } on FirebaseException catch (e) {
       error.value = e.message.toString();
@@ -75,19 +75,13 @@ class SuggestedUserController extends GetxController {
     }
   }
 
-  Future<void> unfollowUser(String toFollowUserId, int index) async {
+  Future<void> unfollowUser(String toFollowUserId) async {
     try {
       isLoading.value = true;
 
-      _firebase
-          .collection(AppConstants.usersCollection)
-          .doc(userId)
-          .update({
-            'following': FieldValue.arrayRemove([toFollowUserId]),
-          })
-          .then((value) {
-            skipUser(index);
-          });
+      _firebase.collection(AppConstants.usersCollection).doc(userId).update({
+        'following': FieldValue.arrayRemove([toFollowUserId]),
+      });
     } on FirebaseException catch (e) {
       error.value = e.message.toString();
     } finally {
@@ -105,5 +99,9 @@ class SuggestedUserController extends GetxController {
 
   void suggestionButtonSwitch() {
     showSuggestion.value = !showSuggestion.value;
+  }
+
+  void toggleFolow() {
+    isFollowed.value = !isFollowed.value;
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:instagram/controllers/posts_controller.dart';
 import 'package:instagram/controllers/suggested_user_controller.dart';
 import 'package:instagram/core/constants/app_constants.dart';
 import 'package:instagram/core/constants/app_icons.dart';
@@ -25,26 +26,9 @@ class ProfileView extends StatefulWidget {
 class _ProfileViewState extends State<ProfileView>
     with TickerProviderStateMixin {
   final AuthController _authController = AuthController();
+  final PostsController postsController = Get.put(PostsController());
   late TabController tabController;
 
-  final suggestedPosts = [
-    {
-      'name': 'Ali',
-      'imageUrl': 'https://i.pravatar.cc/150?img=1',
-      'mutualFriends': 5,
-    },
-    {
-      'name': 'Nadeem ali',
-      'imageUrl': 'https://i.pravatar.cc/150?img=4',
-      'mutualFriends': 5,
-    },
-    {
-      'name': 'Iftikhar ali',
-      'imageUrl': 'https://i.pravatar.cc/150?img=8',
-      'mutualFriends': 5,
-    },
-  ];
-  final List<PostModel> dummyPosts = [];
   final String bio = '''
 🚀 Flutter Developer | 2+ Years Experience
 Passionate Flutter Developer with 2+ years of experience building modern, scalable, and high-performance Android and cross-platform mobile applications. Experienced in crafting beautiful UIs, integrating APIs, and delivering seamless user experiences.
@@ -300,14 +284,15 @@ Passionate Flutter Developer with 2+ years of experience building modern, scalab
                                 onFollow: () {
                                   _suggestedUserController.followUser(
                                     suggestedUsers.userId,
-                                    index,
                                   );
+                                  _suggestedUserController.skipUser(index);
                                 },
                                 name: suggestedUsers.fullName,
 
                                 image: suggestedUsers.profileImageUrl,
 
                                 totalMutual: suggestedUsers.followers.length,
+                                userId: suggestedUsers.userId,
                               );
                             },
                           ),
@@ -352,9 +337,18 @@ Passionate Flutter Developer with 2+ years of experience building modern, scalab
                   child: TabBarView(
                     controller: tabController,
                     children: [
-                      ProfileTabView(posts: dummyPosts, tabType: 'isFavorite'),
-                      ProfileTabView(posts: dummyPosts, tabType: 'isVideo'),
-                      ProfileTabView(posts: dummyPosts, tabType: 'isRepost'),
+                      ProfileTabView(
+                        posts: postsController.myPostsList,
+                        tabType: 'isFavorite',
+                      ),
+                      ProfileTabView(
+                        posts: postsController.myVideoPostsList,
+                        tabType: 'isVideo',
+                      ),
+                      ProfileTabView(
+                        posts: postsController.myRepostsList,
+                        tabType: 'isRepost',
+                      ),
                       ProfileTabView(
                         posts: favoritePosts,
                         tabType: 'isFav',

@@ -110,7 +110,7 @@ class _HomeViewState extends State<HomeView> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    postsController.fetchPosts();
+    postsController.allPostsList();
   }
 
   @override
@@ -320,14 +320,15 @@ class _HomeViewState extends State<HomeView> {
                             onFollow: () {
                               _suggestedUserController.followUser(
                                 suggestedUsers.userId,
-                                index,
                               );
+                              _suggestedUserController.skipUser(index);
                             },
                             name: suggestedUsers.fullName,
 
                             image: suggestedUsers.profileImageUrl,
 
                             totalMutual: suggestedUsers.followers.length,
+                            userId: suggestedUsers.userId,
                           );
                         },
                       ),

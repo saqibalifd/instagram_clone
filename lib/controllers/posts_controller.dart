@@ -15,18 +15,25 @@ class PostsController extends GetxController {
   final RxBool isLoading = false.obs;
 
   final RxList<PostModel> allPostsList = <PostModel>[].obs;
+  final RxList<PostModel> myPostsList = <PostModel>[].obs;
+  final myVideoPostsList = <PostModel>[].obs;
+  final myRepostsList = <PostModel>[].obs;
+  final RxList<PostModel> friendsPostsList = <PostModel>[].obs;
 
   @override
   void onInit() {
     super.onInit();
-    fetchPosts();
+    fetchAllPosts();
+    fetchMyPosts();
   }
 
-  Future<void> fetchPosts() async {
+  // Fetch ALL posts from Firestore
+  Future<void> fetchAllPosts() async {
     try {
       isLoading.value = true;
       FirebaseFirestore.instance
           .collection(AppConstants.postsCollection)
+          .where('userId', isNotEqualTo: userId)
           .snapshots()
           .listen((snapshot) {
             allPostsList.value = snapshot.docs
@@ -35,14 +42,108 @@ class PostsController extends GetxController {
           });
     } on FirebaseException catch (e) {
       error.value = e.message.toString();
-      print('Errror in ferching posts ***********************************');
-      print(e.message);
+      print('Error in fetching all posts: ${e.message}');
     } catch (e) {
-      print(
-        'Errror in ferching posts *********************************** another *******',
-      );
-      print(e.toString());
+      print('Error in fetching all posts: ${e.toString()}');
+      error.value = e.toString();
+    } finally {
+      isLoading.value = false;
+    }
+  }
+  // Future<void> fetchAllPosts() async {
+  //   try {
+  //     isLoading.value = true;
+  //     FirebaseFirestore.instance
+  //         .collection(AppConstants.postsCollection)
+  //         .snapshots()
+  //         .listen((snapshot) {
+  //           allPostsList.value = snapshot.docs
+  //               .map((doc) => PostModel.fromJson(doc.data()))
+  //               .toList();
+  //         });
+  //   } on FirebaseException catch (e) {
+  //     error.value = e.message.toString();
+  //     print('Error in fetching all posts: ${e.message}');
+  //   } catch (e) {
+  //     print('Error in fetching all posts: ${e.toString()}');
+  //     error.value = e.toString();
+  //   } finally {
+  //     isLoading.value = false;
+  //   }
+  // }
 
+  // Fetch only the current user's posts
+  Future<void> fetchMyPosts() async {
+    try {
+      isLoading.value = true;
+      FirebaseFirestore.instance
+          .collection(AppConstants.postsCollection)
+          .where('userId', isEqualTo: userId)
+          .snapshots()
+          .listen((snapshot) {
+            final docs = snapshot.docs
+                .map((doc) => PostModel.fromJson(doc.data()))
+                .toList();
+
+            // All my posts
+            myPostsList.value = docs;
+
+            // Only video posts
+            myVideoPostsList.value = docs
+                .where((post) => post.mediaType == 'video')
+                .toList();
+
+            // Only reposts (repostBy array contains my userId)
+            myRepostsList.value = docs
+                .where((post) => post.repostBy.contains(userId))
+                .toList();
+          });
+    } on FirebaseException catch (e) {
+      error.value = e.message.toString();
+      print('Error in fetching my posts: ${e.message}');
+    } catch (e) {
+      print('Error in fetching my posts: ${e.toString()}');
+      error.value = e.toString();
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  // Fetch posts from users the current user is following
+  Future<void> fetchFriendsPosts(List<String> followingIds) async {
+    try {
+      isLoading.value = true;
+
+      if (followingIds.isEmpty) {
+        friendsPostsList.value = [];
+        return;
+      }
+
+      // Split into chunks of 30 (Firestore whereIn limit)
+      final chunks = <List<String>>[];
+      for (var i = 0; i < followingIds.length; i += 30) {
+        chunks.add(
+          followingIds.sublist(
+            i,
+            i + 30 > followingIds.length ? followingIds.length : i + 30,
+          ),
+        );
+      }
+
+      FirebaseFirestore.instance
+          .collection(AppConstants.postsCollection)
+          .where('userId', whereIn: chunks.first)
+          .snapshots()
+          .listen((snapshot) {
+            friendsPostsList.value = snapshot.docs
+                .map((doc) => PostModel.fromJson(doc.data()))
+                .toList();
+          });
+    } on FirebaseException catch (e) {
+      error.value = e.message.toString();
+      print('Error in fetching friends posts: ${e.message}');
+    } catch (e) {
+      print('Error in fetching friends posts: ${e.toString()}');
       error.value = e.toString();
     } finally {
       isLoading.value = false;

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:instagram/controllers/suggested_user_controller.dart';
 
 import 'package:instagram/core/constants/app_constants.dart';
 import 'package:instagram/core/constants/app_icons.dart';
@@ -20,28 +21,24 @@ class PublicProfileView extends StatefulWidget {
 class _PublicProfileViewState extends State<PublicProfileView>
     with TickerProviderStateMixin {
   late TabController tabController;
+  late String userId = '';
 
   final PublicProfileController publicProfileController = Get.put(
     PublicProfileController(),
   );
+  SuggestedUserController suggestedUserController = Get.put(
+    SuggestedUserController(),
+  );
   final List dummyPosts = [];
-  bool isFollowed = false;
 
   @override
   void initState() {
     super.initState();
+    userId = Get.arguments;
 
     tabController = TabController(length: 4, vsync: this);
 
-    // final arg = Get.arguments;
-
-    // final userId = arg?['userId']?.toString();
-
-    // if (userId == null || userId.isEmpty) {
-    //   throw Exception('userId is missing in Get.arguments');
-    // }
-
-    publicProfileController.loadPublicProfile('cc8J8XNLKLRlyXPr8jGPLN7RMqr2');
+    publicProfileController.loadPublicProfile(userId);
   }
 
   @override
@@ -110,13 +107,17 @@ class _PublicProfileViewState extends State<PublicProfileView>
                     width: 165.w,
                     child: ElevatedButton(
                       onPressed: () {
-                        setState(() {
-                          isFollowed = !isFollowed;
-                        });
+                        if (suggestedUserController.isFollowed.value) {
+                          suggestedUserController.unfollowUser(user.userId);
+                          suggestedUserController.toggleFolow();
+                        } else {
+                          suggestedUserController.followUser(user.userId);
+                          suggestedUserController.toggleFolow();
+                        }
                       },
                       style: ButtonStyle(
                         backgroundColor: WidgetStatePropertyAll(
-                          isFollowed
+                          suggestedUserController.isFollowed.value
                               ? IGColors.gray.withValues(alpha: .3)
                               : IGColors.blue,
                         ),
@@ -129,9 +130,11 @@ class _PublicProfileViewState extends State<PublicProfileView>
                         ),
                       ),
                       child: Text(
-                        isFollowed ? 'Following' : 'Follow',
+                        suggestedUserController.isFollowed.value
+                            ? 'Following'
+                            : 'Follow',
                         style: TextStyle(
-                          color: isFollowed
+                          color: suggestedUserController.isFollowed.value
                               ? IGColors.bgDark
                               : IGColors.bgLight,
                         ),
