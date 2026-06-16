@@ -4,6 +4,7 @@ import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:get/instance_manager.dart';
 import 'package:instagram/core/constants/app_constants.dart';
 import 'package:instagram/routes/app_routes.dart';
+import 'package:instagram/utils/chached_images_manager.dart';
 
 class ProfileHeader extends StatelessWidget {
   final String image;
@@ -38,7 +39,18 @@ class ProfileHeader extends StatelessWidget {
         children: [
           Row(
             children: [
-              CircleAvatar(radius: 35.r, backgroundImage: NetworkImage(image)),
+              Container(
+                width: 70.r,
+                height: 70.r,
+                decoration: BoxDecoration(shape: BoxShape.circle),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(40.r),
+                  child: CachedImageManager.image(
+                    url: image,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
               SizedBox(width: 10.w),
 
               Row(

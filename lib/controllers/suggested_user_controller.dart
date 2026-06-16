@@ -69,6 +69,26 @@ class SuggestedUserController extends GetxController {
     }
   }
 
+  Future<void> unfollowUser(String toFollowUserId, int index) async {
+    try {
+      isLoading.value = true;
+
+      _firebase
+          .collection(AppConstants.usersCollection)
+          .doc(userId)
+          .update({
+            'following': FieldValue.arrayRemove([toFollowUserId]),
+          })
+          .then((value) {
+            skipUser(index);
+          });
+    } on FirebaseException catch (e) {
+      error.value = e.message.toString();
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
   Future<void> skipUser(int index) async {
     try {
       suggestedUsersList.removeAt(index);

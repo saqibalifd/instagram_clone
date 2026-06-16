@@ -8,7 +8,7 @@ import 'package:instagram/controllers/suggested_user_controller.dart';
 import 'package:instagram/core/constants/app_icons.dart';
 import 'package:instagram/core/theme/app_theme.dart';
 import 'package:instagram/data/models/stories_model.dart';
-import 'package:instagram/features/home/controllers/posts_controller.dart';
+import 'package:instagram/controllers/posts_controller.dart';
 import 'package:instagram/features/home/widgets/my_storie_circle_widget.dart';
 import 'package:instagram/features/home/widgets/posts_card_widget.dart';
 import 'package:instagram/features/home/widgets/stories_circle_widget.dart';
@@ -107,6 +107,13 @@ class _HomeViewState extends State<HomeView> {
   late File slectedStory;
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    postsController.fetchPosts();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final ts = Theme.of(context).textTheme;
 
@@ -136,7 +143,9 @@ class _HomeViewState extends State<HomeView> {
                             icon: AppIcons.grid,
                             label: 'Post',
                             subtitle: 'Share a photo or video to your profile',
-                            onTap: () {},
+                            onTap: () {
+                              Get.toNamed(AppRoutes.addPost);
+                            },
                           ),
                           IGAddPostAction(
                             icon: AppIcons.reels,
@@ -329,17 +338,25 @@ class _HomeViewState extends State<HomeView> {
 
               SizedBox(height: 8.h),
 
-              ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: postsController.posts.length,
-                padding: EdgeInsets.zero,
-                itemBuilder: (context, index) {
-                  return PostsCardWidget(
-                    postModel: postsController.posts[index],
-                  );
-                },
-              ),
+              Obx(() {
+                if (postsController.isLoading.value) {
+                  return CircularProgressIndicator();
+                }
+                if (postsController.allPostsList.isEmpty) {
+                  return Center(child: Text('No posts'));
+                }
+                return ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: postsController.allPostsList.length,
+                  padding: EdgeInsets.zero,
+                  itemBuilder: (context, index) {
+                    return PostsCardWidget(
+                      postModel: postsController.allPostsList[index],
+                    );
+                  },
+                );
+              }),
             ],
           ),
         ),

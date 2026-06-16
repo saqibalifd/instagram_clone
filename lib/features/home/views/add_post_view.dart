@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:instagram/controllers/posts_controller.dart';
 import 'package:instagram/core/theme/app_theme.dart';
 
-class AddPostView extends StatelessWidget {
+class AddPostView extends StatefulWidget {
   const AddPostView({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final String type = Get.arguments;
+  State<AddPostView> createState() => _AddPostViewState();
+}
 
+class _AddPostViewState extends State<AddPostView> {
+  final PostsController postsController = Get.put(PostsController());
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -55,7 +61,7 @@ class AddPostView extends StatelessWidget {
               width: double.maxFinite,
               child: ElevatedButton(
                 onPressed: () {
-                  print('type: $type');
+                  postsController.uploadPosts('Hello world');
                 },
                 child: Text('Post'),
               ),
