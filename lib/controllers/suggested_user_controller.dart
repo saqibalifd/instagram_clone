@@ -60,6 +60,12 @@ class SuggestedUserController extends GetxController {
             'following': FieldValue.arrayUnion([toFollowUserId]),
           })
           .then((value) {
+            _firebase
+                .collection(AppConstants.usersCollection)
+                .doc(toFollowUserId)
+                .update({
+                  'followers': FieldValue.arrayUnion([userId]),
+                });
             skipUser(index);
           });
     } on FirebaseException catch (e) {
