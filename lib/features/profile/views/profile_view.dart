@@ -152,6 +152,15 @@ Passionate Flutter Developer with 2+ years of experience building modern, scalab
                     totalPosts: userData.posts.length,
                     followersCount: userData.followers.length,
                     followingCount: userData.following.length,
+                    onTap: () {
+                      Get.toNamed(
+                        AppRoutes.allFollow,
+                        arguments: {
+                          'userId': userData.userId,
+                          'userName': userData.username,
+                        },
+                      );
+                    },
                   );
                 }),
 

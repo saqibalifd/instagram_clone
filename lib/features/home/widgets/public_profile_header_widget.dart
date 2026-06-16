@@ -13,6 +13,7 @@ class PublicProfileHeaderWidget extends StatefulWidget {
   final int followersCount;
   final int followingCount;
   final String bio;
+  final VoidCallback onTap;
 
   const PublicProfileHeaderWidget({
     super.key,
@@ -22,6 +23,7 @@ class PublicProfileHeaderWidget extends StatefulWidget {
     required this.followersCount,
     required this.followingCount,
     required this.bio,
+    required this.onTap,
   });
 
   @override
@@ -97,18 +99,21 @@ class _PublicProfileHeaderWidgetState extends State<PublicProfileHeaderWidget> {
                 onTap: () => Get.toNamed(AppRoutes.allFollow),
                 child: Row(
                   children: [
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(height: 30.h),
+                    GestureDetector(
+                      onTap: widget.onTap,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(height: 30.h),
 
-                        Text(
-                          widget.followersCount.toString(),
-                          style: ts.titleLarge,
-                        ),
-                        Text('followers'),
-                      ],
+                          Text(
+                            widget.followersCount.toString(),
+                            style: ts.titleLarge,
+                          ),
+                          Text('followers'),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -120,18 +125,22 @@ class _PublicProfileHeaderWidgetState extends State<PublicProfileHeaderWidget> {
 
                 child: Row(
                   children: [
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(height: 30.h),
+                    GestureDetector(
+                      onTap: widget.onTap,
 
-                        Text(
-                          widget.followingCount.toString(),
-                          style: ts.titleLarge,
-                        ),
-                        Text('following'),
-                      ],
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(height: 30.h),
+
+                          Text(
+                            widget.followingCount.toString(),
+                            style: ts.titleLarge,
+                          ),
+                          Text('following'),
+                        ],
+                      ),
                     ),
                     SizedBox(width: 50.w),
                   ],

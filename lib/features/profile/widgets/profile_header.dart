@@ -13,6 +13,7 @@ class ProfileHeader extends StatelessWidget {
   final int followersCount;
   final int followingCount;
   final String bio;
+  final VoidCallback onTap;
 
   const ProfileHeader({
     super.key,
@@ -22,6 +23,7 @@ class ProfileHeader extends StatelessWidget {
     required this.followersCount,
     required this.followingCount,
     required this.bio,
+    required this.onTap,
   });
 
   @override
@@ -79,7 +81,7 @@ class ProfileHeader extends StatelessWidget {
               Row(
                 children: [
                   GestureDetector(
-                    onTap: () => Get.toNamed(AppRoutes.allFollow),
+                    onTap: onTap,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.end,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -98,7 +100,7 @@ class ProfileHeader extends StatelessWidget {
               Row(
                 children: [
                   GestureDetector(
-                    onTap: () => Get.toNamed(AppRoutes.allFollow),
+                    onTap: onTap,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.end,
                       crossAxisAlignment: CrossAxisAlignment.start,

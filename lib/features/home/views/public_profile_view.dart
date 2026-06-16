@@ -92,6 +92,12 @@ class _PublicProfileViewState extends State<PublicProfileView>
               totalPosts: user.posts.length,
               followersCount: user.followers.length,
               followingCount: user.following.length,
+              onTap: () {
+                Get.toNamed(
+                  AppRoutes.allFollow,
+                  arguments: {'userId': user.userId, 'userName': user.username},
+                );
+              },
             ),
 
             SizedBox(height: 20.h),
