@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:instagram/controllers/suggested_user_controller.dart';
 import 'package:instagram/core/constants/app_constants.dart';
 import 'package:instagram/core/constants/app_icons.dart';
 import 'package:instagram/core/theme/app_theme.dart';
@@ -43,130 +44,18 @@ class _ProfileViewState extends State<ProfileView>
       'mutualFriends': 5,
     },
   ];
-  final List<PostModel> dummyPosts = [
-    PostModel(
-      postId: '1',
-      userId: 'user_001',
-      userName: 'Saqib Ali',
-      profileImageUrl: 'https://i.pravatar.cc/150?img=1',
-      caption: 'Enjoying Flutter development 🚀',
-      mediaUrl: 'https://picsum.photos/id/1011/600/800',
-      mediaType: 'image',
-      isVideo: false,
-      createdAt: DateTime.now().subtract(const Duration(hours: 2)),
-      location: 'Lahore, Pakistan',
-      likes: ['user_2', 'user_3'],
-      comments: ['Nice!', 'Awesome 🔥'],
-      tags: ['flutter', 'dart'],
-      repostBy: [],
-      favorites: [],
-      viewsBy: ['user_4'],
-      visibility: 'public',
-      allowComments: true,
-      hideFrom: [],
-      reports: [],
-    ),
-
-    PostModel(
-      postId: '2',
-      userId: 'user_002',
-      userName: 'Ali Khan',
-      profileImageUrl: 'https://i.pravatar.cc/150?img=12',
-      caption: 'Beautiful evening at the mountains 🌄',
-      mediaUrl: 'https://picsum.photos/id/1018/600/800',
-      mediaType: 'image',
-      isVideo: false,
-      createdAt: DateTime.now().subtract(const Duration(days: 1)),
-      location: 'Murree, Pakistan',
-      likes: ['user_1', 'user_5', 'user_6'],
-      comments: ['Amazing view!', 'Nature ❤️'],
-      tags: ['travel', 'mountains'],
-      repostBy: ['user_7'],
-      favorites: ['user_3'],
-      viewsBy: ['user_2', 'user_4'],
-      visibility: 'public',
-      allowComments: true,
-      hideFrom: [],
-      reports: [],
-    ),
-
-    PostModel(
-      postId: '3',
-      userId: 'user_003',
-      userName: 'Ahmed Raza',
-      profileImageUrl: 'https://i.pravatar.cc/150?img=20',
-      caption: 'Coding late night with coffee ☕💻',
-      mediaUrl: 'https://picsum.photos/id/0/600/800',
-      mediaType: 'image',
-      isVideo: false,
-      createdAt: DateTime.now().subtract(const Duration(days: 3)),
-      location: 'Islamabad, Pakistan',
-      likes: ['user_1', 'user_2'],
-      comments: ['Developer life 🔥', 'Keep coding'],
-      tags: ['coding', 'developer'],
-      repostBy: [],
-      favorites: ['user_5'],
-      viewsBy: ['user_1', 'user_8'],
-      visibility: 'public',
-      allowComments: true,
-      hideFrom: [],
-      reports: [],
-    ),
-    PostModel(
-      postId: '1',
-      userId: 'user_001',
-      userName: 'Saqib Ali',
-      profileImageUrl: 'https://i.pravatar.cc/150?img=1',
-      caption: 'Enjoying Flutter development 🚀',
-      mediaUrl: 'https://picsum.photos/id/1011/600/800',
-      mediaType: 'image',
-      isVideo: false,
-      createdAt: DateTime.now().subtract(const Duration(hours: 2)),
-      location: 'Lahore, Pakistan',
-      likes: ['user_2', 'user_3'],
-      comments: ['Nice!', 'Awesome 🔥'],
-      tags: ['flutter', 'dart'],
-      repostBy: [],
-      favorites: [],
-      viewsBy: ['user_4'],
-      visibility: 'public',
-      allowComments: true,
-      hideFrom: [],
-      reports: [],
-    ),
-
-    PostModel(
-      postId: '2',
-      userId: 'user_002',
-      userName: 'Ali Khan',
-      profileImageUrl: 'https://i.pravatar.cc/150?img=12',
-      caption: 'Beautiful evening at the mountains 🌄',
-      mediaUrl: 'https://picsum.photos/id/1018/600/800',
-      mediaType: 'image',
-      isVideo: false,
-      createdAt: DateTime.now().subtract(const Duration(days: 1)),
-      location: 'Murree, Pakistan',
-      likes: ['user_1', 'user_5', 'user_6'],
-      comments: ['Amazing view!', 'Nature ❤️'],
-      tags: ['travel', 'mountains'],
-      repostBy: ['user_7'],
-      favorites: ['user_3'],
-      viewsBy: ['user_2', 'user_4'],
-      visibility: 'public',
-      allowComments: true,
-      hideFrom: [],
-      reports: [],
-    ),
-  ];
+  final List<PostModel> dummyPosts = [];
   final String bio = '''
 🚀 Flutter Developer | 2+ Years Experience
 Passionate Flutter Developer with 2+ years of experience building modern, scalable, and high-performance Android and cross-platform mobile applications. Experienced in crafting beautiful UIs, integrating APIs, and delivering seamless user experiences.
 ''';
 
   final ProfileController _profileController = Get.put(ProfileController());
+  final SuggestedUserController _suggestedUserController = Get.put(
+    SuggestedUserController(),
+  );
   // Change this field declaration:
   List<PostModel> favoritePosts = FavoritePostService.getFavorites();
-  bool showSuggestion = false;
 
   // To this:
   RxList<PostModel> favoritePost = <PostModel>[].obs;
@@ -178,6 +67,7 @@ Passionate Flutter Developer with 2+ years of experience building modern, scalab
     super.initState();
     tabController = TabController(length: 4, vsync: this);
     _profileController.loadLocalProfile();
+    _profileController.loadProfileStream();
     favoritePosts;
     _loadFavorites();
   }
@@ -201,6 +91,7 @@ Passionate Flutter Developer with 2+ years of experience building modern, scalab
           child: SafeArea(
             child: Column(
               children: [
+                // app bar
                 Row(
                   children: [
                     IconButton(
@@ -263,15 +154,23 @@ Passionate Flutter Developer with 2+ years of experience building modern, scalab
 
                 SizedBox(height: 20.h),
 
-                //profile header row`
-                ProfileHeader(
-                  image: user!.profileImageUrl,
-                  name: user.fullName,
-                  bio: user.bio,
-                  totalPosts: user.posts.length,
-                  followersCount: user.followers.length,
-                  followingCount: user.following.length,
-                ),
+                //profile header
+                Obx(() {
+                  final userData = _profileController.profileUser.value!;
+                  if (_profileController.profileSnapshotLoading.value) {
+                    return SizedBox();
+                  }
+
+                  return ProfileHeader(
+                    image: userData.profileImageUrl,
+                    name: userData.fullName,
+                    bio: userData.bio,
+                    totalPosts: userData.posts.length,
+                    followersCount: userData.followers.length,
+                    followingCount: userData.following.length,
+                  );
+                }),
+
                 SizedBox(height: 20.h),
                 //edit and share buttons
                 Padding(
@@ -337,9 +236,7 @@ Passionate Flutter Developer with 2+ years of experience building modern, scalab
 
                       GestureDetector(
                         onTap: () {
-                          setState(() {
-                            showSuggestion = !showSuggestion;
-                          });
+                          _suggestedUserController.suggestionButtonSwitch();
                         },
                         child: Container(
                           height: 30.h,
@@ -358,63 +255,68 @@ Passionate Flutter Developer with 2+ years of experience building modern, scalab
                     ],
                   ),
                 ),
-                suggestedPosts.isEmpty
-                    ? SizedBox()
-                    : Visibility(
-                        visible: showSuggestion,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 16.w,
-                                vertical: 14.h,
-                              ),
-                              child: Text(
-                                'Discover people',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13.sp,
-                                ),
-                              ),
+
+                // suggested users list
+                Obx(() {
+                  if (_suggestedUserController.suggestedUsersList.isEmpty) {
+                    return SizedBox();
+                  }
+                  return Visibility(
+                    visible: _suggestedUserController.showSuggestion.value,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 16.w,
+                            vertical: 14.h,
+                          ),
+                          child: Text(
+                            'Discover people',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13.sp,
                             ),
+                          ),
+                        ),
 
-                            SizedBox(
-                              height: 245.h,
-                              child: ListView.builder(
-                                itemCount: suggestedPosts.length,
-                                scrollDirection: Axis.horizontal,
+                        SizedBox(
+                          height: 245.h,
+                          child: ListView.builder(
+                            itemCount: _suggestedUserController
+                                .suggestedUsersList
+                                .length,
+                            scrollDirection: Axis.horizontal,
 
-                                padding: EdgeInsets.symmetric(horizontal: 12.w),
-                                itemBuilder: (context, index) {
-                                  return SuggestedCardWidget(
-                                    onCancel: () {
-                                      setState(() {
-                                        suggestedPosts.removeAt(index);
-                                      });
-                                    },
-                                    onFollow: () {
-                                      setState(() {
-                                        suggestedPosts.removeAt(index);
-                                      });
-                                    },
-                                    name: suggestedPosts[index]['name']
-                                        .toString(),
-
-                                    image: suggestedPosts[index]['imageUrl']
-                                        .toString(),
-
-                                    totalMutual:
-                                        suggestedPosts[index]['mutualFriends']
-                                            as int,
+                            padding: EdgeInsets.symmetric(horizontal: 12.w),
+                            itemBuilder: (context, index) {
+                              final suggestedUsers = _suggestedUserController
+                                  .suggestedUsersList[index];
+                              return SuggestedCardWidget(
+                                onCancel: () {
+                                  _suggestedUserController.skipUser(index);
+                                },
+                                onFollow: () {
+                                  _suggestedUserController.followUser(
+                                    suggestedUsers.userId,
+                                    index,
                                   );
                                 },
-                              ),
-                            ),
-                          ],
+                                name: suggestedUsers.fullName,
+
+                                image: suggestedUsers.profileImageUrl,
+
+                                totalMutual: suggestedUsers.followers.length,
+                              );
+                            },
+                          ),
                         ),
-                      ),
+                      ],
+                    ),
+                  );
+                }),
+
                 SizedBox(height: 20.h),
                 //tab bar *****************
                 TabBar(

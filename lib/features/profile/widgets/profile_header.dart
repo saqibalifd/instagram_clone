@@ -47,7 +47,15 @@ class ProfileHeader extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(name, style: ts.titleLarge),
+                      SizedBox(
+                        width: 70.w,
+                        child: Text(
+                          name,
+                          style: ts.titleLarge,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
                       SizedBox(height: 5.h),
                       Text(totalPosts.toString(), style: ts.titleLarge),
                       Text('posts'),

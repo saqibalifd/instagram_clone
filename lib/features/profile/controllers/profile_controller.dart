@@ -13,6 +13,7 @@ import '../../../data/models/user_model.dart';
 
 class ProfileController extends GetxController {
   late final LocalStorageService _localStorage;
+
   final _firebase = FirebaseFirestore.instance;
   final userId = FirebaseAuth.instance.currentUser!.uid;
   final supabase = Supabase.instance.client;
@@ -21,6 +22,7 @@ class ProfileController extends GetxController {
   final fetchLoading = false.obs;
   final updateLoading = false.obs;
   final isLoading = false.obs;
+  final profileSnapshotLoading = false.obs;
 
   @override
   void onInit() {
@@ -29,8 +31,29 @@ class ProfileController extends GetxController {
     _localStorage = Get.put<LocalStorageService>(LocalStorageService());
 
     loadLocalProfile();
+    loadProfileStream();
   }
 
+  // load snapshot profile
+  Future<void> loadProfileStream() async {
+    try {
+      profileSnapshotLoading.value = true;
+
+      _firebase
+          .collection(AppConstants.usersCollection)
+          .doc(userId)
+          .snapshots()
+          .listen((doc) {
+            if (doc.exists) {
+              profileUser.value = UserModel.fromJson(doc.data()!);
+            }
+          });
+    } finally {
+      profileSnapshotLoading.value = false;
+    }
+  }
+
+  // load local profile
   Future<void> loadLocalProfile() async {
     isLoading.value = true;
 
@@ -41,6 +64,7 @@ class ProfileController extends GetxController {
     isLoading.value = false;
   }
 
+  //update profile on local and global
   Future<void> updateProfile(
     BuildContext context,
     String name,
@@ -70,6 +94,7 @@ class ProfileController extends GetxController {
     }
   }
 
+  // update profile picture s
   Future<void> updateProfilePicture(
     BuildContext context,
     File imageFile,

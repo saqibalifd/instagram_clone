@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:instagram/controllers/suggested_user_controller.dart';
 import 'package:instagram/core/constants/app_icons.dart';
 import 'package:instagram/core/theme/app_theme.dart';
 import 'package:instagram/data/models/stories_model.dart';
@@ -27,6 +28,9 @@ class _HomeViewState extends State<HomeView> {
   File? image;
 
   final PostsController postsController = Get.put(PostsController());
+  final SuggestedUserController _suggestedUserController = Get.put(
+    SuggestedUserController(),
+  );
   final List<StoryUserModel> storiesUsers = [
     StoryUserModel(
       name: 'Ali',
@@ -98,24 +102,6 @@ class _HomeViewState extends State<HomeView> {
       isPlayed: false,
       userId: 'user_007',
     ),
-  ];
-
-  final suggestedPosts = [
-    {
-      'name': 'Ali',
-      'imageUrl': 'https://i.pravatar.cc/150?img=1',
-      'mutualFriends': 5,
-    },
-    {
-      'name': 'Nadeem ali',
-      'imageUrl': 'https://i.pravatar.cc/150?img=4',
-      'mutualFriends': 5,
-    },
-    {
-      'name': 'Iftikhar ali',
-      'imageUrl': 'https://i.pravatar.cc/150?img=8',
-      'mutualFriends': 5,
-    },
   ];
 
   late File slectedStory;
@@ -285,59 +271,61 @@ class _HomeViewState extends State<HomeView> {
                   },
                 ),
               ),
-              suggestedPosts.isEmpty
-                  ? SizedBox()
-                  : Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 16.w,
-                            vertical: 14.h,
-                          ),
-                          child: Text(
-                            'Suggested for you',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 13.sp,
-                            ),
-                          ),
+              Obx(() {
+                if (_suggestedUserController.suggestedUsersList.isEmpty) {
+                  return SizedBox();
+                }
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16.w,
+                        vertical: 14.h,
+                      ),
+                      child: Text(
+                        'Discover people',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13.sp,
                         ),
+                      ),
+                    ),
 
-                        SizedBox(
-                          height: 245.h,
-                          child: ListView.builder(
-                            itemCount: suggestedPosts.length,
-                            scrollDirection: Axis.horizontal,
+                    SizedBox(
+                      height: 245.h,
+                      child: ListView.builder(
+                        itemCount:
+                            _suggestedUserController.suggestedUsersList.length,
+                        scrollDirection: Axis.horizontal,
 
-                            padding: EdgeInsets.symmetric(horizontal: 12.w),
-                            itemBuilder: (context, index) {
-                              return SuggestedCardWidget(
-                                onCancel: () {
-                                  setState(() {
-                                    suggestedPosts.removeAt(index);
-                                  });
-                                },
-                                onFollow: () {
-                                  setState(() {
-                                    suggestedPosts.removeAt(index);
-                                  });
-                                },
-                                name: suggestedPosts[index]['name'].toString(),
-
-                                image: suggestedPosts[index]['imageUrl']
-                                    .toString(),
-
-                                totalMutual:
-                                    suggestedPosts[index]['mutualFriends']
-                                        as int,
+                        padding: EdgeInsets.symmetric(horizontal: 12.w),
+                        itemBuilder: (context, index) {
+                          final suggestedUsers = _suggestedUserController
+                              .suggestedUsersList[index];
+                          return SuggestedCardWidget(
+                            onCancel: () {
+                              _suggestedUserController.skipUser(index);
+                            },
+                            onFollow: () {
+                              _suggestedUserController.followUser(
+                                suggestedUsers.userId,
+                                index,
                               );
                             },
-                          ),
-                        ),
-                      ],
+                            name: suggestedUsers.fullName,
+
+                            image: suggestedUsers.profileImageUrl,
+
+                            totalMutual: suggestedUsers.followers.length,
+                          );
+                        },
+                      ),
                     ),
+                  ],
+                );
+              }),
 
               SizedBox(height: 8.h),
 

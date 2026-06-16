@@ -55,6 +55,11 @@ class SuggestedCardWidget extends StatelessWidget {
                     child: CachedImageManager.image(
                       url: image,
                       fit: BoxFit.cover,
+                      errorWidget: CircleAvatar(
+                        backgroundColor: IGColors.gray.withValues(alpha: .3),
+                        radius: 10.r,
+                        child: Icon(AppIcons.profile, size: 60.sp),
+                      ),
                     ),
                   ),
                 ),
