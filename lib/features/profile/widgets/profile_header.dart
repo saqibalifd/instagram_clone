@@ -3,6 +3,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:get/instance_manager.dart';
 import 'package:instagram/core/constants/app_constants.dart';
+import 'package:instagram/core/constants/app_icons.dart';
+import 'package:instagram/core/theme/app_theme.dart';
 import 'package:instagram/routes/app_routes.dart';
 import 'package:instagram/utils/chached_images_manager.dart';
 
@@ -50,6 +52,14 @@ class ProfileHeader extends StatelessWidget {
                   child: CachedImageManager.image(
                     url: image,
                     fit: BoxFit.cover,
+                    errorWidget: CircleAvatar(
+                      backgroundColor: IGColors.gray.withValues(alpha: .3),
+                      child: Icon(
+                        AppIcons.profile,
+                        color: IGColors.bgLight,
+                        size: 30.sp,
+                      ),
+                    ),
                   ),
                 ),
               ),

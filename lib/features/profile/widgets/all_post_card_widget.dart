@@ -57,12 +57,28 @@ class _AllPostCardWidgetState extends State<AllPostCardWidget> {
                     arguments: widget.postModel.userId,
                   );
                 },
-                child: CircleAvatar(
-                  radius: 18.r,
-                  backgroundImage: NetworkImage(
-                    widget.postModel.profileImageUrl,
+                child: Container(
+                  width: 36.r,
+                  height: 36.r,
+                  decoration: BoxDecoration(shape: BoxShape.circle),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(40.r),
+                    child: CachedImageManager.image(
+                      url: widget.postModel.profileImageUrl,
+                      fit: BoxFit.cover,
+                      errorWidget: CircleAvatar(
+                        backgroundColor: IGColors.gray.withValues(alpha: .3),
+                        child: Icon(AppIcons.profile, color: IGColors.bgLight),
+                      ),
+                    ),
                   ),
                 ),
+                // CircleAvatar(
+                //   radius: 18.r,
+                //   backgroundImage: NetworkImage(
+                //     widget.postModel.profileImageUrl,
+                //   ),
+                // ),
               ),
               SizedBox(width: 10.w),
               Expanded(

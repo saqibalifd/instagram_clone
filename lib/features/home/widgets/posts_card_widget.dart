@@ -66,6 +66,10 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
                     child: CachedImageManager.image(
                       url: widget.postModel.profileImageUrl,
                       fit: BoxFit.cover,
+                      errorWidget: CircleAvatar(
+                        backgroundColor: IGColors.gray.withValues(alpha: .3),
+                        child: Icon(AppIcons.profile, color: IGColors.bgLight),
+                      ),
                     ),
                   ),
                 ),
