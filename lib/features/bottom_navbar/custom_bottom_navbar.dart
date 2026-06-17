@@ -108,16 +108,12 @@ class _CustomBottomNavbarState extends State<CustomBottomNavbar> {
             label: '',
           ),
           BottomNavigationBarItem(
-            icon: Container(
-              height: 28.r,
-              width: 28.r,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.transparent,
-              ),
+            icon: ClipRRect(
+              borderRadius: BorderRadius.circular(40.r),
               child: CachedImageManager.image(
                 url: _profileController.profileUser.value!.profileImageUrl,
                 fit: BoxFit.cover,
+                height: 26.h,
                 placeholder: Icon(AppIcons.profile, color: IGColors.bgDark),
                 errorWidget: Icon(AppIcons.profile, color: IGColors.bgDark),
               ),

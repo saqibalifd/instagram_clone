@@ -30,8 +30,6 @@ void main() async {
     ..userInteractions = false
     ..dismissOnTap = false;
 
-  // await FavoritePostService.init();
-
   final localStorage = LocalStorageService();
   await localStorage.init();
 
