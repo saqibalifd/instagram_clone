@@ -7,8 +7,10 @@ import 'package:instagram/core/constants/app_icons.dart';
 import 'package:instagram/core/theme/app_theme.dart';
 import 'package:instagram/data/models/stories_model.dart';
 import 'package:instagram/data/models/user_model.dart';
+import 'package:instagram/features/dm/controller/dm_controller.dart';
 import 'package:instagram/features/dm/widgets/dm_my_stories_circle_widget.dart';
 import 'package:instagram/features/dm/widgets/dm_stories_circle_widget.dart';
+import 'package:instagram/features/profile/controllers/profile_controller.dart';
 import 'package:instagram/routes/app_routes.dart';
 import 'package:instagram/utils/image_picker_util.dart';
 
@@ -96,108 +98,16 @@ class _DmViewState extends State<DmView> {
     ),
   ];
 
-  final List<UserModel> _allUsers = [
-    UserModel(
-      fullName: "Saqib Ali",
-      email: "saqib@gmail.com",
-      username: "saqib_dev",
-      profileImageUrl: "https://i.pravatar.cc/150?img=1",
-      gender: "Male",
-      userId: "u1",
-      deviceToken: "token1",
-      bio: "Flutter Developer",
-      website: "https://saqib.dev",
-      isPrivate: false,
-      isVerified: true,
-      createdAt: Timestamp.now(),
-      following: [],
-      followers: [],
-      posts: [],
-      blocked: [],
-      likedPosts: [],
-      location: "Lahore",
-      phone: "+923001112233",
-      status: "Active",
-      updatedAt: Timestamp.now(),
-    ),
-    UserModel(
-      fullName: "Ali Raza",
-      email: "ali@gmail.com",
-      username: "ali_raza",
-      profileImageUrl: "https://i.pravatar.cc/150?img=2",
-      gender: "Male",
-      userId: "u2",
-      deviceToken: "token2",
-      bio: "Mobile App Developer",
-      website: "",
-      isPrivate: false,
-      isVerified: false,
-      createdAt: Timestamp.now(),
-      following: [],
-      followers: [],
-      posts: [],
-      blocked: [],
-      likedPosts: [],
-      location: "Islamabad",
-      phone: "+923002223344",
-      status: "Active",
-      updatedAt: Timestamp.now(),
-    ),
-    UserModel(
-      fullName: "Ayesha Khan",
-      email: "ayesha@gmail.com",
-      username: "ayesha_k",
-      profileImageUrl: "https://i.pravatar.cc/150?img=3",
-      gender: "Female",
-      userId: "u3",
-      deviceToken: "token3",
-      bio: "UI/UX Designer",
-      website: "",
-      isPrivate: true,
-      isVerified: true,
-      createdAt: Timestamp.now(),
-      following: [],
-      followers: [],
-      posts: [],
-      blocked: [],
-      likedPosts: [],
-      location: "Karachi",
-      phone: "+923003334455",
-      status: "Online",
-      updatedAt: Timestamp.now(),
-    ),
-    UserModel(
-      fullName: "Hamza Ahmed",
-      email: "hamza@gmail.com",
-      username: "hamza_dev",
-      profileImageUrl: "https://i.pravatar.cc/150?img=4",
-      gender: "Male",
-      userId: "u4",
-      deviceToken: "token4",
-      bio: "Firebase Expert",
-      website: "",
-      isPrivate: false,
-      isVerified: false,
-      createdAt: Timestamp.now(),
-      following: [],
-      followers: [],
-      posts: [],
-      blocked: [],
-      likedPosts: [],
-      location: "Faisalabad",
-      phone: "+923004445566",
-      status: "Active now",
-      updatedAt: Timestamp.now(),
-    ),
-  ];
-
+  final DmController dmController = Get.put(DmController());
+  final ProfileController profileController = Get.put(ProfileController());
   List<UserModel> _filteredUsers = [];
 
   @override
   void initState() {
     super.initState();
-    _filteredUsers = List.from(_allUsers);
+    _filteredUsers = List.from(dmController.friendsUsers);
     _searchController.addListener(_onSearchChanged);
+    dmController.loadFriendsStream();
   }
 
   @override
@@ -212,9 +122,9 @@ class _DmViewState extends State<DmView> {
     setState(() {
       _isSearching = query.isNotEmpty;
       if (query.isEmpty) {
-        _filteredUsers = List.from(_allUsers);
+        _filteredUsers = List.from(dmController.friendsUsers);
       } else {
-        _filteredUsers = _allUsers.where((user) {
+        _filteredUsers = dmController.friendsUsers.where((user) {
           return user.fullName.toLowerCase().contains(query) ||
               user.username.toLowerCase().contains(query) ||
               user.bio.toLowerCase().contains(query);
@@ -235,7 +145,10 @@ class _DmViewState extends State<DmView> {
     return Scaffold(
       appBar: AppBar(
         forceMaterialTransparency: true,
-        title: Text('saqibali.fd', style: ts.displayMedium),
+        title: Text(
+          profileController.profileUser.value!.fullName,
+          style: ts.displayMedium,
+        ),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -349,8 +262,8 @@ class _DmViewState extends State<DmView> {
                     itemBuilder: (context, index) {
                       final user = _filteredUsers[index];
                       final bool isOnline =
-                          user.status == 'Online' ||
-                          user.status == 'Active now';
+                          user.status == 'online' ||
+                          user.status == 'active now';
 
                       return ListTile(
                         onTap: () {

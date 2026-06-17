@@ -12,6 +12,7 @@ class SuggestedUserController extends GetxController {
   final RxBool isFollowed = false.obs;
 
   RxList<UserModel> suggestedUsersList = <UserModel>[].obs;
+  RxList<UserModel> friendsUsers = <UserModel>[].obs;
 
   final isLoading = false.obs;
 
