@@ -4,7 +4,7 @@ class ChatModel {
   final String chatId;
   final List<String> participants;
   final String lastMessage;
-  final Timestamp? lastMessageTime;
+  final dynamic lastMessageTime; // changed
   final String lastSenderId;
 
   ChatModel({
@@ -29,8 +29,17 @@ class ChatModel {
     return {
       'participants': participants,
       'lastMessage': lastMessage,
-      'lastMessageTime': lastMessageTime,
+      'lastMessageTime': lastMessageTime ?? FieldValue.serverTimestamp(),
       'lastSenderId': lastSenderId,
     };
+  }
+
+  /// Safe conversion helper
+  DateTime? get lastMessageDateTime {
+    if (lastMessageTime == null) return null;
+    if (lastMessageTime is Timestamp) {
+      return (lastMessageTime as Timestamp).toDate();
+    }
+    return null;
   }
 }

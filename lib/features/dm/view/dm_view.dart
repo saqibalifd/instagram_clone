@@ -105,9 +105,9 @@ class _DmViewState extends State<DmView> {
   @override
   void initState() {
     super.initState();
+    dmController.loadFriendsStream();
     _filteredUsers = List.from(dmController.friendsUsers);
     _searchController.addListener(_onSearchChanged);
-    dmController.loadFriendsStream();
   }
 
   @override

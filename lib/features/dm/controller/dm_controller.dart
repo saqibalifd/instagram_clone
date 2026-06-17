@@ -1,16 +1,23 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:instagram/core/constants/app_constants.dart';
+import 'package:instagram/data/models/chat_model.dart';
+import 'package:instagram/data/models/message_model.dart';
 import '../../../data/models/user_model.dart';
 
 class DmController extends GetxController {
-  final _firebase = FirebaseFirestore.instance;
-  final userId = FirebaseAuth.instance.currentUser!.uid;
-  final RxString error = ''.obs;
+  final FirebaseFirestore _firebase = FirebaseFirestore.instance;
+
+  final String userId = FirebaseAuth.instance.currentUser!.uid;
 
   RxList<UserModel> friendsUsers = <UserModel>[].obs;
-  final isLoading = false.obs;
+  RxString error = ''.obs;
+  RxBool isLoading = false.obs;
+
+  final List<StreamSubscription> _friendSubs = [];
 
   @override
   void onInit() {
@@ -18,125 +25,163 @@ class DmController extends GetxController {
     loadFriendsStream();
   }
 
+  @override
+  void onClose() {
+    for (final sub in _friendSubs) {
+      sub.cancel();
+    }
+    super.onClose();
+  }
+
+  // =========================
+  // CHAT ID
+  // =========================
   String generateChatId(String currentUserId, String otherUserId) {
-    List<String> ids = [currentUserId, otherUserId];
+    final ids = [currentUserId, otherUserId];
     ids.sort();
     return ids.join("_");
   }
 
+  // =========================
+  // SEND MESSAGE
+  // =========================
   Future<void> sendMessage({
     required String receiverId,
     required String message,
   }) async {
     final currentUserId = FirebaseAuth.instance.currentUser!.uid;
-
     final chatId = generateChatId(currentUserId, receiverId);
 
-    final msgRef = FirebaseFirestore.instance
-        .collection('chats')
+    final msgRef = _firebase
+        .collection(AppConstants.chatsCollection)
         .doc(chatId)
-        .collection('messages')
+        .collection(AppConstants.messagesCollection)
         .doc();
 
-    await msgRef.set({
-      'id': msgRef.id,
-      'senderId': currentUserId,
-      'receiverId': receiverId,
-      'message': message,
-      'type': 'text',
-      'isSeen': false,
-      'timestamp': FieldValue.serverTimestamp(),
-    });
+    MessageModel messageModel = MessageModel(
+      id: msgRef.id,
+      senderId: currentUserId,
+      receiverId: receiverId,
+      message: message,
+      type: 'text',
+      isSeen: false,
+      timestamp: FieldValue.serverTimestamp(),
+    );
 
-    await FirebaseFirestore.instance.collection('chats').doc(chatId).set({
-      'participants': [currentUserId, receiverId],
-      'lastMessage': message,
-      'lastMessageTime': FieldValue.serverTimestamp(),
-      'lastSenderId': currentUserId,
-    }, SetOptions(merge: true));
+    await msgRef.set(messageModel.toJson());
+
+    ChatModel chatModel = ChatModel(
+      chatId: chatId,
+      participants: [currentUserId, receiverId],
+      lastMessage: message,
+      lastSenderId: currentUserId,
+      lastMessageTime: FieldValue.serverTimestamp(),
+    );
+
+    await _firebase
+        .collection(AppConstants.chatsCollection)
+        .doc(chatId)
+        .set(chatModel.toJson(), SetOptions(merge: true));
   }
 
+  // =========================
+  // GET MESSAGES STREAM
+  // =========================
   Stream<QuerySnapshot> getMessages(String receiverId) {
     final currentUserId = FirebaseAuth.instance.currentUser!.uid;
-
     final chatId = generateChatId(currentUserId, receiverId);
 
-    return FirebaseFirestore.instance
-        .collection('chats')
+    return _firebase
+        .collection(AppConstants.chatsCollection)
         .doc(chatId)
-        .collection('messages')
+        .collection(AppConstants.messagesCollection)
         .orderBy('timestamp')
         .snapshots();
   }
 
+  // =========================
+  // LOAD FRIENDS (REAL TIME)
+  // =========================
   Future<void> loadFriendsStream() async {
     try {
       isLoading.value = true;
 
-      // Step 1: Get current user's followers and following lists once
       final currentUserDoc = await _firebase
           .collection(AppConstants.usersCollection)
           .doc(userId)
           .get();
 
-      final currentUserData = currentUserDoc.data();
-      if (currentUserData == null) return;
+      final data = currentUserDoc.data();
+      if (data == null) {
+        friendsUsers.clear();
 
-      final List<String> myFollowers = List<String>.from(
-        currentUserData['followers'] ?? [],
-      );
-      final List<String> myFollowing = List<String>.from(
-        currentUserData['following'] ?? [],
-      );
-
-      // Step 2: Friends = users who are in BOTH followers and following
-      final Set<String> friendIds = myFollowers.toSet().intersection(
-        myFollowing.toSet(),
-      );
-
-      if (friendIds.isEmpty) {
-        friendsUsers.assignAll([]);
         return;
       }
 
-      // Step 3: Listen to real-time updates of only those friend documents
-      // Firestore 'whereIn' supports max 10 ids per query, so we chunk if needed
-      final List<List<String>> chunks = _chunkList(friendIds.toList(), 10);
+      final List<String> followers = List<String>.from(data['followers'] ?? []);
 
-      // Combine all chunk streams
-      final List<UserModel> allFriends = [];
+      final List<String> following = List<String>.from(data['following'] ?? []);
 
-      for (final chunk in chunks) {
-        final snapshot = await _firebase
-            .collection(AppConstants.usersCollection)
-            .where('userId', whereIn: chunk)
-            .get();
+      final Set<String> friendIds = followers.toSet().intersection(
+        following.toSet(),
+      );
 
-        final users = snapshot.docs
-            .map((doc) => UserModel.fromJson(doc.data()))
-            .toList();
-
-        allFriends.addAll(users);
+      if (friendIds.isEmpty) {
+        friendsUsers.clear();
+        return;
       }
 
-      friendsUsers.assignAll(allFriends);
-    } on FirebaseException catch (e) {
-      error.value = e.message.toString();
+      // cancel old listeners
+      for (final sub in _friendSubs) {
+        sub.cancel();
+      }
+      _friendSubs.clear();
+
+      final chunks = _chunkList(friendIds.toList(), 10);
+
+      for (final chunk in chunks) {
+        final sub = _firebase
+            .collection(AppConstants.usersCollection)
+            .where('userId', whereIn: chunk)
+            .snapshots()
+            .listen((snapshot) {
+              final updatedUsers = snapshot.docs
+                  .map((doc) => UserModel.fromJson(doc.data()))
+                  .toList();
+
+              // merge safely (avoid duplicates)
+              final Map<String, UserModel> map = {
+                for (var u in friendsUsers) u.userId: u,
+              };
+
+              for (var u in updatedUsers) {
+                map[u.userId] = u;
+              }
+
+              friendsUsers.assignAll(map.values.toList());
+            });
+
+        _friendSubs.add(sub);
+      }
+    } catch (e) {
+      error.value = e.toString();
     } finally {
       isLoading.value = false;
     }
   }
 
-  List<List<T>> _chunkList<T>(List<T> list, int chunkSize) {
+  // =========================
+  // CHUNK HELPER
+  // =========================
+  List<List<T>> _chunkList<T>(List<T> list, int size) {
     final chunks = <List<T>>[];
-    for (var i = 0; i < list.length; i += chunkSize) {
+
+    for (int i = 0; i < list.length; i += size) {
       chunks.add(
-        list.sublist(
-          i,
-          i + chunkSize > list.length ? list.length : i + chunkSize,
-        ),
+        list.sublist(i, i + size > list.length ? list.length : i + size),
       );
     }
+
     return chunks;
   }
 }

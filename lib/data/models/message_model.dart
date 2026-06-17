@@ -7,7 +7,7 @@ class MessageModel {
   final String message;
   final String type;
   final bool isSeen;
-  final Timestamp? timestamp;
+  final dynamic timestamp; // changed
 
   MessageModel({
     required this.id,
@@ -27,7 +27,7 @@ class MessageModel {
       message: json['message'] ?? '',
       type: json['type'] ?? 'text',
       isSeen: json['isSeen'] ?? false,
-      timestamp: json['timestamp'],
+      timestamp: json['timestamp'], // can be Timestamp or null
     );
   }
 
@@ -39,7 +39,14 @@ class MessageModel {
       'message': message,
       'type': type,
       'isSeen': isSeen,
-      'timestamp': timestamp,
+      'timestamp': timestamp ?? FieldValue.serverTimestamp(),
     };
+  }
+
+  /// helper to get readable DateTime
+  DateTime? get createdAt {
+    if (timestamp == null) return null;
+    if (timestamp is Timestamp) return (timestamp as Timestamp).toDate();
+    return null;
   }
 }

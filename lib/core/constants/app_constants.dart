@@ -16,6 +16,8 @@ class AppConstants {
   // Firestore collection names
   static const String usersCollection = 'users';
   static const String postsCollection = 'posts';
+  static const String chatsCollection = 'chats';
+  static const String messagesCollection = 'messages';
 
   //supabase bucket name
   static const String bucketName = 'public';
