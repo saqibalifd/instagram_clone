@@ -14,13 +14,26 @@ class SuggestedUserController extends GetxController {
   RxList<UserModel> suggestedUsersList = <UserModel>[].obs;
   RxList<UserModel> friendsUsers = <UserModel>[].obs;
   RxList<UserModel> mutualUsers = <UserModel>[].obs;
-
+  final RxSet<String> followingIds = <String>{}.obs;
   final isLoading = false.obs;
 
   @override
   void onInit() {
     super.onInit();
     loadSuggestedUserStream();
+    loadMyFollowing();
+  }
+
+  Future<void> loadMyFollowing() async {
+    final doc = await _firebase
+        .collection(AppConstants.usersCollection)
+        .doc(userId)
+        .get();
+
+    final data = doc.data();
+    final List<String> following = List<String>.from(data?['following'] ?? []);
+
+    followingIds.assignAll(following);
   }
 
   Future<void> checkMutuals(String targetUserId) async {
@@ -114,20 +127,20 @@ class SuggestedUserController extends GetxController {
     try {
       isLoading.value = true;
 
-      _firebase
+      await _firebase
           .collection(AppConstants.usersCollection)
           .doc(userId)
           .update({
             'following': FieldValue.arrayUnion([toFollowUserId]),
-          })
-          .then((value) {
-            _firebase
-                .collection(AppConstants.usersCollection)
-                .doc(toFollowUserId)
-                .update({
-                  'followers': FieldValue.arrayUnion([userId]),
-                });
           });
+
+      await _firebase
+          .collection(AppConstants.usersCollection)
+          .doc(toFollowUserId)
+          .update({
+            'followers': FieldValue.arrayUnion([userId]),
+          });
+      followingIds.add(toFollowUserId);
     } on FirebaseException catch (e) {
       error.value = e.message.toString();
     } finally {
@@ -138,10 +151,21 @@ class SuggestedUserController extends GetxController {
   Future<void> unfollowUser(String toFollowUserId) async {
     try {
       isLoading.value = true;
+      await _firebase
+          .collection(AppConstants.usersCollection)
+          .doc(userId)
+          .update({
+            'following': FieldValue.arrayRemove([toFollowUserId]),
+          });
 
-      _firebase.collection(AppConstants.usersCollection).doc(userId).update({
-        'following': FieldValue.arrayRemove([toFollowUserId]),
-      });
+      await _firebase
+          .collection(AppConstants.usersCollection)
+          .doc(toFollowUserId)
+          .update({
+            'followers': FieldValue.arrayRemove([userId]),
+          });
+
+      followingIds.remove(toFollowUserId); // update UI instantly
     } on FirebaseException catch (e) {
       error.value = e.message.toString();
     } finally {
@@ -159,9 +183,5 @@ class SuggestedUserController extends GetxController {
 
   void suggestionButtonSwitch() {
     showSuggestion.value = !showSuggestion.value;
-  }
-
-  void toggleFolow() {
-    isFollowed.value = !isFollowed.value;
   }
 }

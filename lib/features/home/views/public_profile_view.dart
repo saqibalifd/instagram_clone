@@ -110,41 +110,41 @@ class _PublicProfileViewState extends State<PublicProfileView>
                   SizedBox(
                     height: 30.h,
                     width: 165.w,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        if (suggestedUserController.isFollowed.value) {
-                          suggestedUserController.unfollowUser(user.userId);
-                          suggestedUserController.toggleFolow();
-                        } else {
-                          suggestedUserController.followUser(user.userId);
-                          suggestedUserController.toggleFolow();
-                        }
-                      },
-                      style: ButtonStyle(
-                        backgroundColor: WidgetStatePropertyAll(
-                          suggestedUserController.isFollowed.value
-                              ? IGColors.gray.withValues(alpha: .3)
-                              : IGColors.blue,
+                    child: Obx(() {
+                      final isFollowing = suggestedUserController.followingIds
+                          .contains(user.userId);
+                      return ElevatedButton(
+                        onPressed: () {
+                          if (isFollowing) {
+                            suggestedUserController.unfollowUser(user.userId);
+                          } else {
+                            suggestedUserController.followUser(user.userId);
+                          }
+                        },
+                        style: ButtonStyle(
+                          backgroundColor: WidgetStatePropertyAll(
+                            isFollowing
+                                ? IGColors.gray.withValues(alpha: .3)
+                                : IGColors.blue,
+                          ),
+                          overlayColor: const WidgetStatePropertyAll(
+                            Colors.transparent,
+                          ),
+                          elevation: const WidgetStatePropertyAll(0),
+                          shadowColor: const WidgetStatePropertyAll(
+                            Colors.transparent,
+                          ),
                         ),
-                        overlayColor: const WidgetStatePropertyAll(
-                          Colors.transparent,
+                        child: Text(
+                          isFollowing ? 'Following' : 'Follow',
+                          style: TextStyle(
+                            color: isFollowing
+                                ? IGColors.bgDark
+                                : IGColors.bgLight,
+                          ),
                         ),
-                        elevation: const WidgetStatePropertyAll(0),
-                        shadowColor: const WidgetStatePropertyAll(
-                          Colors.transparent,
-                        ),
-                      ),
-                      child: Text(
-                        suggestedUserController.isFollowed.value
-                            ? 'Following'
-                            : 'Follow',
-                        style: TextStyle(
-                          color: suggestedUserController.isFollowed.value
-                              ? IGColors.bgDark
-                              : IGColors.bgLight,
-                        ),
-                      ),
-                    ),
+                      );
+                    }),
                   ),
 
                   const Spacer(),
