@@ -255,10 +255,6 @@ class _UserTile extends StatelessWidget {
         ),
       ),
 
-      // CircleAvatar(
-      //   radius: 24.r,
-      //   backgroundImage: NetworkImage(user.profileImageUrl),
-      // ),
       title: Row(
         children: [
           Text(
