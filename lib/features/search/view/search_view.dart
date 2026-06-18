@@ -300,7 +300,8 @@ class _PostTile extends StatelessWidget {
         fit: StackFit.expand,
         children: [
           // Thumbnail
-          Image.network(post.mediaUrl, fit: BoxFit.cover),
+          CachedImageManager.image(url: post.mediaUrl, fit: BoxFit.cover),
+          // Image.network(post.mediaUrl, fit: BoxFit.cover),
 
           // Video badge
           if (post.isVideo)
