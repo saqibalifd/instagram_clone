@@ -8,6 +8,7 @@ import 'package:instagram/core/constants/app_icons.dart';
 import 'package:instagram/core/theme/app_theme.dart';
 import 'package:instagram/features/dm/controller/dm_controller.dart';
 import 'package:instagram/routes/app_routes.dart';
+import 'package:instagram/utils/chached_images_manager.dart';
 
 class ChatView extends StatefulWidget {
   const ChatView({super.key});
@@ -114,10 +115,23 @@ class _ChatViewState extends State<ChatView> {
             Get.toNamed(AppRoutes.publicProfile, arguments: userId);
           },
           contentPadding: EdgeInsets.zero,
-          leading: CircleAvatar(
-            backgroundImage: image.isNotEmpty ? NetworkImage(image) : null,
-            child: image.isEmpty ? const Icon(Icons.person) : null,
+          leading: Container(
+            width: 46.r,
+            height: 46.r,
+            decoration: const BoxDecoration(shape: BoxShape.circle),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(40.r),
+              child: CachedImageManager.image(
+                url: image,
+                fit: BoxFit.cover,
+                errorWidget: CircleAvatar(
+                  backgroundColor: IGColors.gray.withValues(alpha: .3),
+                  child: Icon(AppIcons.profile, color: IGColors.bgLight),
+                ),
+              ),
+            ),
           ),
+
           title: Text(name),
           subtitle: Text(status),
         ),

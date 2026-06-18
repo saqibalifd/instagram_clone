@@ -11,6 +11,7 @@ import 'package:instagram/features/dm/widgets/dm_my_stories_circle_widget.dart';
 import 'package:instagram/features/dm/widgets/dm_stories_circle_widget.dart';
 import 'package:instagram/features/profile/controllers/profile_controller.dart';
 import 'package:instagram/routes/app_routes.dart';
+import 'package:instagram/utils/chached_images_manager.dart';
 import 'package:instagram/utils/image_picker_util.dart';
 
 class DmView extends StatefulWidget {
@@ -106,7 +107,6 @@ class _DmViewState extends State<DmView> {
   void initState() {
     super.initState();
     _searchController.addListener(() {
-      // ← update Rx string; Obx below will rebuild automatically
       _searchQuery.value = _searchController.text.trim().toLowerCase();
     });
   }
@@ -117,8 +117,6 @@ class _DmViewState extends State<DmView> {
     super.dispose();
   }
 
-  /// Derives filtered list from the live RxList + current query.
-  /// Called inside Obx so it re-runs on any change to either.
   List<UserModel> get _filteredUsers {
     final query = _searchQuery.value;
     if (query.isEmpty) return dmController.friendsUsers;
@@ -300,18 +298,30 @@ class _DmViewState extends State<DmView> {
                     },
                     leading: Stack(
                       children: [
-                        CircleAvatar(
-                          backgroundImage: NetworkImage(user.profileImageUrl),
-                        ),
-                        if (isOnline)
-                          Positioned(
-                            bottom: 0,
-                            right: 0,
-                            child: CircleAvatar(
-                              radius: 5,
-                              backgroundColor: IGColors.green,
+                        Container(
+                          width: 46.r,
+                          height: 46.r,
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(40.r),
+                            child: CachedImageManager.image(
+                              url: user.profileImageUrl,
+                              fit: BoxFit.cover,
+
+                              errorWidget: CircleAvatar(
+                                backgroundColor: IGColors.gray.withValues(
+                                  alpha: .3,
+                                ),
+                                child: Icon(
+                                  AppIcons.profile,
+                                  color: IGColors.bgLight,
+                                ),
+                              ),
                             ),
                           ),
+                        ),
                       ],
                     ),
                     title: _searchQuery.value.isNotEmpty

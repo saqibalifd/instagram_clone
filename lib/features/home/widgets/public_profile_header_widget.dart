@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:instagram/core/constants/app_constants.dart';
+import 'package:instagram/core/constants/app_icons.dart';
+import 'package:instagram/core/theme/app_theme.dart';
 import 'package:instagram/data/models/stories_model.dart';
 import 'package:instagram/routes/app_routes.dart';
 import 'package:instagram/shared_widgets/story_border_wraper_widget.dart';
+import 'package:instagram/utils/chached_images_manager.dart';
 
 class PublicProfileHeaderWidget extends StatefulWidget {
   final String image;
@@ -72,80 +75,119 @@ class _PublicProfileHeaderWidgetState extends State<PublicProfileHeaderWidget> {
                 },
                 child: StoryBorderWrapper(
                   isActive: true,
-                  child: CircleAvatar(
-                    radius: 35.r,
-                    backgroundImage: NetworkImage(widget.image),
+                  child: Container(
+                    width: 70.r,
+                    height: 70.r,
+                    decoration: BoxDecoration(shape: BoxShape.circle),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(40.r),
+                      child: CachedImageManager.image(
+                        url: widget.image,
+                        fit: BoxFit.cover,
+                        errorWidget: CircleAvatar(
+                          backgroundColor: IGColors.gray.withValues(alpha: .3),
+                          child: Icon(
+                            AppIcons.profile,
+                            color: IGColors.bgLight,
+                            size: 30.sp,
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ),
               SizedBox(width: 10.w),
 
-              Row(
+              Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  Text(widget.name, style: ts.titleLarge),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(widget.name, style: ts.titleLarge),
-                      SizedBox(height: 5.h),
-                      Text(widget.totalPosts.toString(), style: ts.titleLarge),
-                      Text('posts'),
+                      GestureDetector(
+                        onTap: () {},
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(height: 10.h),
+
+                            Text(
+                              widget.totalPosts.toString(),
+                              style: ts.titleLarge,
+                            ),
+                            Text('Posts'),
+                          ],
+                        ),
+                      ),
+                      SizedBox(width: 20.w),
+                      GestureDetector(
+                        onTap: () => Get.toNamed(AppRoutes.allFollow),
+                        child: GestureDetector(
+                          onTap: widget.onTap,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(height: 10.h),
+
+                              Text(
+                                widget.followersCount.toString(),
+                                style: ts.titleLarge,
+                              ),
+                              Text('followers'),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 20.w),
+
+                      GestureDetector(
+                        onTap: () => Get.toNamed(AppRoutes.allFollow),
+
+                        child: GestureDetector(
+                          onTap: widget.onTap,
+
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(height: 10.h),
+
+                              Text(
+                                widget.followingCount.toString(),
+                                style: ts.titleLarge,
+                              ),
+                              Text('following'),
+                            ],
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ],
               ),
-              Spacer(),
-              GestureDetector(
-                onTap: () => Get.toNamed(AppRoutes.allFollow),
-                child: Row(
-                  children: [
-                    GestureDetector(
-                      onTap: widget.onTap,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(height: 30.h),
 
-                          Text(
-                            widget.followersCount.toString(),
-                            style: ts.titleLarge,
-                          ),
-                          Text('followers'),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Spacer(),
-
-              GestureDetector(
-                onTap: () => Get.toNamed(AppRoutes.allFollow),
-
-                child: Row(
-                  children: [
-                    GestureDetector(
-                      onTap: widget.onTap,
-
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(height: 30.h),
-
-                          Text(
-                            widget.followingCount.toString(),
-                            style: ts.titleLarge,
-                          ),
-                          Text('following'),
-                        ],
-                      ),
-                    ),
-                    SizedBox(width: 50.w),
-                  ],
-                ),
-              ),
+              // Column(
+              //   mainAxisAlignment: MainAxisAlignment.end,
+              //   crossAxisAlignment: CrossAxisAlignment.start,
+              //   children: [
+              //     Text(widget.name, style: ts.titleLarge),
+              //     Column(
+              //       mainAxisAlignment: MainAxisAlignment.end,
+              //       crossAxisAlignment: CrossAxisAlignment.start,
+              //       children: [
+              //         SizedBox(height: 5.h),
+              //         Text(widget.totalPosts.toString(), style: ts.titleLarge),
+              //         Text('posts'),
+              //       ],
+              //     ),
+              //   ],
+              // ),
             ],
           ),
           SizedBox(height: 10.h),

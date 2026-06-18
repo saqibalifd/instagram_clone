@@ -9,6 +9,7 @@ import 'package:instagram/core/theme/app_theme.dart';
 import 'package:instagram/data/local/favourite_post_services.dart';
 import 'package:instagram/data/models/post_model.dart';
 import 'package:instagram/features/auth/controllers/auth_controller.dart';
+import 'package:instagram/features/home/widgets/public_profile_header_widget.dart';
 import 'package:instagram/features/home/widgets/suggested_card_widget.dart';
 import 'package:instagram/features/profile/controllers/profile_controller.dart';
 import 'package:instagram/features/profile/views/profile_tab_view.dart';
@@ -145,7 +146,7 @@ Passionate Flutter Developer with 2+ years of experience building modern, scalab
                     return SizedBox();
                   }
 
-                  return ProfileHeader(
+                  return PublicProfileHeaderWidget(
                     image: userData.profileImageUrl,
                     name: userData.fullName,
                     bio: userData.bio,
@@ -162,6 +163,23 @@ Passionate Flutter Developer with 2+ years of experience building modern, scalab
                       );
                     },
                   );
+                  // ProfileHeader(
+                  //   image: userData.profileImageUrl,
+                  //   name: userData.fullName,
+                  //   bio: userData.bio,
+                  //   totalPosts: userData.posts.length,
+                  //   followersCount: userData.followers.length,
+                  //   followingCount: userData.following.length,
+                  //   onTap: () {
+                  //     Get.toNamed(
+                  //       AppRoutes.allFollow,
+                  //       arguments: {
+                  //         'userId': userData.userId,
+                  //         'userName': userData.username,
+                  //       },
+                  //     );
+                  //   },
+                  // );
                 }),
 
                 SizedBox(height: 20.h),
