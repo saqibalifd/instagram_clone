@@ -13,6 +13,7 @@ class SuggestedUserController extends GetxController {
 
   RxList<UserModel> suggestedUsersList = <UserModel>[].obs;
   RxList<UserModel> friendsUsers = <UserModel>[].obs;
+  RxList<UserModel> mutualUsers = <UserModel>[].obs;
 
   final isLoading = false.obs;
 
@@ -20,6 +21,64 @@ class SuggestedUserController extends GetxController {
   void onInit() {
     super.onInit();
     loadSuggestedUserStream();
+  }
+
+  Future<void> checkMutuals(String targetUserId) async {
+    try {
+      isLoading.value = true;
+
+      // Fetch current user's following list
+      final currentUserDoc = await _firebase
+          .collection(AppConstants.usersCollection)
+          .doc(userId)
+          .get();
+
+      final currentUserData = currentUserDoc.data();
+      final List<String> myFollowing = List<String>.from(
+        currentUserData?['following'] ?? [],
+      );
+
+      // Fetch target user's following list
+      final targetUserDoc = await _firebase
+          .collection(AppConstants.usersCollection)
+          .doc(targetUserId)
+          .get();
+
+      final targetUserData = targetUserDoc.data();
+      final List<String> targetFollowing = List<String>.from(
+        targetUserData?['following'] ?? [],
+      );
+
+      // Find mutual IDs (users that both follow)
+      final List<String> mutualIds = myFollowing
+          .where((id) => targetFollowing.contains(id))
+          .toList();
+
+      if (mutualIds.isEmpty) {
+        mutualUsers.clear();
+        return;
+      }
+
+      // Fetch UserModel for each mutual ID
+      final List<UserModel> fetchedMutuals = [];
+
+      for (final mutualId in mutualIds) {
+        final doc = await _firebase
+            .collection(AppConstants.usersCollection)
+            .doc(mutualId)
+            .get();
+
+        if (doc.exists && doc.data() != null) {
+          fetchedMutuals.add(UserModel.fromJson(doc.data()!));
+        }
+      }
+
+      mutualUsers.assignAll(fetchedMutuals);
+    } on FirebaseException catch (e) {
+      error.value = e.message.toString();
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   // load snapshot profile

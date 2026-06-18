@@ -327,7 +327,6 @@ class _HomeViewState extends State<HomeView> {
 
                             image: suggestedUsers.profileImageUrl,
 
-                            totalMutual: suggestedUsers.followers.length,
                             userId: suggestedUsers.userId,
                           );
                         },

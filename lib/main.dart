@@ -6,11 +6,14 @@ import 'package:get/get.dart';
 import 'package:instagram/core/theme/app_theme.dart';
 import 'package:instagram/data/local/local_storage_service.dart';
 import 'package:instagram/firebase_options.dart';
+import 'package:instagram/handler/app_lifecycle_handler.dart';
 import 'package:instagram/routes/app_pages.dart';
 import 'package:instagram/routes/app_routes.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 final LocalStorageService localStorageService = LocalStorageService();
+final AppLifecycleHandler lifecycleHandler = AppLifecycleHandler();
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -30,6 +33,10 @@ void main() async {
     ..userInteractions = false
     ..dismissOnTap = false;
 
+  WidgetsBinding.instance.addObserver(lifecycleHandler);
+
+  await lifecycleHandler.setOnline();
+
   final localStorage = LocalStorageService();
   await localStorage.init();
 
@@ -38,8 +45,19 @@ void main() async {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(lifecycleHandler);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

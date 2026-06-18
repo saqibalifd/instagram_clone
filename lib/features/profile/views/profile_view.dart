@@ -300,7 +300,6 @@ Passionate Flutter Developer with 2+ years of experience building modern, scalab
 
                                 image: suggestedUsers.profileImageUrl,
 
-                                totalMutual: suggestedUsers.followers.length,
                                 userId: suggestedUsers.userId,
                               );
                             },

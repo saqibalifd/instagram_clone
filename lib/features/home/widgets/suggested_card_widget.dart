@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:get/route_manager.dart';
+import 'package:instagram/controllers/suggested_user_controller.dart';
 import 'package:instagram/core/constants/app_icons.dart';
 import 'package:instagram/core/theme/app_theme.dart';
 import 'package:instagram/routes/app_routes.dart';
 import 'package:instagram/utils/chached_images_manager.dart';
 
-class SuggestedCardWidget extends StatelessWidget {
+class SuggestedCardWidget extends StatefulWidget {
   final String name;
   final String image;
-  final int totalMutual;
   final String userId;
   final void Function() onFollow;
   final void Function() onCancel;
@@ -18,11 +19,26 @@ class SuggestedCardWidget extends StatelessWidget {
     super.key,
     required this.name,
     required this.image,
-    required this.totalMutual,
     required this.userId,
     required this.onFollow,
     required this.onCancel,
   });
+
+  @override
+  State<SuggestedCardWidget> createState() => _SuggestedCardWidgetState();
+}
+
+class _SuggestedCardWidgetState extends State<SuggestedCardWidget> {
+  final SuggestedUserController suggestedUserController = Get.put(
+    SuggestedUserController(),
+  );
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    suggestedUserController.checkMutuals(widget.userId);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +59,10 @@ class SuggestedCardWidget extends StatelessWidget {
             children: [
               GestureDetector(
                 onTap: () {
-                  Get.toNamed(AppRoutes.publicProfile, arguments: userId);
+                  Get.toNamed(
+                    AppRoutes.publicProfile,
+                    arguments: widget.userId,
+                  );
                 },
                 child: Container(
                   width: 130.r,
@@ -52,7 +71,7 @@ class SuggestedCardWidget extends StatelessWidget {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(100.r),
                     child: CachedImageManager.image(
-                      url: image,
+                      url: widget.image,
                       fit: BoxFit.cover,
                       errorWidget: CircleAvatar(
                         backgroundColor: IGColors.gray.withValues(alpha: .3),
@@ -65,13 +84,13 @@ class SuggestedCardWidget extends StatelessWidget {
               ),
               SizedBox(height: 8.h),
               Text(
-                name,
+                widget.name,
                 style: ts.headlineSmall!.copyWith(fontSize: 14.sp),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
               Text(
-                '$totalMutual mutual friend',
+                '${suggestedUserController!.mutualUsers.length} mutual friend',
                 style: ts.bodySmall!.copyWith(fontSize: 12.sp),
               ),
               SizedBox(height: 14.h),
@@ -85,7 +104,7 @@ class SuggestedCardWidget extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  onPressed: onFollow,
+                  onPressed: widget.onFollow,
                   child: Text('Follow', style: TextStyle(fontSize: 13.sp)),
                 ),
               ),
@@ -95,7 +114,7 @@ class SuggestedCardWidget extends StatelessWidget {
             right: 5,
             top: 5,
             child: GestureDetector(
-              onTap: onCancel,
+              onTap: widget.onCancel,
               child: Icon(AppIcons.cross, size: 16),
             ),
           ),

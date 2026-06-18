@@ -29,7 +29,6 @@ class _PublicProfileViewState extends State<PublicProfileView>
   SuggestedUserController suggestedUserController = Get.put(
     SuggestedUserController(),
   );
-  final List dummyPosts = [];
 
   @override
   void initState() {
