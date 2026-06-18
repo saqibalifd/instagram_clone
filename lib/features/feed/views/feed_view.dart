@@ -122,7 +122,6 @@ class _FeedViewState extends State<FeedView> {
           return Stack(
             fit: StackFit.expand,
             children: [
-              // ✅ FIX: Use `ctrl` instead of `controller[index]`
               Container(
                 height: double.maxFinite,
                 color: IGColors.bgDark,

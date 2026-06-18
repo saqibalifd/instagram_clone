@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -23,7 +22,9 @@ class DmView extends StatefulWidget {
 
 class _DmViewState extends State<DmView> {
   final TextEditingController _searchController = TextEditingController();
-  bool _isSearching = false;
+
+  // ← Rx so Obx rebuilds when query changes
+  final RxString _searchQuery = ''.obs;
 
   final List<StoryUserModel> storiesUsers = [
     StoryUserModel(
@@ -100,37 +101,32 @@ class _DmViewState extends State<DmView> {
 
   final DmController dmController = Get.put(DmController());
   final ProfileController profileController = Get.put(ProfileController());
-  List<UserModel> _filteredUsers = [];
 
   @override
   void initState() {
     super.initState();
-    dmController.loadFriendsStream();
-    _filteredUsers = List.from(dmController.friendsUsers);
-    _searchController.addListener(_onSearchChanged);
+    _searchController.addListener(() {
+      // ← update Rx string; Obx below will rebuild automatically
+      _searchQuery.value = _searchController.text.trim().toLowerCase();
+    });
   }
 
   @override
   void dispose() {
-    _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
     super.dispose();
   }
 
-  void _onSearchChanged() {
-    final query = _searchController.text.trim().toLowerCase();
-    setState(() {
-      _isSearching = query.isNotEmpty;
-      if (query.isEmpty) {
-        _filteredUsers = List.from(dmController.friendsUsers);
-      } else {
-        _filteredUsers = dmController.friendsUsers.where((user) {
-          return user.fullName.toLowerCase().contains(query) ||
-              user.username.toLowerCase().contains(query) ||
-              user.bio.toLowerCase().contains(query);
-        }).toList();
-      }
-    });
+  /// Derives filtered list from the live RxList + current query.
+  /// Called inside Obx so it re-runs on any change to either.
+  List<UserModel> get _filteredUsers {
+    final query = _searchQuery.value;
+    if (query.isEmpty) return dmController.friendsUsers;
+    return dmController.friendsUsers.where((user) {
+      return user.fullName.toLowerCase().contains(query) ||
+          user.username.toLowerCase().contains(query) ||
+          user.bio.toLowerCase().contains(query);
+    }).toList();
   }
 
   void _clearSearch() {
@@ -153,159 +149,183 @@ class _DmViewState extends State<DmView> {
       body: SingleChildScrollView(
         child: Column(
           children: [
+            // ── Search bar ──────────────────────────────────────────
             Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: AppConstants.horizontalSmallPadding,
               ),
-              child: TextFormField(
-                controller: _searchController,
-                decoration: InputDecoration(
-                  prefixIcon: const Icon(AppIcons.search),
-                  suffixIcon: _isSearching
-                      ? IconButton(
-                          icon: const Icon(Icons.close),
-                          onPressed: _clearSearch,
-                        )
-                      : null,
-                  fillColor: IGColors.gray.withValues(alpha: .2),
-                  filled: true,
-                  hintText: 'Search',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(50),
-                    borderSide: BorderSide.none,
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(50),
-                    borderSide: BorderSide.none,
+              child: Obx(
+                () => TextFormField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(AppIcons.search),
+                    suffixIcon: _searchQuery.value.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.close),
+                            onPressed: _clearSearch,
+                          )
+                        : null,
+                    fillColor: IGColors.gray.withValues(alpha: .2),
+                    filled: true,
+                    hintText: 'Search',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(50),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(50),
+                      borderSide: BorderSide.none,
+                    ),
                   ),
                 ),
               ),
             ),
 
-            if (!_isSearching) ...[
-              SizedBox(height: 40.h),
-              SizedBox(
-                height: 110.h,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: storiesUsers.length,
-                  itemBuilder: (context, index) {
-                    if (index == 0) {
-                      return Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 10.w),
-                        child: DmMyStoriesCircleWidget(
-                          imageUrl:
-                              'https://img.magnific.com/free-psd/modern-dynamic-banner_125755-403.jpg',
-                          onStoryTap: () {
-                            Get.toNamed(
-                              AppRoutes.viewStory,
-                              arguments: {
-                                'currentStory': storiesUsers[index],
-                                'allStories': storiesUsers,
+            // ── Stories row (hidden while searching) ────────────────
+            Obx(() {
+              if (_searchQuery.value.isNotEmpty) return const SizedBox.shrink();
+              return Column(
+                children: [
+                  SizedBox(height: 40.h),
+                  SizedBox(
+                    height: 110.h,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: storiesUsers.length,
+                      itemBuilder: (context, index) {
+                        if (index == 0) {
+                          return Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 10.w),
+                            child: DmMyStoriesCircleWidget(
+                              imageUrl:
+                                  'https://img.magnific.com/free-psd/modern-dynamic-banner_125755-403.jpg',
+                              onStoryTap: () {
+                                Get.toNamed(
+                                  AppRoutes.viewStory,
+                                  arguments: {
+                                    'currentStory': storiesUsers[index],
+                                    'allStories': storiesUsers,
+                                  },
+                                );
                               },
-                            );
-                          },
-                          onAddStory: () async {
-                            await ImagePickerUtil.pickFromGallery(
-                              context,
-                              maxWidth: 1024,
-                              imageQuality: 85,
-                            );
-                          },
-                        ),
-                      );
-                    }
-                    return Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 10.w),
-                      child: DmStoriesCircleWidget(
-                        onStoryTap: () {
-                          Get.toNamed(
-                            AppRoutes.viewStory,
-                            arguments: {
-                              'currentStory': storiesUsers[index],
-                              'allStories': storiesUsers,
-                            },
+                              onAddStory: () async {
+                                await ImagePickerUtil.pickFromGallery(
+                                  context,
+                                  maxWidth: 1024,
+                                  imageQuality: 85,
+                                );
+                              },
+                            ),
                           );
-                        },
-                        imageUrl: storiesUsers[index].storyImage.toString(),
-                        name: storiesUsers[index].name.toString().length > 10
-                            ? '${storiesUsers[index].name.toString().substring(0, 10)}...'
-                            : storiesUsers[index].name.toString(),
-                        isPlayed: storiesUsers[index].isPlayed,
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
+                        }
+                        return Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 10.w),
+                          child: DmStoriesCircleWidget(
+                            onStoryTap: () {
+                              Get.toNamed(
+                                AppRoutes.viewStory,
+                                arguments: {
+                                  'currentStory': storiesUsers[index],
+                                  'allStories': storiesUsers,
+                                },
+                              );
+                            },
+                            imageUrl: storiesUsers[index].storyImage.toString(),
+                            name:
+                                storiesUsers[index].name.toString().length > 10
+                                ? '${storiesUsers[index].name.toString().substring(0, 10)}...'
+                                : storiesUsers[index].name.toString(),
+                            isPlayed: storiesUsers[index].isPlayed,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              );
+            }),
 
-            Align(
-              alignment: Alignment.bottomLeft,
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: AppConstants.horizontalSmallPadding,
-                  vertical: 8,
-                ),
-                child: Text(
-                  _isSearching ? 'Results' : 'Messages',
-                  style: ts.displaySmall,
+            // ── Section header ───────────────────────────────────────
+            Obx(
+              () => Align(
+                alignment: Alignment.bottomLeft,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: AppConstants.horizontalSmallPadding,
+                    vertical: 8,
+                  ),
+                  child: Text(
+                    _searchQuery.value.isNotEmpty ? 'Results' : 'Messages',
+                    style: ts.displaySmall,
+                  ),
                 ),
               ),
             ),
 
-            _filteredUsers.isEmpty
-                ? _buildEmptyState()
-                : ListView.builder(
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: _filteredUsers.length,
-                    shrinkWrap: true,
-                    itemBuilder: (context, index) {
-                      final user = _filteredUsers[index];
-                      final bool isOnline =
-                          user.status == 'online' ||
-                          user.status == 'active now';
+            // ── Friends list (fully reactive) ────────────────────────
+            Obx(() {
+              // Show loader while first load is in progress
+              if (dmController.isLoading.value) {
+                return const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 60),
 
-                      return ListTile(
-                        onTap: () {
-                          Get.toNamed(
-                            AppRoutes.chat,
-                            arguments: {
-                              'name': user.fullName,
-                              'status': user.status,
-                              'image': user.profileImageUrl,
-                              'userId': user.userId,
-                            },
-                          );
+                  child: Center(child: CircularProgressIndicator()),
+                );
+              }
+
+              final users = _filteredUsers; // derives from Rx values above
+
+              if (users.isEmpty) return _buildEmptyState();
+
+              return ListView.builder(
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: users.length,
+                shrinkWrap: true,
+                itemBuilder: (context, index) {
+                  final user = users[index];
+                  final bool isOnline =
+                      user.status == 'online' || user.status == 'active now';
+
+                  return ListTile(
+                    onTap: () {
+                      Get.toNamed(
+                        AppRoutes.chat,
+                        arguments: {
+                          'name': user.fullName,
+                          'status': user.status,
+                          'image': user.profileImageUrl,
+                          'userId': user.userId,
                         },
-                        leading: Stack(
-                          children: [
-                            CircleAvatar(
-                              backgroundImage: NetworkImage(
-                                user.profileImageUrl,
-                              ),
-                            ),
-                            if (isOnline)
-                              Positioned(
-                                bottom: 0,
-                                right: 0,
-                                child: CircleAvatar(
-                                  radius: 5,
-                                  backgroundColor: IGColors.green,
-                                ),
-                              ),
-                          ],
-                        ),
-                        title: _isSearching
-                            ? _buildHighlightedText(
-                                user.fullName,
-                                _searchController.text.trim(),
-                                ts.bodyMedium!,
-                              )
-                            : Text(user.fullName),
-                        subtitle: Text(user.status),
                       );
                     },
-                  ),
+                    leading: Stack(
+                      children: [
+                        CircleAvatar(
+                          backgroundImage: NetworkImage(user.profileImageUrl),
+                        ),
+                        if (isOnline)
+                          Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: CircleAvatar(
+                              radius: 5,
+                              backgroundColor: IGColors.green,
+                            ),
+                          ),
+                      ],
+                    ),
+                    title: _searchQuery.value.isNotEmpty
+                        ? _buildHighlightedText(
+                            user.fullName,
+                            _searchController.text.trim(),
+                            ts.bodyMedium!,
+                          )
+                        : Text(user.fullName),
+                    subtitle: Text(user.status),
+                  );
+                },
+              );
+            }),
           ],
         ),
       ),
@@ -321,7 +341,9 @@ class _DmViewState extends State<DmView> {
           Icon(Icons.search_off_rounded, size: 48.sp, color: IGColors.gray),
           SizedBox(height: 12.h),
           Text(
-            'No results for "${_searchController.text.trim()}"',
+            _searchQuery.value.isNotEmpty
+                ? 'No results for "${_searchController.text.trim()}"'
+                : 'No messages yet',
             style: TextStyle(color: IGColors.gray),
           ),
         ],
@@ -329,7 +351,6 @@ class _DmViewState extends State<DmView> {
     );
   }
 
-  /// Highlights the matched [query] substring inside [text].
   Widget _buildHighlightedText(String text, String query, TextStyle base) {
     if (query.isEmpty) return Text(text, style: base);
 

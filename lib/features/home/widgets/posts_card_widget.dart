@@ -9,12 +9,20 @@ import 'package:instagram/data/models/post_model.dart';
 import 'package:instagram/routes/app_routes.dart';
 import 'package:instagram/utils/bottom_sheet_util.dart';
 import 'package:instagram/utils/chached_images_manager.dart';
+import 'package:instagram/utils/chached_video_manager.dart';
 import 'package:instagram/utils/custom_toast_util.dart';
 import 'package:readmore/readmore.dart';
+import 'package:video_player/video_player.dart';
 
 class PostsCardWidget extends StatefulWidget {
   final PostModel postModel;
-  const PostsCardWidget({super.key, required this.postModel});
+  final String mediaType;
+
+  const PostsCardWidget({
+    super.key,
+    required this.postModel,
+    required this.mediaType,
+  });
 
   @override
   State<PostsCardWidget> createState() => _PostsCardWidgetState();
@@ -23,19 +31,44 @@ class PostsCardWidget extends StatefulWidget {
 class _PostsCardWidgetState extends State<PostsCardWidget> {
   bool isLiked = false;
   bool isFav = false;
-  @override
-  void initState() {
-    super.initState();
 
-    isFav = FavoritePostService.isFavorite(widget.postModel.postId);
-
-    print('Initial isFav: $isFav');
-  }
+  VideoPlayerController? _videoController;
+  bool _videoInitialized = false;
+  bool _isPlaying = false;
 
   final TransformationController _controller = TransformationController();
 
+  @override
+  void initState() {
+    super.initState();
+    isFav = FavoritePostService.isFavorite(widget.postModel.postId);
+    if (widget.mediaType == 'video') {
+      _initVideo();
+    }
+  }
+
+  Future<void> _initVideo() async {
+    final controller = await CachedVideoManager.getController(
+      widget.postModel.mediaUrl,
+    );
+    await controller.initialize();
+    if (mounted) {
+      setState(() {
+        _videoController = controller;
+        _videoInitialized = true;
+      });
+    }
+  }
+
   void _resetZoom() {
     _controller.value = Matrix4.identity();
+  }
+
+  @override
+  void dispose() {
+    _videoController?.dispose();
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -60,7 +93,7 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
                 child: Container(
                   width: 36.r,
                   height: 36.r,
-                  decoration: BoxDecoration(shape: BoxShape.circle),
+                  decoration: const BoxDecoration(shape: BoxShape.circle),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(40.r),
                     child: CachedImageManager.image(
@@ -113,7 +146,7 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
                       IGMoreAction(
                         icon: AppIcons.personRemove,
                         label: 'Unfollow',
-                        onTap: () => {},
+                        onTap: () {},
                       ),
                       IGMoreAction(
                         icon: AppIcons.copy,
@@ -129,22 +162,64 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
           ),
         ),
 
-        // Post image
+        // Post media
         SizedBox(
           width: double.maxFinite,
           height: 510.h,
           child: ClipRRect(
-            child: InteractiveViewer(
-              panEnabled: false,
-              minScale: 1.0,
-              maxScale: 4.0,
-              boundaryMargin: const EdgeInsets.all(20),
-              clipBehavior: Clip.hardEdge,
-              child: CachedImageManager.image(
-                url: widget.postModel.mediaUrl,
-                fit: BoxFit.cover,
-              ),
-            ),
+            child: widget.mediaType == 'video'
+                ? _videoInitialized && _videoController != null
+                      ? GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              if (_videoController!.value.isPlaying) {
+                                _videoController!.pause();
+                                _isPlaying = false;
+                              } else {
+                                _videoController!.play();
+                                _isPlaying = true;
+                              }
+                            });
+                          },
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              AspectRatio(
+                                aspectRatio: 16 / 20,
+                                // _videoController!.value.aspectRatio,
+                                child: VideoPlayer(_videoController!),
+                              ),
+                              AnimatedOpacity(
+                                opacity: _isPlaying ? 0.0 : 1.0,
+                                duration: const Duration(milliseconds: 200),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withValues(alpha: 0.4),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  padding: const EdgeInsets.all(12),
+                                  child: const Icon(
+                                    Icons.play_arrow_rounded,
+                                    color: Colors.white,
+                                    size: 48,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      : const Center(child: CircularProgressIndicator())
+                : InteractiveViewer(
+                    panEnabled: false,
+                    minScale: 1.0,
+                    maxScale: 4.0,
+                    boundaryMargin: const EdgeInsets.all(20),
+                    clipBehavior: Clip.hardEdge,
+                    child: CachedImageManager.image(
+                      url: widget.postModel.mediaUrl,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
           ),
         ),
 
@@ -155,59 +230,39 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              // Like button
               IconButton(
                 splashColor: Colors.transparent,
                 highlightColor: Colors.transparent,
                 onPressed: () {
                   setState(() => isLiked = !isLiked);
                 },
-                icon: isLiked
-                    ? Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Icon(
-                            AppIcons.heartFill,
-                            color: IGColors.like,
-                            size: 29,
-                          ),
-                          SizedBox(width: 5.w),
-
-                          Text(
-                            widget.postModel.likes.length.toString(),
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ],
-                      )
-                    : Row(
-                        children: [
-                          Stack(
-                            children: [
-                              Icon(
-                                AppIcons.heart,
-                                color: IGColors.bgDark,
-                                size: 29,
-                              ),
-                            ],
-                          ),
-                          SizedBox(width: 5.w),
-
-                          Text(
-                            widget.postModel.likes.length.toString(),
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ],
+                icon: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Icon(
+                      isLiked ? AppIcons.heartFill : AppIcons.heart,
+                      color: isLiked ? IGColors.like : IGColors.bgDark,
+                      size: 29,
+                    ),
+                    SizedBox(width: 5.w),
+                    Text(
+                      widget.postModel.likes.length.toString(),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
                       ),
+                    ),
+                  ],
+                ),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
               ),
+
               SizedBox(width: 8.w),
+
+              // Comment button
               IconButton(
                 splashColor: Colors.transparent,
                 highlightColor: Colors.transparent,
@@ -261,20 +316,20 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
                     SizedBox(width: 5.w),
                     Text(
                       widget.postModel.comments.length.toString(),
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                       ),
                     ),
                   ],
                 ),
-
-                // Icon(AppIcons.comment, color: IGColors.bgDark),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
               ),
 
               SizedBox(width: 8.w),
+
+              // Share button
               IconButton(
                 splashColor: Colors.transparent,
                 highlightColor: Colors.transparent,
@@ -308,28 +363,24 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
                 },
                 icon: Row(
                   children: [
-                    Stack(
-                      children: [
-                        Icon(AppIcons.dm, color: IGColors.bgDark, size: 29),
-                      ],
-                    ),
+                    Icon(AppIcons.dm, color: IGColors.bgDark, size: 29),
                     SizedBox(width: 5.w),
                   ],
                 ),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
               ),
+
               const Spacer(),
+
+              // Favorite button
               IconButton(
                 splashColor: Colors.transparent,
                 highlightColor: Colors.transparent,
                 onPressed: () async {
                   if (!isFav) {
                     await FavoritePostService.addToFavorites(widget.postModel);
-
-                    setState(() {
-                      isFav = !isFav;
-                    });
+                    setState(() => isFav = true);
                     CustomToastUtil.showDefault(
                       context,
                       message: 'Post added to favorites',
@@ -338,9 +389,7 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
                     await FavoritePostService.removeFromFavorites(
                       widget.postModel.postId,
                     );
-                    setState(() {
-                      isFav = !isFav;
-                    });
+                    setState(() => isFav = false);
                     CustomToastUtil.showDefault(
                       context,
                       message: 'Post removed from favorites',
@@ -397,7 +446,6 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
                   ],
                 ),
               ),
-
               SizedBox(height: 4.h),
               Text(
                 '5 min ago',

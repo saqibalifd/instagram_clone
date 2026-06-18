@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:chat_bubbles/bubbles/bubble_special_three.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:instagram/core/constants/app_icons.dart';
 import 'package:instagram/core/theme/app_theme.dart';
@@ -23,6 +24,7 @@ class _ChatViewState extends State<ChatView> {
   final FocusNode focusNode = FocusNode();
 
   final DmController chatController = Get.put(DmController());
+  final ScrollController scrollController = ScrollController();
 
   bool isFocused = false;
 
@@ -36,6 +38,22 @@ class _ChatViewState extends State<ChatView> {
       setState(() {
         isFocused = focusNode.hasFocus;
       });
+
+      if (focusNode.hasFocus) {
+        scrollToBottom();
+      }
+    });
+  }
+
+  void scrollToBottom() {
+    if (!scrollController.hasClients) return;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Future.delayed(const Duration(milliseconds: 300), () {
+        if (!scrollController.hasClients) return;
+
+        scrollController.jumpTo(scrollController.position.maxScrollExtent);
+      });
     });
   }
 
@@ -44,6 +62,7 @@ class _ChatViewState extends State<ChatView> {
     messageController.dispose();
     focusNode.dispose();
     super.dispose();
+    scrollController.dispose();
   }
 
   Widget buildInputField(String receiverId) {
@@ -112,6 +131,7 @@ class _ChatViewState extends State<ChatView> {
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: chatController.getMessages(userId),
+
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
@@ -120,10 +140,15 @@ class _ChatViewState extends State<ChatView> {
                 if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                   return const Center(child: Text("No messages yet"));
                 }
-
                 final messages = snapshot.data!.docs;
 
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  scrollToBottom();
+                });
+
                 return ListView.builder(
+                  controller: scrollController,
+
                   padding: const EdgeInsets.symmetric(vertical: 10),
                   itemCount: messages.length,
                   itemBuilder: (context, index) {
@@ -150,6 +175,7 @@ class _ChatViewState extends State<ChatView> {
               },
             ),
           ),
+          SizedBox(height: 20.h),
 
           SafeArea(
             child: Padding(

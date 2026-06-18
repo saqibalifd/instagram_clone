@@ -10,36 +10,126 @@ import '../../../data/models/user_model.dart';
 
 class DmController extends GetxController {
   final FirebaseFirestore _firebase = FirebaseFirestore.instance;
-
   final String userId = FirebaseAuth.instance.currentUser!.uid;
 
   RxList<UserModel> friendsUsers = <UserModel>[].obs;
   RxString error = ''.obs;
   RxBool isLoading = false.obs;
 
+  StreamSubscription? _currentUserSub; // streams the current user doc
   final List<StreamSubscription> _friendSubs = [];
 
   @override
   void onInit() {
     super.onInit();
-    loadFriendsStream();
+    _listenToCurrentUser();
   }
 
   @override
   void onClose() {
-    for (final sub in _friendSubs) {
-      sub.cancel();
-    }
+    _currentUserSub?.cancel();
+    _cancelFriendSubs();
     super.onClose();
   }
 
   // =========================
-  // CHAT ID
+  // LISTEN TO CURRENT USER (real-time)
   // =========================
-  String generateChatId(String currentUserId, String otherUserId) {
-    final ids = [currentUserId, otherUserId];
-    ids.sort();
-    return ids.join("_");
+  void _listenToCurrentUser() {
+    isLoading.value = true;
+
+    _currentUserSub = _firebase
+        .collection(AppConstants.usersCollection)
+        .doc(userId)
+        .snapshots()
+        .listen(
+          (doc) {
+            final data = doc.data();
+            if (data == null) {
+              friendsUsers.clear();
+              isLoading.value = false;
+              return;
+            }
+
+            final List<String> followers = List<String>.from(
+              data['followers'] ?? [],
+            );
+            final List<String> following = List<String>.from(
+              data['following'] ?? [],
+            );
+            final Set<String> friendIds = followers.toSet().intersection(
+              following.toSet(),
+            );
+
+            if (friendIds.isEmpty) {
+              friendsUsers.clear();
+              isLoading.value = false;
+              return;
+            }
+
+            _listenToFriends(friendIds);
+          },
+          onError: (e) {
+            error.value = e.toString();
+            isLoading.value = false;
+          },
+        );
+  }
+
+  // =========================
+  // LISTEN TO FRIENDS (real-time, chunked)
+  // =========================
+  void _listenToFriends(Set<String> friendIds) {
+    _cancelFriendSubs(); // cancel stale listeners before re-subscribing
+
+    final chunks = _chunkList(friendIds.toList(), 10);
+    // Track how many chunks have fired at least once
+    final Set<int> loadedChunks = {};
+
+    for (int i = 0; i < chunks.length; i++) {
+      final chunk = chunks[i];
+      final chunkIndex = i;
+
+      final sub = _firebase
+          .collection(AppConstants.usersCollection)
+          .where('userId', whereIn: chunk)
+          .snapshots()
+          .listen(
+            (snapshot) {
+              final updatedUsers = snapshot.docs
+                  .map((doc) => UserModel.fromJson(doc.data()))
+                  .toList();
+
+              // Merge into the shared map (avoid duplicates)
+              final Map<String, UserModel> map = {
+                for (var u in friendsUsers) u.userId: u,
+              };
+              for (var u in updatedUsers) {
+                map[u.userId] = u;
+              }
+              friendsUsers.assignAll(map.values.toList());
+
+              // Only stop loading once every chunk has emitted at least once
+              loadedChunks.add(chunkIndex);
+              if (loadedChunks.length == chunks.length) {
+                isLoading.value = false;
+              }
+            },
+            onError: (e) {
+              error.value = e.toString();
+              isLoading.value = false;
+            },
+          );
+
+      _friendSubs.add(sub);
+    }
+  }
+
+  void _cancelFriendSubs() {
+    for (final sub in _friendSubs) {
+      sub.cancel();
+    }
+    _friendSubs.clear();
   }
 
   // =========================
@@ -58,7 +148,7 @@ class DmController extends GetxController {
         .collection(AppConstants.messagesCollection)
         .doc();
 
-    MessageModel messageModel = MessageModel(
+    final messageModel = MessageModel(
       id: msgRef.id,
       senderId: currentUserId,
       receiverId: receiverId,
@@ -70,7 +160,7 @@ class DmController extends GetxController {
 
     await msgRef.set(messageModel.toJson());
 
-    ChatModel chatModel = ChatModel(
+    final chatModel = ChatModel(
       chatId: chatId,
       participants: [currentUserId, receiverId],
       lastMessage: message,
@@ -100,74 +190,12 @@ class DmController extends GetxController {
   }
 
   // =========================
-  // LOAD FRIENDS (REAL TIME)
+  // CHAT ID
   // =========================
-  Future<void> loadFriendsStream() async {
-    try {
-      isLoading.value = true;
-
-      final currentUserDoc = await _firebase
-          .collection(AppConstants.usersCollection)
-          .doc(userId)
-          .get();
-
-      final data = currentUserDoc.data();
-      if (data == null) {
-        friendsUsers.clear();
-
-        return;
-      }
-
-      final List<String> followers = List<String>.from(data['followers'] ?? []);
-
-      final List<String> following = List<String>.from(data['following'] ?? []);
-
-      final Set<String> friendIds = followers.toSet().intersection(
-        following.toSet(),
-      );
-
-      if (friendIds.isEmpty) {
-        friendsUsers.clear();
-        return;
-      }
-
-      // cancel old listeners
-      for (final sub in _friendSubs) {
-        sub.cancel();
-      }
-      _friendSubs.clear();
-
-      final chunks = _chunkList(friendIds.toList(), 10);
-
-      for (final chunk in chunks) {
-        final sub = _firebase
-            .collection(AppConstants.usersCollection)
-            .where('userId', whereIn: chunk)
-            .snapshots()
-            .listen((snapshot) {
-              final updatedUsers = snapshot.docs
-                  .map((doc) => UserModel.fromJson(doc.data()))
-                  .toList();
-
-              // merge safely (avoid duplicates)
-              final Map<String, UserModel> map = {
-                for (var u in friendsUsers) u.userId: u,
-              };
-
-              for (var u in updatedUsers) {
-                map[u.userId] = u;
-              }
-
-              friendsUsers.assignAll(map.values.toList());
-            });
-
-        _friendSubs.add(sub);
-      }
-    } catch (e) {
-      error.value = e.toString();
-    } finally {
-      isLoading.value = false;
-    }
+  String generateChatId(String currentUserId, String otherUserId) {
+    final ids = [currentUserId, otherUserId];
+    ids.sort();
+    return ids.join("_");
   }
 
   // =========================
@@ -175,13 +203,11 @@ class DmController extends GetxController {
   // =========================
   List<List<T>> _chunkList<T>(List<T> list, int size) {
     final chunks = <List<T>>[];
-
     for (int i = 0; i < list.length; i += size) {
       chunks.add(
         list.sublist(i, i + size > list.length ? list.length : i + size),
       );
     }
-
     return chunks;
   }
 }

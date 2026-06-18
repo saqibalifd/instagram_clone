@@ -354,6 +354,7 @@ class _HomeViewState extends State<HomeView> {
                   itemBuilder: (context, index) {
                     return PostsCardWidget(
                       postModel: postsController.allPostsList[index],
+                      mediaType: postsController.allPostsList[index].mediaType,
                     );
                   },
                 );
