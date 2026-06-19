@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:instagram/controllers/stories_controller.dart';
 import 'package:instagram/core/constants/app_constants.dart';
 import 'package:instagram/core/constants/app_icons.dart';
 import 'package:instagram/core/theme/app_theme.dart';
-import 'package:instagram/data/models/stories_model.dart';
 import 'package:instagram/routes/app_routes.dart';
 import 'package:instagram/shared_widgets/story_border_wraper_widget.dart';
 import 'package:instagram/utils/chached_images_manager.dart';
@@ -36,18 +36,8 @@ class PublicProfileHeaderWidget extends StatefulWidget {
 
 class _PublicProfileHeaderWidgetState extends State<PublicProfileHeaderWidget> {
   bool isStoryAvailable = true;
-  final List<StoryModel> storiesUsers = [
-    // StoryModel(
-    //   name: 'Ali',
-    //   profileImage: 'https://i.pravatar.cc/150?img=1',
-    //   storyImage:
-    //       'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800',
-    //   songTitle: 'Blinding Lights • The Weeknd',
-    //   timeAgo: '5m ago',
-    //   isPlayed: false,
-    //   userId: 'user_001',
-    // ),
-  ];
+  StoriesController storiesController = Get.put(StoriesController());
+
   @override
   Widget build(BuildContext context) {
     final ts = Theme.of(context).textTheme;
@@ -68,8 +58,8 @@ class _PublicProfileHeaderWidgetState extends State<PublicProfileHeaderWidget> {
                   Get.toNamed(
                     AppRoutes.viewStory,
                     arguments: {
-                      'currentStory': storiesUsers[0],
-                      'allStories': storiesUsers,
+                      'currentStory': storiesController.allStoryList.first,
+                      'allStories': storiesController.allStoryList,
                     },
                   );
                 },
@@ -171,23 +161,6 @@ class _PublicProfileHeaderWidgetState extends State<PublicProfileHeaderWidget> {
                   ),
                 ],
               ),
-
-              // Column(
-              //   mainAxisAlignment: MainAxisAlignment.end,
-              //   crossAxisAlignment: CrossAxisAlignment.start,
-              //   children: [
-              //     Text(widget.name, style: ts.titleLarge),
-              //     Column(
-              //       mainAxisAlignment: MainAxisAlignment.end,
-              //       crossAxisAlignment: CrossAxisAlignment.start,
-              //       children: [
-              //         SizedBox(height: 5.h),
-              //         Text(widget.totalPosts.toString(), style: ts.titleLarge),
-              //         Text('posts'),
-              //       ],
-              //     ),
-              //   ],
-              // ),
             ],
           ),
           SizedBox(height: 10.h),

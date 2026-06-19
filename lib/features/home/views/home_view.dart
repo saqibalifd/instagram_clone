@@ -8,7 +8,6 @@ import 'package:instagram/controllers/stories_controller.dart';
 import 'package:instagram/controllers/suggested_user_controller.dart';
 import 'package:instagram/core/constants/app_icons.dart';
 import 'package:instagram/core/theme/app_theme.dart';
-import 'package:instagram/data/models/stories_model.dart';
 import 'package:instagram/controllers/posts_controller.dart';
 import 'package:instagram/features/home/widgets/my_storie_circle_widget.dart';
 import 'package:instagram/features/home/widgets/posts_card_widget.dart';
