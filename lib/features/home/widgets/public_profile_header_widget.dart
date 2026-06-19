@@ -36,17 +36,17 @@ class PublicProfileHeaderWidget extends StatefulWidget {
 
 class _PublicProfileHeaderWidgetState extends State<PublicProfileHeaderWidget> {
   bool isStoryAvailable = true;
-  final List<StoryUserModel> storiesUsers = [
-    StoryUserModel(
-      name: 'Ali',
-      profileImage: 'https://i.pravatar.cc/150?img=1',
-      storyImage:
-          'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800',
-      songTitle: 'Blinding Lights • The Weeknd',
-      timeAgo: '5m ago',
-      isPlayed: false,
-      userId: 'user_001',
-    ),
+  final List<StoryModel> storiesUsers = [
+    // StoryModel(
+    //   name: 'Ali',
+    //   profileImage: 'https://i.pravatar.cc/150?img=1',
+    //   storyImage:
+    //       'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800',
+    //   songTitle: 'Blinding Lights • The Weeknd',
+    //   timeAgo: '5m ago',
+    //   isPlayed: false,
+    //   userId: 'user_001',
+    // ),
   ];
   @override
   Widget build(BuildContext context) {

@@ -13,6 +13,7 @@ import 'package:instagram/utils/chached_video_manager.dart';
 import 'package:instagram/utils/custom_toast_util.dart';
 import 'package:readmore/readmore.dart';
 import 'package:video_player/video_player.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
 class PostsCardWidget extends StatefulWidget {
   final PostModel postModel;
@@ -166,60 +167,88 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
         SizedBox(
           width: double.maxFinite,
           height: 510.h,
-          child: ClipRRect(
-            child: widget.mediaType == 'video'
-                ? _videoInitialized && _videoController != null
-                      ? GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              if (_videoController!.value.isPlaying) {
-                                _videoController!.pause();
-                                _isPlaying = false;
-                              } else {
-                                _videoController!.play();
-                                _isPlaying = true;
-                              }
-                            });
-                          },
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              AspectRatio(
-                                aspectRatio: 16 / 20,
-                                // _videoController!.value.aspectRatio,
-                                child: VideoPlayer(_videoController!),
-                              ),
-                              AnimatedOpacity(
-                                opacity: _isPlaying ? 0.0 : 1.0,
-                                duration: const Duration(milliseconds: 200),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.black.withValues(alpha: 0.4),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  padding: const EdgeInsets.all(12),
-                                  child: const Icon(
-                                    Icons.play_arrow_rounded,
-                                    color: Colors.white,
-                                    size: 48,
+          child: VisibilityDetector(
+            key: Key('post-${widget.postModel.postId}'),
+            onVisibilityChanged: (VisibilityInfo info) {
+              if (widget.mediaType != 'video' ||
+                  !_videoInitialized ||
+                  _videoController == null ||
+                  !mounted) {
+                return;
+              }
+
+              final visibleFraction = info.visibleFraction;
+
+              if (visibleFraction > 0.65) {
+                // Mostly in view -> play
+                if (!_videoController!.value.isPlaying) {
+                  _videoController!.play();
+                  setState(() => _isPlaying = true);
+                }
+              } else {
+                // Scrolled away -> pause
+                if (_videoController!.value.isPlaying) {
+                  _videoController!.pause();
+                  setState(() => _isPlaying = false);
+                }
+              }
+            },
+            child: ClipRRect(
+              child: widget.mediaType == 'video'
+                  ? _videoInitialized && _videoController != null
+                        ? GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                if (_videoController!.value.isPlaying) {
+                                  _videoController!.pause();
+                                  _isPlaying = false;
+                                } else {
+                                  _videoController!.play();
+                                  _isPlaying = true;
+                                }
+                              });
+                            },
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                AspectRatio(
+                                  aspectRatio: 16 / 20,
+                                  child: VideoPlayer(_videoController!),
+                                ),
+                                AnimatedOpacity(
+                                  opacity: _isPlaying ? 0.0 : 1.0,
+                                  duration: const Duration(milliseconds: 200),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.black.withValues(
+                                        alpha: 0.4,
+                                      ),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    padding: const EdgeInsets.all(12),
+                                    child: const Icon(
+                                      Icons.play_arrow_rounded,
+                                      color: Colors.white,
+                                      size: 48,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        )
-                      : const Center(child: CircularProgressIndicator())
-                : InteractiveViewer(
-                    panEnabled: false,
-                    minScale: 1.0,
-                    maxScale: 4.0,
-                    boundaryMargin: const EdgeInsets.all(20),
-                    clipBehavior: Clip.hardEdge,
-                    child: CachedImageManager.image(
-                      url: widget.postModel.mediaUrl,
-                      fit: BoxFit.cover,
+                              ],
+                            ),
+                          )
+                        : const Center(child: CircularProgressIndicator())
+                  : InteractiveViewer(
+                      panEnabled: false,
+                      minScale: 1.0,
+                      maxScale: 4.0,
+                      boundaryMargin: const EdgeInsets.all(20),
+                      clipBehavior: Clip.hardEdge,
+                      child: CachedImageManager.image(
+                        url: widget.postModel.mediaUrl,
+                        fit: BoxFit.cover,
+                      ),
                     ),
-                  ),
+            ),
           ),
         ),
 

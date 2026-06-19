@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:instagram/controllers/stories_controller.dart';
 import 'package:instagram/controllers/suggested_user_controller.dart';
 import 'package:instagram/core/constants/app_icons.dart';
 import 'package:instagram/core/theme/app_theme.dart';
@@ -31,78 +32,7 @@ class _HomeViewState extends State<HomeView> {
   final SuggestedUserController _suggestedUserController = Get.put(
     SuggestedUserController(),
   );
-  final List<StoryUserModel> storiesUsers = [
-    StoryUserModel(
-      name: 'Ali',
-      profileImage: 'https://i.pravatar.cc/150?img=1',
-      storyImage:
-          'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800',
-      songTitle: 'Blinding Lights • The Weeknd',
-      timeAgo: '5m ago',
-      isPlayed: false,
-      userId: 'user_001',
-    ),
-    StoryUserModel(
-      name: 'Iftikhar Ali',
-      profileImage: 'https://i.pravatar.cc/150?img=2',
-      storyImage:
-          'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=800',
-      songTitle: 'Calm Down • Rema',
-      timeAgo: '15m ago',
-      isPlayed: false,
-      userId: 'user_002',
-    ),
-    StoryUserModel(
-      name: 'Jamshed Hussain Alvi',
-      profileImage: 'https://i.pravatar.cc/150?img=3',
-      storyImage:
-          'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800',
-      songTitle: 'Perfect • Ed Sheeran',
-      timeAgo: '30m ago',
-      isPlayed: false,
-      userId: 'user_003',
-    ),
-    StoryUserModel(
-      name: 'Fakhar Hussain',
-      profileImage: 'https://i.pravatar.cc/150?img=4',
-      storyImage:
-          'https://images.unsplash.com/photo-1494526585095-c41746248156?w=800',
-      songTitle: 'Starboy • The Weeknd',
-      timeAgo: '1h ago',
-      isPlayed: false,
-      userId: 'user_004',
-    ),
-    StoryUserModel(
-      name: 'Hassan Ali',
-      profileImage: 'https://i.pravatar.cc/150?img=5',
-      storyImage:
-          'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800',
-      songTitle: 'Shape of You • Ed Sheeran',
-      timeAgo: '2h ago',
-      isPlayed: true,
-      userId: 'user_005',
-    ),
-    StoryUserModel(
-      name: 'Usman Khan',
-      profileImage: 'https://i.pravatar.cc/150?img=6',
-      storyImage:
-          'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800',
-      songTitle: 'Until I Found You • Stephen Sanchez',
-      timeAgo: '3h ago',
-      isPlayed: false,
-      userId: 'user_006',
-    ),
-    StoryUserModel(
-      name: 'Zain Malik',
-      profileImage: 'https://i.pravatar.cc/150?img=7',
-      storyImage:
-          'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=800',
-      songTitle: 'Levitating • Dua Lipa',
-      timeAgo: '4h ago',
-      isPlayed: false,
-      userId: 'user_007',
-    ),
-  ];
+  StoriesController storiesController = Get.put(StoriesController());
 
   late File slectedStory;
 
@@ -111,6 +41,8 @@ class _HomeViewState extends State<HomeView> {
     // TODO: implement initState
     super.initState();
     postsController.allPostsList();
+    storiesController.fetchAllStories();
+    storiesController.fetchMyStory();
   }
 
   @override
@@ -151,7 +83,9 @@ class _HomeViewState extends State<HomeView> {
                             icon: AppIcons.reels,
                             label: 'Reel',
                             subtitle: 'Create and share a short video',
-                            onTap: () {},
+                            onTap: () {
+                              Get.toNamed(AppRoutes.stories);
+                            },
                           ),
                           IGAddPostAction(
                             icon: AppIcons.stories,
@@ -221,20 +155,21 @@ class _HomeViewState extends State<HomeView> {
                 height: 110.h,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
-                  itemCount: storiesUsers.length,
+                  itemCount: storiesController.allStoryList.length + 1,
                   itemBuilder: (context, index) {
                     if (index == 0) {
                       return Padding(
                         padding: EdgeInsets.symmetric(horizontal: 10.w),
                         child: MyStorieCircleWidget(
                           imageUrl:
-                              'https://img.magnific.com/free-psd/modern-dynamic-banner_125755-403.jpg?semt=ais_hybrid&w=740&q=80',
+                              storiesController.allStoryList.first.mediaUrl,
                           onStoryTap: () {
                             Get.toNamed(
                               AppRoutes.viewStory,
                               arguments: {
-                                'currentStory': storiesUsers[index],
-                                'allStories': storiesUsers,
+                                'currentStory':
+                                    storiesController.allStoryList[1],
+                                'allStories': storiesController.allStoryList,
                               },
                             );
                           },
@@ -256,8 +191,8 @@ class _HomeViewState extends State<HomeView> {
                         ),
                       );
                     }
+                    final story = storiesController.allStoryList[index - 1];
 
-                    final storyIndex = index - 1;
                     return Padding(
                       padding: EdgeInsets.symmetric(horizontal: 10.w),
                       child: StoriesCircleWidget(
@@ -265,16 +200,16 @@ class _HomeViewState extends State<HomeView> {
                           Get.toNamed(
                             AppRoutes.viewStory,
                             arguments: {
-                              'currentStory': storiesUsers[index],
-                              'allStories': storiesUsers,
+                              'currentStory': storiesController.allStoryList[1],
+                              'allStories': storiesController.allStoryList,
                             },
                           );
                         },
-                        imageUrl: storiesUsers[index].storyImage.toString(),
-                        name: storiesUsers[index].name.toString().length > 10
-                            ? '${storiesUsers[index].name.toString().substring(0, 10)}...'
-                            : storiesUsers[index].name.toString(),
-                        isPlayed: storiesUsers[index].isPlayed,
+                        imageUrl: story.mediaUrl,
+                        name: story.userName.toString().length > 10
+                            ? '${story.userName.toString().substring(0, 10)}...'
+                            : story.userName.toString(),
+                        isPlayed: story.isHighlighted,
                       ),
                     );
                   },

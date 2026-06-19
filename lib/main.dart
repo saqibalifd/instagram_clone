@@ -10,12 +10,16 @@ import 'package:instagram/handler/app_lifecycle_handler.dart';
 import 'package:instagram/routes/app_pages.dart';
 import 'package:instagram/routes/app_routes.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
 final LocalStorageService localStorageService = LocalStorageService();
 final AppLifecycleHandler lifecycleHandler = AppLifecycleHandler();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  VisibilityDetectorController.instance.updateInterval = const Duration(
+    milliseconds: 200,
+  );
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await Supabase.initialize(

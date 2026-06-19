@@ -21,7 +21,7 @@ class _ViewStoryViewState extends State<ViewStoryView>
   double _dragOffset = 0;
   static const double _dragThreshold = 80;
 
-  late List<StoryUserModel> allStories;
+  late List<StoryModel> allStories;
   late int currentIndex;
 
   late AnimationController _progressController;
@@ -32,15 +32,15 @@ class _ViewStoryViewState extends State<ViewStoryView>
   final FocusNode _messageFocus = FocusNode();
   // ─────────────────────────────────────────────────────
 
-  StoryUserModel get currentStory => allStories[currentIndex];
+  StoryModel get currentStory => allStories[currentIndex];
 
   @override
   void initState() {
     super.initState();
 
     final args = Get.arguments as Map<String, dynamic>;
-    allStories = args['allStories'] as List<StoryUserModel>;
-    final StoryUserModel passedStory = args['currentStory'] as StoryUserModel;
+    allStories = args['allStories'] as List<StoryModel>;
+    final StoryModel passedStory = args['currentStory'] as StoryModel;
 
     currentIndex = allStories.indexWhere((s) => s.userId == passedStory.userId);
     if (currentIndex == -1) currentIndex = 0;
@@ -149,7 +149,7 @@ class _ViewStoryViewState extends State<ViewStoryView>
                   height: double.maxFinite,
                   width: double.maxFinite,
                   child: Image.network(
-                    story.storyImage ?? '',
+                    story.mediaUrl,
                     fit: BoxFit.cover,
                     errorBuilder: (_, __, ___) =>
                         const ColoredBox(color: Colors.black54),
@@ -237,11 +237,11 @@ class _ViewStoryViewState extends State<ViewStoryView>
                         );
                       },
                       child: CircleAvatar(
-                        backgroundImage: NetworkImage(story.profileImage ?? ''),
+                        backgroundImage: NetworkImage(story.profileImageUrl),
                       ),
                     ),
                     title: Text(
-                      story.name ?? '',
+                      story.userName,
                       style: const TextStyle(color: IGColors.bgLight),
                     ),
                     subtitle: Row(
@@ -255,7 +255,7 @@ class _ViewStoryViewState extends State<ViewStoryView>
                         SizedBox(
                           width: 120.w,
                           child: Text(
-                            story.songTitle ?? '',
+                            story.musicTitle,
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
                             style: TextStyle(

@@ -25,6 +25,7 @@ class AppRoutes {
   static const String viewStory = '/viewStory';
   static const String allPosts = '/allPosts';
   static const String allFollow = '/allFollow';
+  static const String stories = '/stories';
 
   static const String createPost = '/post/create';
   static const String profile = '/profile/:userId';
