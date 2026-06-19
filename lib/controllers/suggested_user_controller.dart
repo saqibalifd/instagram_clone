@@ -1,7 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:instagram/core/constants/app_constants.dart';
+import 'package:instagram/services/notification_service.dart';
+import 'package:instagram/services/send_notification_service.dart';
 import '../../../data/models/user_model.dart';
 
 class SuggestedUserController extends GetxController {
@@ -140,7 +143,16 @@ class SuggestedUserController extends GetxController {
           .update({
             'followers': FieldValue.arrayUnion([userId]),
           });
+
       followingIds.add(toFollowUserId);
+
+      await SendNotificationService.sendNotificationUsingApi(
+        token:
+            'dbpjwWeLSs2DxXxb2giIq8:APA91bHDQvjVYMw4tMamHe3oiYLr3nlBYGggh0oNEYk9X9ioHrDCytHmL_vK9HgddUXLnU1VRaVCQ6rDiIGme5QH6qnpMTEk0SW1DVTgqlkqGuqnuzUzwC8',
+        title: 'New Follower',
+        body: 'You have a new follower',
+        data: {},
+      );
     } on FirebaseException catch (e) {
       error.value = e.message.toString();
     } finally {
