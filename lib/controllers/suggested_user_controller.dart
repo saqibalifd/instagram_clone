@@ -1,9 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:instagram/core/constants/app_constants.dart';
-import 'package:instagram/services/notification_service.dart';
 import 'package:instagram/services/send_notification_service.dart';
 import '../../../data/models/user_model.dart';
 
