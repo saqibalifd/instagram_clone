@@ -18,6 +18,7 @@ class AppConstants {
   static const String postsCollection = 'posts';
   static const String storiesCollection = 'stories';
   static const String chatsCollection = 'chats';
+  static const String notificationsCollection = 'notifications';
   static const String messagesCollection = 'messages';
 
   //supabase bucket name
