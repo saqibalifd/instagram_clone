@@ -236,6 +236,9 @@ class _HomeViewState extends State<HomeView> {
                   if (_suggestedUserController.suggestedUsersList.isEmpty) {
                     return SizedBox();
                   }
+                  if (_suggestedUserController.isLoading == true) {
+                    return SizedBox();
+                  }
                   return Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -293,10 +296,10 @@ class _HomeViewState extends State<HomeView> {
 
                 Obx(() {
                   if (postsController.isLoading.value) {
-                    return CircularProgressIndicator();
+                    return Center(child: CircularProgressIndicator());
                   }
                   if (postsController.allPostsList.isEmpty) {
-                    return Center(child: Text('No posts'));
+                    return Center(child: CircularProgressIndicator());
                   }
                   return ListView.builder(
                     shrinkWrap: true,
