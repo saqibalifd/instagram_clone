@@ -264,10 +264,10 @@ class _FeedViewState extends State<FeedView> {
 
                           GestureDetector(
                             onTap: () {
-                              BottomSheetUtil.show(
-                                context,
-                                type: IGBottomSheet.comment,
-                              );
+                              // BottomSheetUtil.show(
+                              //   context,
+                              //   type: IGBottomSheet.comment,
+                              // );
                             },
                             child: Icon(
                               AppIcons.messageFill,

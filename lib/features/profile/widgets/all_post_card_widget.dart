@@ -73,12 +73,6 @@ class _AllPostCardWidgetState extends State<AllPostCardWidget> {
                     ),
                   ),
                 ),
-                // CircleAvatar(
-                //   radius: 18.r,
-                //   backgroundImage: NetworkImage(
-                //     widget.postModel.profileImageUrl,
-                //   ),
-                // ),
               ),
               SizedBox(width: 10.w),
               Expanded(
@@ -189,46 +183,7 @@ class _AllPostCardWidgetState extends State<AllPostCardWidget> {
                 splashColor: Colors.transparent,
                 highlightColor: Colors.transparent,
                 onPressed: () {
-                  BottomSheetUtil.show(
-                    context,
-                    type: IGBottomSheet.comment,
-                    comments: [
-                      IGComment(
-                        user: 'alex.doe',
-                        text: 'Amazing shot! 🔥',
-                        time: '2h',
-                      ),
-                      IGComment(
-                        user: 'sara_m',
-                        text: 'Love this so much ❤️',
-                        time: '1h',
-                      ),
-                      IGComment(
-                        user: 'john_travels',
-                        text: 'Where was this taken? 😍',
-                        time: '45m',
-                      ),
-                      IGComment(
-                        user: 'priya.k',
-                        text: 'Absolutely stunning 🌅',
-                        time: '30m',
-                      ),
-                      IGComment(
-                        user: 'mike_photos',
-                        text: 'The lighting is perfect here!',
-                        time: '20m',
-                      ),
-                      IGComment(user: 'layla99', text: 'Goals 🙌', time: '10m'),
-                      IGComment(
-                        user: 'dev.omar',
-                        text: 'This is my wallpaper now lol',
-                        time: '5m',
-                      ),
-                    ],
-                    onCommentSubmit: (text) {
-                      // Add comment logic here
-                    },
-                  );
+                  //////////////////////////////////////////////////////////////////
                 },
                 icon: SvgPicture.asset(AppIcons.messageCircle),
                 // Icon(AppIcons.comment, color: IGColors.bgDark),
@@ -355,9 +310,7 @@ class _AllPostCardWidgetState extends State<AllPostCardWidget> {
               ),
               SizedBox(height: 4.h),
               GestureDetector(
-                onTap: () {
-                  BottomSheetUtil.show(context, type: IGBottomSheet.comment);
-                },
+                onTap: () {},
                 child: Text(
                   'View all ${widget.postModel.comments.length.toString()} comments',
 

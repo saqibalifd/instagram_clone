@@ -10,10 +10,12 @@ import 'package:instagram/core/constants/app_icons.dart';
 import 'package:instagram/core/theme/app_theme.dart';
 import 'package:instagram/data/local/favourite_post_services.dart';
 import 'package:instagram/data/models/post_model.dart';
+import 'package:instagram/features/profile/controllers/profile_controller.dart';
 import 'package:instagram/routes/app_routes.dart';
 import 'package:instagram/utils/bottom_sheet_util.dart';
 import 'package:instagram/utils/chached_images_manager.dart';
 import 'package:instagram/utils/chached_video_manager.dart';
+import 'package:instagram/utils/custom_comment_bottom_sheet_util.dart';
 import 'package:instagram/utils/custom_toast_util.dart';
 import 'package:readmore/readmore.dart';
 import 'package:video_player/video_player.dart';
@@ -44,12 +46,14 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
   PostsController postsController = Get.put(PostsController());
   UserController userController = Get.put(UserController());
   StoriesController storiesController = Get.put(StoriesController());
+  ProfileController profileController = Get.put(ProfileController());
 
   final TransformationController _controller = TransformationController();
 
   @override
   void initState() {
     super.initState();
+    postsController.fetchCommentsByPostId(widget.postModel.postId);
     isFav = FavoritePostService.isFavorite(widget.postModel.postId);
     if (widget.mediaType == 'video') {
       _initVideo();
@@ -326,59 +330,29 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
               IconButton(
                 splashColor: Colors.transparent,
                 highlightColor: Colors.transparent,
-                onPressed: () {
-                  showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    backgroundColor: Colors.transparent,
-                    builder: (_) => CommentBottomSheet(
-                      comments: comments,
-                      onCommentSubmit: (text) {
-                        // API Call
-                      },
-                    ),
+                onPressed: () async {
+                  await postsController.fetchCommentsByPostId(
+                    widget.postModel.postId,
                   );
-                  // BottomSheetUtil.show(
-                  //   context,
 
-                  //   type: IGBottomSheet.comment,
-                  //   comments: [
-                  //     IGComment(
-                  //       user: 'alex.doe',
-                  //       text: 'Amazing shot! 🔥',
-                  //       time: '2h',
-                  //     ),
-                  //     IGComment(
-                  //       user: 'sara_m',
-                  //       text: 'Love this so much ❤️',
-                  //       time: '1h',
-                  //     ),
-                  //     IGComment(
-                  //       user: 'john_travels',
-                  //       text: 'Where was this taken? 😍',
-                  //       time: '45m',
-                  //     ),
-                  //     IGComment(
-                  //       user: 'priya.k',
-                  //       text: 'Absolutely stunning 🌅',
-                  //       time: '30m',
-                  //     ),
-                  //     IGComment(
-                  //       user: 'mike_photos',
-                  //       text: 'The lighting is perfect here!',
-                  //       time: '20m',
-                  //     ),
-                  //     IGComment(user: 'layla99', text: 'Goals 🙌', time: '10m'),
-                  //     IGComment(
-                  //       user: 'dev.omar',
-                  //       text: 'This is my wallpaper now lol',
-                  //       time: '5m',
-                  //     ),
-                  //   ],
-                  //   onCommentSubmit: (text) {
-                  //     // Add comment logic here
-                  //   },
-                  // );
+                  CustomCommentBottomSheetUtil.show(
+                    context,
+                    comments:
+                        postsController.commentModelList, // List<CommentModel>
+                    userImage: '',
+                    onCommentSubmit: (text) async {
+                      await postsController.addComment(
+                        context,
+                        profileController.profileUser.value!.username,
+                        profileController.profileUser.value!.fullName,
+                        profileController.profileUser.value!.profileImageUrl,
+                        text,
+                        widget.postModel.postId,
+                      );
+                      // addComment(text);
+                    },
+                  );
+                  ///////////////////////////////////////////////////////////////////
                 },
                 icon: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -387,7 +361,7 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
                     SvgPicture.asset(AppIcons.messageCircle),
                     SizedBox(width: 5.w),
                     Text(
-                      widget.postModel.comments.length.toString(),
+                      postsController.commentModelList.length.toString(),
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,

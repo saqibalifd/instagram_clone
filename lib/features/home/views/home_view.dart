@@ -41,8 +41,6 @@ class _HomeViewState extends State<HomeView> {
     // TODO: implement initState
     super.initState();
     postsController.allPostsList();
-    // storiesController.fetchAllStories();
-    // storiesController.fetchMyStory();
   }
 
   @override

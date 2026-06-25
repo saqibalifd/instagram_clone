@@ -1,22 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
 
-import 'package:instagram/core/constants/app_icons.dart';
 import 'package:instagram/core/theme/app_theme.dart';
-import 'package:instagram/data/local/local_storage_service.dart';
-import 'package:instagram/data/models/user_model.dart';
 
 // ─── Data Models ──────────────────────────────────────────────────────────────
-
-/// A single comment item passed into [IGBottomSheet.comment].
-class IGComment {
-  final String user;
-  final String text;
-  final String time;
-
-  const IGComment({required this.user, required this.text, required this.time});
-}
 
 /// A single action item for [IGBottomSheet.more].
 class IGMoreAction {
@@ -59,7 +45,7 @@ class IGAddPostAction {
 
 // ─── Sheet Type Enum ──────────────────────────────────────────────────────────
 
-enum IGBottomSheet { comment, share, more, addPost }
+enum IGBottomSheet { share, more, addPost }
 
 // ─── BottomSheetUtil ──────────────────────────────────────────────────────────
 
@@ -69,13 +55,6 @@ class BottomSheetUtil {
   static Future<T?> show<T>(
     BuildContext context, {
     required IGBottomSheet type,
-
-    // ── comment ──────────────────────────────────────────────────────────────
-    /// Pre-loaded list of comments to display.
-    List<IGComment>? comments,
-
-    /// Called with the new comment text when the user submits a comment.
-    void Function(String text)? onCommentSubmit,
 
     // ── share ─────────────────────────────────────────────────────────────────
     /// Share options to display in the grid.
@@ -90,10 +69,6 @@ class BottomSheetUtil {
     List<IGAddPostAction>? addPostActions,
   }) {
     final Widget sheet = switch (type) {
-      IGBottomSheet.comment => _CommentSheet(
-        comments: comments ?? const [],
-        onCommentSubmit: onCommentSubmit,
-      ),
       IGBottomSheet.share => _ShareSheet(options: shareOptions ?? const []),
       IGBottomSheet.more => _MoreSheet(actions: moreActions ?? const []),
       IGBottomSheet.addPost => _AddPostSheet(
@@ -134,244 +109,6 @@ Container _sheetContainer({
   ),
   child: child,
 );
-
-// ─── Comment Sheet ────────────────────────────────────────────────────────────
-
-class _CommentSheet extends StatefulWidget {
-  /// Initial comments to display (caller-provided).
-  final List<IGComment> comments;
-
-  /// Called with the typed text when the user posts a comment.
-  /// The caller is responsible for updating state / API.
-  final void Function(String text)? onCommentSubmit;
-
-  const _CommentSheet({required this.comments, this.onCommentSubmit});
-
-  @override
-  State<_CommentSheet> createState() => _CommentSheetState();
-}
-
-class _CommentSheetState extends State<_CommentSheet> {
-  final _controller = TextEditingController();
-  final _focusNode = FocusNode();
-  final _sheetController = DraggableScrollableController();
-  late final LocalStorageService _localStorage;
-  final _profileUser = Rxn<UserModel>();
-
-  /// Local copy so we can append the optimistic "just now" comment.
-  late final List<IGComment> _comments;
-
-  @override
-  void initState() {
-    super.initState();
-    _comments = List<IGComment>.from(widget.comments);
-    _localStorage = Get.put<LocalStorageService>(LocalStorageService());
-    _loadLocalProfile();
-    _focusNode.addListener(_onFocusChange);
-  }
-
-  Future<void> _loadLocalProfile() async {
-    _profileUser.value = _localStorage.getUser();
-  }
-
-  void _onFocusChange() {
-    if (!_sheetController.isAttached) return;
-    _sheetController.animateTo(
-      _focusNode.hasFocus ? 0.93 : 0.6,
-      duration: Duration(milliseconds: _focusNode.hasFocus ? 300 : 250),
-      curve: _focusNode.hasFocus ? Curves.easeOut : Curves.easeIn,
-    );
-  }
-
-  void _postComment() {
-    final text = _controller.text.trim();
-    if (text.isEmpty) return;
-
-    // Optimistic local update.
-    setState(() {
-      _comments.add(IGComment(user: 'you', text: text, time: 'Just now'));
-      _controller.clear();
-    });
-
-    // Notify caller so it can persist / call API.
-    widget.onCommentSubmit?.call(text);
-    _focusNode.unfocus();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    _focusNode.removeListener(_onFocusChange);
-    _focusNode.dispose();
-    _sheetController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final ts = Theme.of(context).textTheme;
-    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
-
-    return DraggableScrollableSheet(
-      controller: _sheetController,
-      initialChildSize: 0.6,
-      minChildSize: 0.4,
-      maxChildSize: 0.93,
-      expand: false,
-      builder: (_, scrollController) {
-        return _sheetContainer(
-          context: context,
-          child: Column(
-            children: [
-              _dragHandle(),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Text(
-                  'Comments',
-                  style: ts.bodyMedium!.copyWith(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                  ),
-                ),
-              ),
-              Divider(color: IGColors.gray, thickness: 0.3, height: 0),
-
-              // Comment list.
-              Expanded(
-                child: _comments.isEmpty
-                    ? Center(
-                        child: Text(
-                          'No comments yet.\nBe the first to comment!',
-                          textAlign: TextAlign.center,
-                          style: ts.bodySmall!.copyWith(fontSize: 13),
-                        ),
-                      )
-                    : ListView.builder(
-                        controller: scrollController,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        itemCount: _comments.length,
-                        itemBuilder: (_, i) {
-                          final c = _comments[i];
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                CircleAvatar(
-                                  radius: 16,
-                                  backgroundColor: IGColors.gray,
-                                  backgroundImage: const NetworkImage(
-                                    'https://picsum.photos/seed/av/200',
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      RichText(
-                                        text: TextSpan(
-                                          children: [
-                                            TextSpan(
-                                              text: '${c.user} ',
-                                              style: ts.bodyMedium!.copyWith(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 13,
-                                              ),
-                                            ),
-                                            TextSpan(
-                                              text: c.text,
-                                              style: ts.bodyMedium!.copyWith(
-                                                fontSize: 13,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        c.time,
-                                        style: ts.bodySmall!.copyWith(
-                                          fontSize: 10,
-                                          color: Colors.grey,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-              ),
-
-              // Input row.
-              Divider(color: IGColors.gray, thickness: 0.3, height: 0),
-              Padding(
-                padding: EdgeInsets.fromLTRB(12, 8, 12, bottomInset + 12),
-                child: Row(
-                  children: [
-                    Obx(
-                      () => CircleAvatar(
-                        backgroundImage: NetworkImage(
-                          _profileUser.value?.profileImageUrl ?? '',
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 10.w),
-                    Expanded(
-                      child: TextFormField(
-                        controller: _controller,
-                        focusNode: _focusNode,
-                        keyboardType: TextInputType.text,
-                        textInputAction: TextInputAction.send,
-                        onFieldSubmitted: (_) => _postComment(),
-                        decoration: InputDecoration(
-                          hintText: 'Add a comment…',
-                          hintStyle: ts.bodySmall!.copyWith(fontSize: 13.sp),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(20.r),
-                            borderSide: BorderSide(color: IGColors.gray),
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(20.r),
-                            borderSide: BorderSide(color: IGColors.gray),
-                          ),
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: 14.w,
-                            vertical: 8.h,
-                          ),
-                          suffixIcon: ValueListenableBuilder(
-                            valueListenable: _controller,
-                            builder: (_, value, __) => value.text.isNotEmpty
-                                ? IconButton(
-                                    icon: const Icon(Icons.send_rounded),
-                                    onPressed: _postComment,
-                                  )
-                                : const SizedBox.shrink(),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Visibility(
-                visible: _focusNode.hasFocus,
-                child: SizedBox(height: 15.h),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-}
 
 // ─── Share Sheet ──────────────────────────────────────────────────────────────
 
@@ -561,20 +298,6 @@ class _AddPostSheet extends StatelessWidget {
 }
 
 // ─── Usage Example ────────────────────────────────────────────────────────────
-//
-// ── Comment Sheet ─────────────────────────────────────────────────────────────
-//
-// BottomSheetUtil.show(
-//   context,
-//   type: IGBottomSheet.comment,
-//   comments: [
-//     IGComment(user: 'alex.doe', text: 'Amazing shot! 🔥', time: '2h'),
-//     IGComment(user: 'sara_m',   text: 'Love this ❤️',     time: '1h'),
-//   ],
-//   onCommentSubmit: (text) {
-//     postController.addComment(postId, text); // your API call
-//   },
-// );
 //
 // ── More Sheet ────────────────────────────────────────────────────────────────
 //

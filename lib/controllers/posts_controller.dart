@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart';
 import 'package:instagram/core/constants/app_constants.dart';
 import 'package:instagram/data/models/comments_model.dart';
 import 'package:instagram/data/models/post_model.dart';
@@ -21,6 +20,7 @@ class PostsController extends GetxController {
 
   final RxList<PostModel> allPostsList = <PostModel>[].obs;
   final RxList<PostModel> myPostsList = <PostModel>[].obs;
+  final RxList<CommentModel> commentModelList = <CommentModel>[].obs;
   final myVideoPostsList = <PostModel>[].obs;
   final myRepostsList = <PostModel>[].obs;
   final RxList<PostModel> friendsPostsList = <PostModel>[].obs;
@@ -226,7 +226,6 @@ class PostsController extends GetxController {
     String profilePicture,
     String text,
     String postId,
-    String comment,
   ) async {
     try {
       DocumentReference docRef = _firebase
@@ -247,11 +246,41 @@ class PostsController extends GetxController {
       );
 
       await docRef.set(commentModel.toMap());
+      CustomToastUtil.showSuccess(
+        context,
+        message: 'Comment added successfully.',
+      );
     } on FirebaseException catch (e) {
-      error.value = e.message.toString();
+      CustomToastUtil.showError(context, message: e.message.toString());
       print('Error in add comment: ${e.message}');
     } catch (e) {
-      print('Error in add comment: ${e.toString()}');
+      CustomToastUtil.showError(context, message: e.toString());
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  //fetch comments  by post id
+
+  Future<void> fetchCommentsByPostId(String postId) async {
+    try {
+      isLoading.value = true;
+
+      _firebase
+          .collection(AppConstants.postsCollection)
+          .doc(postId)
+          .collection(AppConstants.commentsCollection)
+          .snapshots()
+          .listen((snapshot) {
+            commentModelList.value = snapshot.docs
+                .map((doc) => CommentModel.fromMap(doc.data(), doc.id))
+                .toList();
+          });
+    } on FirebaseException catch (e) {
+      error.value = e.message.toString();
+      print('Error in fetching friends posts: ${e.message}');
+    } catch (e) {
+      print('Error in fetching friends posts: ${e.toString()}');
       error.value = e.toString();
     } finally {
       isLoading.value = false;
