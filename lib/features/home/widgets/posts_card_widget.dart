@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:get/get_instance/get_instance.dart';
 import 'package:get/route_manager.dart';
+import 'package:instagram/controllers/posts_controller.dart';
+import 'package:instagram/controllers/stories_controller.dart';
+import 'package:instagram/controllers/user_controller.dart';
 import 'package:instagram/core/constants/app_icons.dart';
 import 'package:instagram/core/theme/app_theme.dart';
 import 'package:instagram/data/local/favourite_post_services.dart';
@@ -36,6 +40,10 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
   VideoPlayerController? _videoController;
   bool _videoInitialized = false;
   bool _isPlaying = false;
+
+  PostsController postsController = Get.put(PostsController());
+  UserController userController = Get.put(UserController());
+  StoriesController storiesController = Get.put(StoriesController());
 
   final TransformationController _controller = TransformationController();
 
@@ -137,22 +145,39 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
                         icon: AppIcons.flag,
                         label: 'Report',
                         color: IGColors.like,
-                        onTap: () {},
+                        onTap: () {
+                          postsController.reportPost(
+                            context,
+                            widget.postModel.postId,
+                          );
+                        },
                       ),
                       IGMoreAction(
                         icon: AppIcons.hidePost,
                         label: 'Hide post',
-                        onTap: () {},
+                        onTap: () {
+                          postsController.hidePost(
+                            context,
+                            widget.postModel.postId,
+                          );
+                        },
                       ),
                       IGMoreAction(
                         icon: AppIcons.personRemove,
                         label: 'Unfollow',
-                        onTap: () {},
+                        onTap: () {
+                          userController.unfollowUser(widget.postModel.userId);
+                        },
                       ),
                       IGMoreAction(
                         icon: AppIcons.copy,
                         label: 'Copy link',
-                        onTap: () {},
+                        onTap: () {
+                          postsController.copyLink(
+                            context,
+                            widget.postModel.mediaUrl,
+                          );
+                        },
                       ),
                     ],
                   );
@@ -263,8 +288,14 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
               IconButton(
                 splashColor: Colors.transparent,
                 highlightColor: Colors.transparent,
-                onPressed: () {
-                  setState(() => isLiked = !isLiked);
+                onPressed: () async {
+                  if (isLiked) {
+                    await postsController.unlikePost(widget.postModel.postId);
+                    setState(() => isLiked = !isLiked);
+                  } else {
+                    await postsController.likePost(widget.postModel.postId);
+                    setState(() => isLiked = !isLiked);
+                  }
                 },
                 icon: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -368,24 +399,61 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
                     type: IGBottomSheet.share,
                     shareOptions: [
                       IGShareOption(
-                        icon: Icons.send_outlined,
-                        label: 'Send in DM',
-                        onTap: () {},
+                        icon: AppIcons.repost,
+                        label: 'Repost',
+                        onTap: () async {
+                          await postsController.repostPost(
+                            context,
+                            widget.postModel.postId,
+                          );
+                        },
                       ),
                       IGShareOption(
-                        icon: Icons.add_circle_outline,
+                        icon: AppIcons.stories,
                         label: 'Add to Story',
-                        onTap: () {},
+                        onTap: () async {
+                          await storiesController.shareToStory(
+                            context,
+                            widget.postModel.mediaUrl,
+                            widget.postModel.mediaType,
+                          );
+                        },
                       ),
                       IGShareOption(
-                        icon: Icons.link,
+                        icon: AppIcons.link,
                         label: 'Copy link',
-                        onTap: () {},
+                        onTap: () {
+                          postsController.copyLink(
+                            context,
+                            widget.postModel.mediaUrl,
+                          );
+                        },
                       ),
                       IGShareOption(
-                        icon: Icons.bookmark_border,
-                        label: 'Save post',
-                        onTap: () {},
+                        icon: isFav ? AppIcons.favoriteFill : AppIcons.favorite,
+                        label: 'Add to Favorites',
+
+                        onTap: () async {
+                          if (!isFav) {
+                            await FavoritePostService.addToFavorites(
+                              widget.postModel,
+                            );
+                            setState(() => isFav = true);
+                            CustomToastUtil.showDefault(
+                              context,
+                              message: 'Post added to favorites',
+                            );
+                          } else {
+                            await FavoritePostService.removeFromFavorites(
+                              widget.postModel.postId,
+                            );
+                            setState(() => isFav = false);
+                            CustomToastUtil.showDefault(
+                              context,
+                              message: 'Post removed from favorites',
+                            );
+                          }
+                        },
                       ),
                     ],
                   );

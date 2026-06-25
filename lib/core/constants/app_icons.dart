@@ -34,6 +34,7 @@ class AppIcons {
   static const IconData reel = Icons.video_camera_back_outlined;
   static const IconData stories = Icons.circle_outlined;
   static const IconData live = Icons.live_tv_outlined;
+  static const IconData link = Icons.link;
 
   // ============================
   // Instagram Bottom Navigation

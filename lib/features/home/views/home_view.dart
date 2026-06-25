@@ -5,17 +5,19 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:instagram/controllers/stories_controller.dart';
-import 'package:instagram/controllers/suggested_user_controller.dart';
+import 'package:instagram/controllers/user_controller.dart';
+import 'package:instagram/core/constants/app_constants.dart';
 import 'package:instagram/core/constants/app_icons.dart';
 import 'package:instagram/core/theme/app_theme.dart';
 import 'package:instagram/controllers/posts_controller.dart';
 import 'package:instagram/features/home/widgets/my_storie_circle_widget.dart';
+
 import 'package:instagram/features/home/widgets/posts_card_widget.dart';
 import 'package:instagram/features/home/widgets/stories_circle_widget.dart';
 import 'package:instagram/features/home/widgets/suggested_card_widget.dart';
+import 'package:instagram/features/profile/controllers/profile_controller.dart';
 import 'package:instagram/routes/app_routes.dart';
 import 'package:instagram/utils/bottom_sheet_util.dart';
-import 'package:instagram/utils/image_picker_util.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -28,10 +30,9 @@ class _HomeViewState extends State<HomeView> {
   File? image;
 
   final PostsController postsController = Get.put(PostsController());
-  final SuggestedUserController _suggestedUserController = Get.put(
-    SuggestedUserController(),
-  );
+  final UserController _userController = Get.put(UserController());
   StoriesController storiesController = Get.put(StoriesController());
+  final ProfileController profileController = Get.put(ProfileController());
 
   late File slectedStory;
 
@@ -40,8 +41,8 @@ class _HomeViewState extends State<HomeView> {
     // TODO: implement initState
     super.initState();
     postsController.allPostsList();
-    storiesController.fetchAllStories();
-    storiesController.fetchMyStory();
+    // storiesController.fetchAllStories();
+    // storiesController.fetchMyStory();
   }
 
   @override
@@ -54,7 +55,7 @@ class _HomeViewState extends State<HomeView> {
       body: RefreshIndicator(
         onRefresh: () async {
           await postsController.fetchAllPosts();
-          await storiesController.fetchMyStory();
+          // await storiesController.fetchMyStory();
         },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -98,7 +99,9 @@ class _HomeViewState extends State<HomeView> {
                               label: 'Story',
                               subtitle:
                                   'Share a photo or video that disappears in 24 hours',
-                              onTap: () {},
+                              onTap: () async {
+                                await storiesController.addStory();
+                              },
                             ),
                             IGAddPostAction(
                               icon: AppIcons.live,
@@ -140,7 +143,6 @@ class _HomeViewState extends State<HomeView> {
                             top: 0,
                             child: Container(
                               padding: const EdgeInsets.all(4),
-
                               decoration: BoxDecoration(
                                 color: IGColors.like,
                                 shape: BoxShape.circle,
@@ -157,85 +159,74 @@ class _HomeViewState extends State<HomeView> {
                   ],
                 ),
                 SizedBox(height: 20.h),
-                Obx(() {
-                  if (storiesController.allStoryList.isEmpty) {
-                    return SizedBox();
-                  }
-                  if (storiesController.isLoading == true) {
-                    return SizedBox();
-                  }
-                  return SizedBox(
-                    height: 110.h,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: storiesController.allStoryList.length + 1,
-                      itemBuilder: (context, index) {
-                        if (index == 0) {
-                          return Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 10.w),
-                            child: MyStorieCircleWidget(
-                              imageUrl:
-                                  storiesController.allStoryList.first.mediaUrl,
-                              onStoryTap: () {
-                                Get.toNamed(
-                                  AppRoutes.viewStory,
-                                  arguments: {
-                                    'currentStory':
-                                        storiesController.allStoryList[1],
-                                    'allStories':
-                                        storiesController.allStoryList,
-                                  },
-                                );
-                              },
-                              onAddStory: () async {
-                                // print('add story');
-                                final File? pickedImage =
-                                    await ImagePickerUtil.pickFromGallery(
-                                      context,
-                                      maxWidth: 1024,
-                                      imageQuality: 85,
-                                    );
-
-                                if (pickedImage != null) {
-                                  setState(() {
-                                    slectedStory = pickedImage;
-                                  });
-                                }
-                              },
-                            ),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(width: AppConstants.horizontalSmallPadding),
+                      MyStorieCircleWidget(
+                        imageUrl: profileController
+                            .profileUser
+                            .value!
+                            .profileImageUrl,
+                        onStoryTap: () {
+                          Get.toNamed(
+                            AppRoutes.viewStory,
+                            arguments:
+                                profileController.profileUser.value!.userId,
                           );
-                        }
-                        final story = storiesController.allStoryList[index - 1];
+                        },
+                        onAddStory: () async {
+                          await storiesController.addStory();
+                        },
+                      ),
 
-                        return Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 10.w),
-                          child: StoriesCircleWidget(
-                            onStoryTap: () {
-                              Get.toNamed(
-                                AppRoutes.viewStory,
-                                arguments: {
-                                  'currentStory':
-                                      storiesController.allStoryList[1],
-                                  'allStories': storiesController.allStoryList,
-                                },
+                      Obx(() {
+                        if (_userController.friendsUsers.isEmpty) {
+                          return SizedBox();
+                        }
+                        if (_userController.isLoading == true) {
+                          return SizedBox();
+                        }
+                        return SizedBox(
+                          height: 110.h,
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            physics: NeverScrollableScrollPhysics(),
+                            itemCount: _userController.friendsUsers.length,
+                            shrinkWrap: true,
+                            itemBuilder: (context, index) {
+                              final frieds =
+                                  _userController.friendsUsers[index];
+                              return Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 8.w),
+                                child: StoriesCircleWidget(
+                                  imageUrl: frieds.profileImageUrl,
+                                  name: frieds.fullName,
+                                  isPlayed: false,
+                                  onStoryTap: () {
+                                    Get.toNamed(
+                                      AppRoutes.viewStory,
+                                      arguments: frieds.userId,
+                                    );
+                                  },
+                                ),
                               );
                             },
-                            imageUrl: story.mediaUrl,
-                            name: story.userName.toString().length > 10
-                                ? '${story.userName.toString().substring(0, 10)}...'
-                                : story.userName.toString(),
-                            isPlayed: story.isHighlighted,
                           ),
                         );
-                      },
-                    ),
-                  );
-                }),
+                      }),
+                    ],
+                  ),
+                ),
+
                 Obx(() {
-                  if (_suggestedUserController.suggestedUsersList.isEmpty) {
+                  if (_userController.suggestedUsersList.isEmpty) {
                     return SizedBox();
                   }
-                  if (_suggestedUserController.isLoading == true) {
+                  if (_userController.isLoading == true) {
                     return SizedBox();
                   }
                   return Column(
@@ -259,24 +250,22 @@ class _HomeViewState extends State<HomeView> {
                       SizedBox(
                         height: 245.h,
                         child: ListView.builder(
-                          itemCount: _suggestedUserController
-                              .suggestedUsersList
-                              .length,
+                          itemCount: _userController.suggestedUsersList.length,
                           scrollDirection: Axis.horizontal,
 
                           padding: EdgeInsets.symmetric(horizontal: 12.w),
                           itemBuilder: (context, index) {
-                            final suggestedUsers = _suggestedUserController
-                                .suggestedUsersList[index];
+                            final suggestedUsers =
+                                _userController.suggestedUsersList[index];
                             return SuggestedCardWidget(
                               onCancel: () {
-                                _suggestedUserController.skipUser(index);
+                                _userController.skipUser(index);
                               },
                               onFollow: () {
-                                _suggestedUserController.followUser(
+                                _userController.followUser(
                                   suggestedUsers.userId,
                                 );
-                                _suggestedUserController.skipUser(index);
+                                _userController.skipUser(index);
                               },
                               name: suggestedUsers.fullName,
 

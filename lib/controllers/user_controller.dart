@@ -1,11 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:instagram/core/constants/app_constants.dart';
 import 'package:instagram/services/send_notification_service.dart';
 import '../../../data/models/user_model.dart';
 
-class SuggestedUserController extends GetxController {
+class UserController extends GetxController {
   final _firebase = FirebaseFirestore.instance;
   final userId = FirebaseAuth.instance.currentUser!.uid;
   final RxString error = ''.obs;
@@ -17,12 +18,63 @@ class SuggestedUserController extends GetxController {
   RxList<UserModel> mutualUsers = <UserModel>[].obs;
   final RxSet<String> followingIds = <String>{}.obs;
   final isLoading = false.obs;
+  final specificUserData = Rxn<UserModel>();
+  RxBool specificUserLoading = false.obs;
 
   @override
   void onInit() {
     super.onInit();
     loadSuggestedUserStream();
     loadMyFollowing();
+    loadFriends();
+  }
+
+  Future<void> loadFriends() async {
+    try {
+      isLoading.value = true;
+
+      final doc = await _firebase
+          .collection(AppConstants.usersCollection)
+          .doc(userId)
+          .get();
+
+      final data = doc.data();
+      final List<String> following = List<String>.from(
+        data?['following'] ?? [],
+      );
+      final List<String> followers = List<String>.from(
+        data?['followers'] ?? [],
+      );
+
+      // Friends = IDs present in BOTH following and followers (mutual)
+      final List<String> friendIds = following
+          .where((id) => followers.contains(id))
+          .toList();
+
+      if (friendIds.isEmpty) {
+        friendsUsers.clear();
+        return;
+      }
+
+      final List<UserModel> fetchedFriends = [];
+
+      for (final friendId in friendIds) {
+        final friendDoc = await _firebase
+            .collection(AppConstants.usersCollection)
+            .doc(friendId)
+            .get();
+
+        if (friendDoc.exists && friendDoc.data() != null) {
+          fetchedFriends.add(UserModel.fromJson(friendDoc.data()!));
+        }
+      }
+
+      friendsUsers.assignAll(fetchedFriends);
+    } on FirebaseException catch (e) {
+      error.value = e.message.toString();
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   Future<void> loadMyFollowing() async {
@@ -180,6 +232,34 @@ class SuggestedUserController extends GetxController {
       error.value = e.message.toString();
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  /// Fetch any specific user by userId and store in Rxn<UserModel>
+  Future<UserModel?> fetchUserById(String targetUserId) async {
+    try {
+      specificUserLoading.value = true;
+
+      final doc = await _firebase
+          .collection(AppConstants.usersCollection)
+          .doc(targetUserId)
+          .get();
+
+      if (doc.exists && doc.data() != null) {
+        final user = UserModel.fromJson(doc.data()!);
+
+        // store in reactive variable (you can reuse or create separate one)
+        specificUserData.value = user;
+
+        return user;
+      } else {
+        return null;
+      }
+    } catch (e) {
+      debugPrint("Error fetching user: $e");
+      return null;
+    } finally {
+      specificUserLoading.value = false;
     }
   }
 

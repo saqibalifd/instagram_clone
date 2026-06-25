@@ -62,7 +62,7 @@ class _AddStoriesViewState extends State<AddStoriesView> {
               width: double.maxFinite,
               child: ElevatedButton(
                 onPressed: () {
-                  storiesController.uploadStories('hello this is stories');
+                  // storiesController.uploadStories('hello this is stories');
                 },
                 child: Text('add Stories'),
               ),

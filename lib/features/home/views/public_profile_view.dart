@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:instagram/controllers/suggested_user_controller.dart';
+import 'package:instagram/controllers/user_controller.dart';
 
 import 'package:instagram/core/constants/app_constants.dart';
 import 'package:instagram/core/constants/app_icons.dart';
@@ -26,9 +26,7 @@ class _PublicProfileViewState extends State<PublicProfileView>
   final PublicProfileController publicProfileController = Get.put(
     PublicProfileController(),
   );
-  SuggestedUserController suggestedUserController = Get.put(
-    SuggestedUserController(),
-  );
+  UserController suggestedUserController = Get.put(UserController());
 
   @override
   void initState() {

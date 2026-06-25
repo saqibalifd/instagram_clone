@@ -23,8 +23,6 @@ class ProfileController extends GetxController {
   final updateLoading = false.obs;
   final isLoading = false.obs;
   final profileSnapshotLoading = false.obs;
-  final specificUserData = Rxn<UserModel>();
-  RxBool specificUserLoading = false.obs;
 
   @override
   void onInit() {
@@ -143,34 +141,6 @@ class ProfileController extends GetxController {
       );
     } finally {
       LoadingUtil.dismiss();
-    }
-  }
-
-  /// Fetch any specific user by userId and store in Rxn<UserModel>
-  Future<UserModel?> fetchUserById(String targetUserId) async {
-    try {
-      specificUserLoading.value = true;
-
-      final doc = await _firebase
-          .collection(AppConstants.usersCollection)
-          .doc(targetUserId)
-          .get();
-
-      if (doc.exists && doc.data() != null) {
-        final user = UserModel.fromJson(doc.data()!);
-
-        // store in reactive variable (you can reuse or create separate one)
-        specificUserData.value = user;
-
-        return user;
-      } else {
-        return null;
-      }
-    } catch (e) {
-      debugPrint("Error fetching user: $e");
-      return null;
-    } finally {
-      specificUserLoading.value = false;
     }
   }
 }

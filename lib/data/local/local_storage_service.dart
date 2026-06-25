@@ -123,6 +123,8 @@ class LocalStorageService {
       deviceToken: json['deviceToken'] ?? '',
       bio: json['bio'] ?? '',
       website: json['website'] ?? '',
+      activeChatId: json['activeChatId'] ?? '',
+
       isPrivate: json['isPrivate'] ?? false,
       isVerified: json['isVerified'] ?? false,
       createdAt: Timestamp.fromMillisecondsSinceEpoch(
@@ -130,6 +132,8 @@ class LocalStorageService {
       ),
       following: List<String>.from(json['following'] ?? []),
       followers: List<String>.from(json['followers'] ?? []),
+      stories: List<String>.from(json['stories'] ?? []),
+
       posts: List<String>.from(json['posts'] ?? []),
       blocked: List<String>.from(json['blocked'] ?? []),
       likedPosts: List<String>.from(json['likedPosts'] ?? []),

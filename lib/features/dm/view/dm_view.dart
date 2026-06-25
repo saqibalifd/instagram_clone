@@ -41,8 +41,8 @@ class _DmViewState extends State<DmView> {
     super.initState();
     _searchController.addListener(() {
       _searchQuery.value = _searchController.text.trim().toLowerCase();
-      storiesController.fetchAllStories();
-      storiesController.fetchMyStory();
+      // storiesController.fetchAllStories();
+      // storiesController.fetchMyStory();
     });
   }
 
@@ -81,8 +81,8 @@ class _DmViewState extends State<DmView> {
       ),
       body: RefreshIndicator(
         onRefresh: () async {
-          await storiesController.fetchAllStories();
-          await storiesController.fetchMyStory();
+          // await storiesController.fetchAllStories();
+          // await storiesController.fetchMyStory();
         },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -195,9 +195,7 @@ class _DmViewState extends State<DmView> {
                                   );
                                 },
                                 imageUrl: story.mediaUrl,
-                                name: story.userName.toString().length > 10
-                                    ? '${story.userName.toString().substring(0, 10)}...'
-                                    : story.userName.toString(),
+                                name: '',
                                 isPlayed: story.isHighlighted,
                               ),
                             );

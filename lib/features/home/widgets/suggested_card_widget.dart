@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:get/route_manager.dart';
-import 'package:instagram/controllers/suggested_user_controller.dart';
+import 'package:instagram/controllers/user_controller.dart';
 import 'package:instagram/core/constants/app_icons.dart';
 import 'package:instagram/core/theme/app_theme.dart';
 import 'package:instagram/routes/app_routes.dart';
@@ -29,9 +29,7 @@ class SuggestedCardWidget extends StatefulWidget {
 }
 
 class _SuggestedCardWidgetState extends State<SuggestedCardWidget> {
-  final SuggestedUserController suggestedUserController = Get.put(
-    SuggestedUserController(),
-  );
+  final UserController suggestedUserController = Get.put(UserController());
 
   @override
   void initState() {

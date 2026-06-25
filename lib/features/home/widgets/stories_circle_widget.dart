@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:instagram/core/constants/app_icons.dart';
 import 'package:instagram/core/theme/app_theme.dart';
 import 'package:instagram/utils/chached_images_manager.dart';
 
@@ -42,6 +43,14 @@ class StoriesCircleWidget extends StatelessWidget {
                 child: CachedImageManager.image(
                   url: imageUrl,
                   fit: BoxFit.cover,
+                  errorWidget: CircleAvatar(
+                    backgroundColor: IGColors.gray.withValues(alpha: .3),
+                    child: Icon(
+                      AppIcons.profile,
+                      color: IGColors.bgLight,
+                      size: 40.r,
+                    ),
+                  ),
                 ),
               ),
             ),

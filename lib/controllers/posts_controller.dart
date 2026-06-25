@@ -1,9 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart';
 import 'package:instagram/core/constants/app_constants.dart';
 import 'package:instagram/data/models/post_model.dart';
 import 'package:instagram/features/profile/controllers/profile_controller.dart';
+import 'package:instagram/utils/custom_toast_util.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class PostsController extends GetxController {
@@ -51,27 +55,6 @@ class PostsController extends GetxController {
       isLoading.value = false;
     }
   }
-  // Future<void> fetchAllPosts() async {
-  //   try {
-  //     isLoading.value = true;
-  //     FirebaseFirestore.instance
-  //         .collection(AppConstants.postsCollection)
-  //         .snapshots()
-  //         .listen((snapshot) {
-  //           allPostsList.value = snapshot.docs
-  //               .map((doc) => PostModel.fromJson(doc.data()))
-  //               .toList();
-  //         });
-  //   } on FirebaseException catch (e) {
-  //     error.value = e.message.toString();
-  //     print('Error in fetching all posts: ${e.message}');
-  //   } catch (e) {
-  //     print('Error in fetching all posts: ${e.toString()}');
-  //     error.value = e.toString();
-  //   } finally {
-  //     isLoading.value = false;
-  //   }
-  // }
 
   // Fetch only the current user's posts
   Future<void> fetchMyPosts() async {
@@ -195,6 +178,131 @@ class PostsController extends GetxController {
     } finally {
       isLoading.value = false;
       imageIndx++;
+    }
+  }
+
+  // Fetch ALL posts from Firestore
+  Future<void> likePost(String postId) async {
+    try {
+      print('button pressed ******************');
+      await _firebase
+          .collection(AppConstants.postsCollection)
+          .doc(postId)
+          .update({
+            'likes': FieldValue.arrayUnion([userId]),
+          });
+      print('updated');
+    } on FirebaseException catch (e) {
+      error.value = e.message.toString();
+      print('Error in like  posts: ${e.message}');
+    } catch (e) {
+      print('Error in like posts: ${e.toString()}');
+      error.value = e.toString();
+    }
+  }
+
+  Future<void> unlikePost(String postId) async {
+    try {
+      await _firebase
+          .collection(AppConstants.postsCollection)
+          .doc(postId)
+          .update({
+            'likes': FieldValue.arrayRemove([userId]),
+          });
+    } on FirebaseException catch (e) {
+      error.value = e.message.toString();
+      print('Error in like  posts: ${e.message}');
+    } catch (e) {
+      print('Error in like posts: ${e.toString()}');
+      error.value = e.toString();
+    }
+  }
+
+  Future<void> addComment() async {
+    try {} on FirebaseException catch (e) {
+      error.value = e.message.toString();
+      print('Error in add comment: ${e.message}');
+    } catch (e) {
+      print('Error in add comment: ${e.toString()}');
+      error.value = e.toString();
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> addToStory(BuildContext context, String link) async {
+    try {} catch (e) {}
+  }
+  //
+
+  Future<void> reportPost(BuildContext context, String postId) async {
+    try {
+      await _firebase
+          .collection(AppConstants.postsCollection)
+          .doc(postId)
+          .update({
+            'reports': FieldValue.arrayUnion([userId]),
+          });
+      CustomToastUtil.showSuccess(
+        context,
+        message:
+            'Post reported successfully. Thank you for helping keep our community safe.',
+      );
+    } catch (e) {
+      CustomToastUtil.showError(
+        context,
+        message: 'Unable to report the post right now. Please try again later.',
+      );
+    }
+  }
+
+  Future<void> hidePost(BuildContext context, String postId) async {
+    try {
+      await _firebase
+          .collection(AppConstants.postsCollection)
+          .doc(postId)
+          .update({
+            'hideFrom': FieldValue.arrayUnion([userId]),
+          });
+      CustomToastUtil.showSuccess(
+        context,
+        message: 'This post has been hidden from your feed.',
+      );
+    } catch (e) {
+      CustomToastUtil.showError(
+        context,
+        message:
+            'Something went wrong while hiding the post. Please try again.',
+      );
+    }
+  }
+
+  Future<void> repostPost(BuildContext context, String postId) async {
+    try {
+      await _firebase
+          .collection(AppConstants.postsCollection)
+          .doc(postId)
+          .update({
+            'repostBy': FieldValue.arrayUnion([userId]),
+          });
+      CustomToastUtil.showSuccess(
+        context,
+        message: 'Post reposted successfully.',
+      );
+    } catch (e) {
+      CustomToastUtil.showError(
+        context,
+        message: 'Unable to repost the post. Please try again later.',
+      );
+    }
+  }
+
+  Future<void> copyLink(BuildContext context, String link) async {
+    try {
+      await Clipboard.setData(ClipboardData(text: link));
+      CustomToastUtil.showSuccess(context, message: 'Link copied to clipboard');
+    } catch (e) {
+      CustomToastUtil.showError(context, message: 'Failed to copy link');
     }
   }
 }

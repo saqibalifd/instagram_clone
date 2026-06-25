@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:instagram/controllers/posts_controller.dart';
-import 'package:instagram/controllers/suggested_user_controller.dart';
+import 'package:instagram/controllers/user_controller.dart';
 import 'package:instagram/core/constants/app_constants.dart';
 import 'package:instagram/core/constants/app_icons.dart';
 import 'package:instagram/core/theme/app_theme.dart';
@@ -23,9 +23,7 @@ class SearchView extends StatefulWidget {
 
 class _SearchViewState extends State<SearchView> {
   final TextEditingController _searchController = TextEditingController();
-  final SuggestedUserController suggestedUserController = Get.put(
-    SuggestedUserController(),
-  );
+  final UserController suggestedUserController = Get.put(UserController());
 
   final PostsController postsController = Get.put(PostsController());
 
