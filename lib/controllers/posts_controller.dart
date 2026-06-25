@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -135,52 +137,101 @@ class PostsController extends GetxController {
     }
   }
 
-  Future<void> uploadPosts(String caption) async {
+  Future<void> uploadPost(
+    BuildContext context,
+    File? file,
+    final String caption,
+    final String location,
+    final String visibility,
+  ) async {
     try {
       isLoading.value = true;
 
-      DocumentReference docRef = _firebase
+      final DocumentReference docRef = FirebaseFirestore.instance
           .collection(AppConstants.postsCollection)
           .doc();
-      final currentUser = profileController.profileUser.value;
+
+      String mediaUrl = '';
+
+      // Upload image to Supabase
+      if (file != null) {
+        final supabase = Supabase.instance.client;
+
+        final String filePath =
+            'post_images/${DateTime.now().millisecondsSinceEpoch}_${docRef.id}.jpg';
+
+        await supabase.storage.from('images').upload(filePath, file);
+
+        mediaUrl = supabase.storage.from('images').getPublicUrl(filePath);
+      }
+
       final PostModel postModel = PostModel(
         postId: docRef.id,
         userId: userId,
-        userName: currentUser!.username,
-        profileImageUrl: currentUser.profileImageUrl,
+        userName: profileController.profileUser.value!.username,
+        profileImageUrl: profileController.profileUser.value!.profileImageUrl,
         caption: caption,
-        mediaUrl:
-            'https://img.magnific.com/premium-vector/grow-your-business-social-media-promotion-banner-post-design-template-set_608515-$imageIndx.jpg',
+        mediaUrl: file != null ? mediaUrl : '',
         mediaType: 'image',
         isVideo: false,
         createdAt: DateTime.now(),
-        location: 'Lahore, Pakistan',
+        location: location,
         likes: [],
         comments: [],
         tags: [],
         repostBy: [],
         favorites: [],
         viewsBy: [],
-        visibility: 'public',
+        visibility: visibility,
         allowComments: true,
         hideFrom: [],
         reports: [],
       );
 
-      docRef.set(postModel.toJson()).then((value) {
-        _firebase.collection(AppConstants.usersCollection).doc(userId).update({
-          'posts': FieldValue.arrayUnion([docRef.id]),
-        });
-      });
+      // Save story in Firebase
+      await docRef.set(postModel.toJson());
+      CustomToastUtil.showSuccess(
+        context,
+        message: 'Post uploaded successfully.',
+      );
     } on FirebaseException catch (e) {
-      error.value = e.message.toString();
+      error.value = e.message ?? '';
+      CustomToastUtil.showError(context, message: e.message.toString());
+      print('Error adding Post: ${e.message}');
     } catch (e) {
-      error.value = AppConstants.commonErrorMessage;
+      error.value = e.toString();
+      CustomToastUtil.showError(
+        context,
+        message: 'Unable to upload your Post. Please try again later.',
+      );
+      print('Error adding story: $e');
     } finally {
       isLoading.value = false;
-      imageIndx++;
     }
   }
+  // Future<void> uploadPosts(String caption) async {
+  //   try {
+  //     isLoading.value = true;
+
+  //     DocumentReference docRef = _firebase
+  //         .collection(AppConstants.postsCollection)
+  //         .doc();
+  //     final currentUser = profileController.profileUser.value;
+
+  //     docRef.set(postModel.toJson()).then((value) {
+  //       _firebase.collection(AppConstants.usersCollection).doc(userId).update({
+  //         'posts': FieldValue.arrayUnion([docRef.id]),
+  //       });
+  //     });
+  //   } on FirebaseException catch (e) {
+  //     error.value = e.message.toString();
+  //   } catch (e) {
+  //     error.value = AppConstants.commonErrorMessage;
+  //   } finally {
+  //     isLoading.value = false;
+  //     imageIndx++;
+  //   }
+  // }
 
   // Fetch ALL posts from Firestore
   Future<void> likePost(String postId) async {

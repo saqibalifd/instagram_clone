@@ -12,12 +12,13 @@ import 'package:instagram/core/theme/app_theme.dart';
 import 'package:instagram/controllers/posts_controller.dart';
 import 'package:instagram/features/home/widgets/my_storie_circle_widget.dart';
 
-import 'package:instagram/features/home/widgets/posts_card_widget.dart';
+import 'package:instagram/shared_widgets/posts_card_widget.dart';
 import 'package:instagram/features/home/widgets/stories_circle_widget.dart';
 import 'package:instagram/features/home/widgets/suggested_card_widget.dart';
 import 'package:instagram/features/profile/controllers/profile_controller.dart';
 import 'package:instagram/routes/app_routes.dart';
 import 'package:instagram/utils/bottom_sheet_util.dart';
+import 'package:instagram/utils/image_picker_util.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -53,7 +54,6 @@ class _HomeViewState extends State<HomeView> {
       body: RefreshIndicator(
         onRefresh: () async {
           await postsController.fetchAllPosts();
-          // await storiesController.fetchMyStory();
         },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -98,7 +98,7 @@ class _HomeViewState extends State<HomeView> {
                               subtitle:
                                   'Share a photo or video that disappears in 24 hours',
                               onTap: () async {
-                                await storiesController.addStory();
+                                // await storiesController.addStory();
                               },
                             ),
                           ],
@@ -170,7 +170,13 @@ class _HomeViewState extends State<HomeView> {
                           );
                         },
                         onAddStory: () async {
-                          await storiesController.addStory();
+                          final file = await ImagePickerUtil.pick(
+                            context,
+                            maxWidth: 1024,
+                            imageQuality: 85,
+                          );
+                          if (file != null) setState(() => image = file);
+                          await storiesController.addStory(context, image);
                         },
                       ),
 

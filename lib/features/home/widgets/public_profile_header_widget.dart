@@ -15,6 +15,7 @@ class PublicProfileHeaderWidget extends StatefulWidget {
   final int totalPosts;
   final int followersCount;
   final int followingCount;
+  final String userId;
   final String bio;
   final VoidCallback onTap;
 
@@ -25,6 +26,7 @@ class PublicProfileHeaderWidget extends StatefulWidget {
     required this.totalPosts,
     required this.followersCount,
     required this.followingCount,
+    required this.userId,
     required this.bio,
     required this.onTap,
   });
@@ -55,13 +57,7 @@ class _PublicProfileHeaderWidgetState extends State<PublicProfileHeaderWidget> {
             children: [
               GestureDetector(
                 onTap: () {
-                  Get.toNamed(
-                    AppRoutes.viewStory,
-                    arguments: {
-                      'currentStory': storiesController.allStoryList.first,
-                      'allStories': storiesController.allStoryList,
-                    },
-                  );
+                  Get.toNamed(AppRoutes.viewStory, arguments: widget.userId);
                 },
                 child: StoryBorderWrapper(
                   isActive: true,

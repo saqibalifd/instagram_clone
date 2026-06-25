@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:instagram/controllers/stories_controller.dart';
+import 'package:instagram/controllers/user_controller.dart';
 import 'package:instagram/core/constants/app_constants.dart';
 import 'package:instagram/core/constants/app_icons.dart';
 import 'package:instagram/core/theme/app_theme.dart';
@@ -32,6 +33,7 @@ class _DmViewState extends State<DmView> {
 
   late File slectedStory;
   StoriesController storiesController = Get.put(StoriesController());
+  final UserController _userController = Get.put(UserController());
 
   final DmController dmController = Get.put(DmController());
   final ProfileController profileController = Get.put(ProfileController());
@@ -87,6 +89,7 @@ class _DmViewState extends State<DmView> {
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // ── Search bar ──────────────────────────────────────────
               Padding(
@@ -119,84 +122,64 @@ class _DmViewState extends State<DmView> {
                   ),
                 ),
               ),
-
+              SizedBox(height: 20.h),
               // ── Stories row (hidden while searching) ────────────────
-              Obx(() {
-                if (_searchQuery.value.isNotEmpty)
-                  return const SizedBox.shrink();
-                return Column(
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(height: 40.h),
+                    SizedBox(width: AppConstants.horizontalSmallPadding),
+                    MyStorieCircleWidget(
+                      imageUrl:
+                          profileController.profileUser.value!.profileImageUrl,
+                      onStoryTap: () {
+                        Get.toNamed(
+                          AppRoutes.viewStory,
+                          arguments:
+                              profileController.profileUser.value!.userId,
+                        );
+                      },
+                      onAddStory: () async {
+                        final file = await ImagePickerUtil.pick(
+                          context,
+                          maxWidth: 1024,
+                          imageQuality: 85,
+                        );
+                        if (file != null) setState(() => image = file);
+                        await storiesController.addStory(context, image);
+                      },
+                    ),
+
                     Obx(() {
-                      if (storiesController.allStoryList.isEmpty) {
+                      if (_userController.friendsUsers.isEmpty) {
                         return SizedBox();
                       }
-                      if (storiesController.isLoading == true) {
+                      if (_userController.isLoading == true) {
                         return SizedBox();
                       }
                       return SizedBox(
                         height: 110.h,
                         child: ListView.builder(
                           scrollDirection: Axis.horizontal,
-                          itemCount: storiesController.allStoryList.length + 1,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: _userController.friendsUsers.length,
+                          shrinkWrap: true,
                           itemBuilder: (context, index) {
-                            if (index == 0) {
-                              return Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 10.w),
-                                child: MyStorieCircleWidget(
-                                  imageUrl: storiesController
-                                      .allStoryList
-                                      .first
-                                      .mediaUrl,
-                                  onStoryTap: () {
-                                    Get.toNamed(
-                                      AppRoutes.viewStory,
-                                      arguments: {
-                                        'currentStory':
-                                            storiesController.allStoryList[1],
-                                        'allStories':
-                                            storiesController.allStoryList,
-                                      },
-                                    );
-                                  },
-                                  onAddStory: () async {
-                                    // print('add story');
-                                    final File? pickedImage =
-                                        await ImagePickerUtil.pickFromGallery(
-                                          context,
-                                          maxWidth: 1024,
-                                          imageQuality: 85,
-                                        );
-
-                                    if (pickedImage != null) {
-                                      setState(() {
-                                        slectedStory = pickedImage;
-                                      });
-                                    }
-                                  },
-                                ),
-                              );
-                            }
-                            final story =
-                                storiesController.allStoryList[index - 1];
-
+                            final frieds = _userController.friendsUsers[index];
                             return Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 10.w),
+                              padding: EdgeInsets.symmetric(horizontal: 8.w),
                               child: StoriesCircleWidget(
+                                imageUrl: frieds.profileImageUrl,
+                                name: frieds.fullName,
+                                isPlayed: false,
                                 onStoryTap: () {
                                   Get.toNamed(
                                     AppRoutes.viewStory,
-                                    arguments: {
-                                      'currentStory':
-                                          storiesController.allStoryList[1],
-                                      'allStories':
-                                          storiesController.allStoryList,
-                                    },
+                                    arguments: frieds.userId,
                                   );
                                 },
-                                imageUrl: story.mediaUrl,
-                                name: '',
-                                isPlayed: story.isHighlighted,
                               ),
                             );
                           },
@@ -204,8 +187,8 @@ class _DmViewState extends State<DmView> {
                       );
                     }),
                   ],
-                );
-              }),
+                ),
+              ),
 
               // ── Section header ───────────────────────────────────────
               Obx(

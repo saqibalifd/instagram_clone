@@ -89,6 +89,7 @@ class _PublicProfileViewState extends State<PublicProfileView>
               totalPosts: user.posts.length,
               followersCount: user.followers.length,
               followingCount: user.following.length,
+              userId: user.userId,
               onTap: () {
                 Get.toNamed(
                   AppRoutes.allFollow,

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -43,27 +45,39 @@ class StoriesController extends GetxController {
     // update Firestore likedBy array
   }
   // Fetch ALL posts from Firestore (excluding current user)
-
-  Future<void> addStory() async {
+  Future<void> addStory(BuildContext context, File? file) async {
     try {
       isLoading.value = true;
 
       final DocumentReference docRef = FirebaseFirestore.instance
           .collection(AppConstants.usersCollection)
           .doc(userId)
-          .collection('stories')
+          .collection(AppConstants.storiesCollection)
           .doc();
+
+      String mediaUrl = '';
+
+      // Upload image to Supabase
+      if (file != null) {
+        final supabase = Supabase.instance.client;
+
+        final String filePath =
+            'story_images/${DateTime.now().millisecondsSinceEpoch}_${docRef.id}.jpg';
+
+        await supabase.storage.from('images').upload(filePath, file);
+
+        mediaUrl = supabase.storage.from('images').getPublicUrl(filePath);
+      }
 
       final StoryModel storyModel = StoryModel(
         storyId: docRef.id,
-        mediaUrl:
-            'https://img.magnific.com/free-photo/closeup-shot-beautiful-butterfly-with-interesting-textures-orange-petaled-flower_181624-7640.jpg?semt=ais_hybrid&w=740&q=80',
-        mediaType: 'mp4',
+        mediaUrl: mediaUrl,
+        mediaType: 'image',
         caption: '',
         musicTitle: '',
         musicUrl: '',
         createdAt: DateTime.now(),
-        expiresAt: DateTime.now(),
+        expiresAt: DateTime.now().add(const Duration(hours: 24)),
         viewedBy: [],
         likedBy: [],
         mentions: [],
@@ -75,13 +89,23 @@ class StoriesController extends GetxController {
         userName: profileController.profileUser.value!.username,
       );
 
+      // Save story in Firebase
       await docRef.set(storyModel.toJson());
+      CustomToastUtil.showSuccess(
+        context,
+        message: 'Story uploaded successfully.',
+      );
     } on FirebaseException catch (e) {
       error.value = e.message ?? '';
-      print('Error in fetching stories: ${e.message}');
+      CustomToastUtil.showError(context, message: e.message.toString());
+      print('Error adding story: ${e.message}');
     } catch (e) {
       error.value = e.toString();
-      print('Error in fetching stories: $e');
+      CustomToastUtil.showError(
+        context,
+        message: 'Unable to upload your story. Please try again later.',
+      );
+      print('Error adding story: $e');
     } finally {
       isLoading.value = false;
     }
@@ -104,9 +128,11 @@ class StoriesController extends GetxController {
           });
     } on FirebaseException catch (e) {
       error.value = e.message ?? '';
+
       print('Error in fetching stories: ${e.message}');
     } catch (e) {
       error.value = e.toString();
+
       print('Error in fetching stories: $e');
     } finally {
       isLoading.value = false;

@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:instagram/core/constants/app_icons.dart';
 import 'package:instagram/core/theme/app_theme.dart';
 import 'package:instagram/data/models/post_model.dart';
-import 'package:instagram/features/profile/widgets/all_post_card_widget.dart';
+import 'package:instagram/shared_widgets/posts_card_widget.dart';
 
 class AllPostsView extends StatefulWidget {
   const AllPostsView({super.key});
@@ -71,7 +71,11 @@ class _AllPostsViewState extends State<AllPostsView> {
         controller: _scrollController,
         itemCount: posts.length - 1,
         itemBuilder: (context, index) {
-          return AllPostCardWidget(postModel: posts[index]);
+          return PostsCardWidget(
+            postModel: posts[index],
+            mediaType: posts[index].mediaType,
+          );
+          // AllPostCardWidget(postModel: posts[index]);
         },
       ),
     );

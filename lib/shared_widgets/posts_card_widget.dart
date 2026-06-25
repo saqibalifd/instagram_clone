@@ -337,8 +337,7 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
 
                   CustomCommentBottomSheetUtil.show(
                     context,
-                    comments:
-                        postsController.commentModelList, // List<CommentModel>
+                    comments: postsController.commentModelList,
                     userImage: '',
                     onCommentSubmit: (text) async {
                       await postsController.addComment(
@@ -349,10 +348,12 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
                         text,
                         widget.postModel.postId,
                       );
+                      await postsController.fetchCommentsByPostId(
+                        widget.postModel.postId,
+                      );
                       // addComment(text);
                     },
                   );
-                  ///////////////////////////////////////////////////////////////////
                 },
                 icon: Row(
                   mainAxisAlignment: MainAxisAlignment.center,

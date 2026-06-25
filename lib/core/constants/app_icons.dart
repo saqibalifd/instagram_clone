@@ -55,7 +55,8 @@ class AppIcons {
   // Profile
   static const IconData profile = Iconsax.user_copy;
   static const IconData profileFill = Iconsax.user;
-
+  static const IconData arrowNext = Icons.chevron_right;
+  static const IconData location = Iconsax.location_copy;
   // ============================
   // Other Icons
   // ============================

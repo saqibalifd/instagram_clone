@@ -1,8 +1,14 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:instagram/controllers/location_controller.dart';
 import 'package:instagram/controllers/posts_controller.dart';
+import 'package:instagram/core/constants/app_icons.dart';
 import 'package:instagram/core/theme/app_theme.dart';
+import 'package:instagram/utils/image_picker_util.dart';
 
 class AddPostView extends StatefulWidget {
   const AddPostView({super.key});
@@ -13,57 +19,125 @@ class AddPostView extends StatefulWidget {
 
 class _AddPostViewState extends State<AddPostView> {
   final PostsController postsController = Get.put(PostsController());
+  final LocationController locationController = Get.put(LocationController());
+  final TextEditingController captionController = TextEditingController();
+
+  File? selectedImage;
+  bool isUploading = false;
+
+  Future<void> pickImage() async {
+    final file = await ImagePickerUtil.pick(
+      context,
+      maxWidth: 1024,
+      imageQuality: 85,
+    );
+    if (file != null) setState(() => selectedImage = file);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+      appBar: AppBar(
+        elevation: 0,
+        forceMaterialTransparency: true,
+        title: Text("Create Post"),
+        actions: [
+          TextButton(
+            onPressed: () {
+              if (selectedImage != null) {
+                postsController.uploadPost(
+                  context,
+                  selectedImage!,
+                  captionController.text,
+                  locationController.selectedLocation.value,
+                  'public',
+                );
+              }
+            },
+            child: Text("Share", style: TextStyle(fontSize: 16.sp)),
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(16.w),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(height: 50.h),
-            CircleAvatar(
-              radius: 40.r,
-              backgroundColor: IGColors.gray,
-              backgroundImage: NetworkImage('https://picsum.photos/200'),
-              child: Stack(
-                children: [
-                  Positioned(
-                    right: 0,
-                    bottom: 0,
-                    child: InkWell(
-                      onTap: () {
-                        print('add post');
-                      },
-                      child: CircleAvatar(
-                        radius: 10.r,
-                        backgroundColor: IGColors.bgDark,
-                        child: Icon(
-                          Icons.add,
-                          color: IGColors.bgLight,
-                          size: 15.sp,
-                        ),
+            GestureDetector(
+              onTap: pickImage,
+              child: Container(
+                height: 350.h,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: IGColors.gray.withValues(alpha: .2),
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+                child: selectedImage != null
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(12.r),
+                        child: Image.file(selectedImage!, fit: BoxFit.cover),
+                      )
+                    : Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.add_photo_alternate_outlined,
+                            size: 60.sp,
+                            color: IGColors.gray,
+                          ),
+                          SizedBox(height: 8.h),
+                          const Text(
+                            "Select Photo",
+                            style: TextStyle(color: IGColors.gray),
+                          ),
+                        ],
                       ),
+              ),
+            ),
+
+            SizedBox(height: 20.h),
+
+            TextField(
+              controller: captionController,
+              maxLines: 5,
+              decoration: InputDecoration(
+                hintText: "Write a caption...",
+                filled: true,
+                fillColor: IGColors.gray.withValues(alpha: .2),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12.r),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+
+            SizedBox(height: 20.h),
+
+            Card(
+              elevation: 0,
+              color: IGColors.gray.withValues(alpha: .2),
+              child: Column(
+                children: [
+                  Obx(
+                    () => ListTile(
+                      onTap: locationController.getCurrentLocation,
+                      leading: Icon(AppIcons.location),
+                      title: Text(
+                        locationController.selectedLocation.value.isEmpty
+                            ? "Add Location"
+                            : locationController.selectedLocation.value,
+                      ),
+                      trailing: locationController.isLoadingLocation.value
+                          ? SizedBox(
+                              width: 20.w,
+                              height: 20.h,
+                              child: const CircularProgressIndicator(
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : Icon(AppIcons.arrowNext),
                     ),
                   ),
                 ],
-              ),
-            ),
-            SizedBox(height: 10.h),
-            TextField(
-              decoration: InputDecoration(hintText: 'What\'s on your mind?'),
-            ),
-            SizedBox(height: 10.h),
-
-            SizedBox(
-              width: double.maxFinite,
-              child: ElevatedButton(
-                onPressed: () {
-                  postsController.uploadPosts('Hello world');
-                },
-                child: Text('Post'),
               ),
             ),
           ],

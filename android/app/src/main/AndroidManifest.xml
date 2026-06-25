@@ -1,6 +1,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 <!-- Internet access -->
 <uses-permission android:name="android.permission.INTERNET"/>
+<!-- Location -->
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+
+<!-- Background location (only if needed) -->
+<uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
 
 <!-- Notifications -->
 <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
