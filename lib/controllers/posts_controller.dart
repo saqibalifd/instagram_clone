@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart';
 import 'package:instagram/core/constants/app_constants.dart';
+import 'package:instagram/data/models/comments_model.dart';
 import 'package:instagram/data/models/post_model.dart';
 import 'package:instagram/features/profile/controllers/profile_controller.dart';
 import 'package:instagram/utils/custom_toast_util.dart';
@@ -218,8 +219,35 @@ class PostsController extends GetxController {
     }
   }
 
-  Future<void> addComment() async {
-    try {} on FirebaseException catch (e) {
+  Future<void> addComment(
+    BuildContext context,
+    String userName,
+    String fullName,
+    String profilePicture,
+    String text,
+    String postId,
+    String comment,
+  ) async {
+    try {
+      DocumentReference docRef = _firebase
+          .collection(AppConstants.postsCollection)
+          .doc(postId)
+          .collection(AppConstants.commentsCollection)
+          .doc();
+
+      CommentModel commentModel = CommentModel(
+        id: docRef.id,
+        userId: userId,
+        username: userName,
+        fullName: fullName,
+        profilePicture: profilePicture,
+        text: text,
+
+        createdAt: DateTime.now(),
+      );
+
+      await docRef.set(commentModel.toMap());
+    } on FirebaseException catch (e) {
       error.value = e.message.toString();
       print('Error in add comment: ${e.message}');
     } catch (e) {

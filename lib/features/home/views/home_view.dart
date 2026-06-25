@@ -103,13 +103,6 @@ class _HomeViewState extends State<HomeView> {
                                 await storiesController.addStory();
                               },
                             ),
-                            IGAddPostAction(
-                              icon: AppIcons.live,
-                              label: 'Live',
-                              subtitle:
-                                  'Go live and connect with your followers in real time',
-                              onTap: () {},
-                            ),
                           ],
                         );
                       },
