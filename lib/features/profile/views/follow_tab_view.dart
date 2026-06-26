@@ -1,9 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/get_core.dart';
 import 'package:instagram/core/constants/app_constants.dart';
+import 'package:instagram/core/constants/app_icons.dart';
+import 'package:instagram/core/theme/app_theme.dart';
 import 'package:instagram/routes/app_routes.dart';
+import 'package:instagram/utils/chached_images_manager.dart';
 
 class FollowTabView extends StatelessWidget {
   final String tabType; // 'followers', 'following', or 'subscriptions'
@@ -96,15 +100,27 @@ class FollowTabView extends StatelessWidget {
                       arguments: user['userId'],
                     );
                   },
-                  leading: CircleAvatar(
-                    backgroundImage: NetworkImage(
-                      user['profileImageUrl'] ?? '',
+                  leading: Container(
+                    width: 40.r,
+                    height: 40.r,
+                    decoration: BoxDecoration(shape: BoxShape.circle),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(40.r),
+                      child: CachedImageManager.image(
+                        url: user['profileImageUrl'],
+                        fit: BoxFit.cover,
+                        errorWidget: CircleAvatar(
+                          backgroundColor: IGColors.gray.withValues(alpha: .3),
+                          child: Icon(
+                            AppIcons.profile,
+                            color: IGColors.bgLight,
+                            size: 24.sp,
+                          ),
+                        ),
+                      ),
                     ),
-                    onBackgroundImageError: (_, __) {},
-                    child: user['profileImageUrl'] == null
-                        ? const Icon(Icons.person)
-                        : null,
                   ),
+
                   title: Text(user['fullName'] ?? ''),
                   subtitle: Text(user['username'] ?? ''),
                 );

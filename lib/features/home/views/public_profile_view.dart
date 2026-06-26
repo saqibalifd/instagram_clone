@@ -36,6 +36,7 @@ class _PublicProfileViewState extends State<PublicProfileView>
     tabController = TabController(length: 4, vsync: this);
 
     publicProfileController.loadPublicProfile(userId);
+    suggestedUserController.loadFollowStatus(userId);
   }
 
   @override
@@ -110,21 +111,34 @@ class _PublicProfileViewState extends State<PublicProfileView>
                     height: 30.h,
                     width: 165.w,
                     child: Obx(() {
-                      final isFollowing = suggestedUserController.followingIds
-                          .contains(user.userId);
+                      if (suggestedUserController.followStatusLoading.value) {
+                        return const Center(
+                          child: SizedBox(height: 18, width: 18),
+                        );
+                      }
+
+                      final status = suggestedUserController.followStatus.value;
+
+                      final bool isBlue =
+                          status == "Follow" || status == "Follow Back";
+
                       return ElevatedButton(
-                        onPressed: () {
-                          if (isFollowing) {
-                            suggestedUserController.unfollowUser(user.userId);
+                        onPressed: () async {
+                          if (isBlue) {
+                            await suggestedUserController.followUser(
+                              user.userId,
+                            );
                           } else {
-                            suggestedUserController.followUser(user.userId);
+                            await suggestedUserController.unfollowUser(
+                              user.userId,
+                            );
                           }
                         },
                         style: ButtonStyle(
                           backgroundColor: WidgetStatePropertyAll(
-                            isFollowing
-                                ? IGColors.gray.withValues(alpha: .3)
-                                : IGColors.blue,
+                            isBlue
+                                ? IGColors.blue
+                                : IGColors.gray.withValues(alpha: .3),
                           ),
                           overlayColor: const WidgetStatePropertyAll(
                             Colors.transparent,
@@ -135,11 +149,9 @@ class _PublicProfileViewState extends State<PublicProfileView>
                           ),
                         ),
                         child: Text(
-                          isFollowing ? 'Following' : 'Follow',
+                          status,
                           style: TextStyle(
-                            color: isFollowing
-                                ? IGColors.bgDark
-                                : IGColors.bgLight,
+                            color: isBlue ? IGColors.bgLight : IGColors.bgDark,
                           ),
                         ),
                       );

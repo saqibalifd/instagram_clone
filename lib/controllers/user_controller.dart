@@ -20,6 +20,8 @@ class UserController extends GetxController {
   final isLoading = false.obs;
   final specificUserData = Rxn<UserModel>();
   RxBool specificUserLoading = false.obs;
+  final RxString followStatus = 'Follow'.obs;
+  final RxBool followStatusLoading = false.obs;
 
   @override
   void onInit() {
@@ -195,6 +197,7 @@ class UserController extends GetxController {
           });
 
       followingIds.add(toFollowUserId);
+      await loadFollowStatus(toFollowUserId);
 
       await SendNotificationService.sendNotificationUsingApi(
         token:
@@ -228,6 +231,7 @@ class UserController extends GetxController {
           });
 
       followingIds.remove(toFollowUserId); // update UI instantly
+      await loadFollowStatus(toFollowUserId);
     } on FirebaseException catch (e) {
       error.value = e.message.toString();
     } finally {
@@ -268,6 +272,60 @@ class UserController extends GetxController {
       suggestedUsersList.removeAt(index);
     } catch (e) {
       error.value = e.toString();
+    }
+  }
+
+  /// Returns:
+  /// "Follow"    -> I don't follow this user
+  /// "Following" -> I follow them, but they don't follow me back
+  /// "Friends"   -> We follow each other
+  Future<void> loadFollowStatus(String targetUserId) async {
+    try {
+      followStatusLoading.value = true;
+
+      final currentUserDoc = await _firebase
+          .collection(AppConstants.usersCollection)
+          .doc(userId)
+          .get();
+
+      final targetUserDoc = await _firebase
+          .collection(AppConstants.usersCollection)
+          .doc(targetUserId)
+          .get();
+
+      if (!currentUserDoc.exists || !targetUserDoc.exists) {
+        followStatus.value = "Follow";
+        return;
+      }
+
+      final currentUserData = currentUserDoc.data()!;
+      final targetUserData = targetUserDoc.data()!;
+
+      final List<String> myFollowing = List<String>.from(
+        currentUserData['following'] ?? [],
+      );
+
+      final List<String> targetFollowing = List<String>.from(
+        targetUserData['following'] ?? [],
+      );
+
+      final bool iFollowHim = myFollowing.contains(targetUserId);
+      final bool heFollowsMe = targetFollowing.contains(userId);
+
+      if (!iFollowHim && !heFollowsMe) {
+        followStatus.value = "Follow";
+      } else if (!iFollowHim && heFollowsMe) {
+        followStatus.value = "Follow Back";
+      } else if (iFollowHim && !heFollowsMe) {
+        followStatus.value = "Following";
+      } else {
+        followStatus.value = "Friends";
+      }
+    } on FirebaseException catch (e) {
+      error.value = e.message ?? "";
+      followStatus.value = "Follow";
+    } finally {
+      followStatusLoading.value = false;
     }
   }
 
