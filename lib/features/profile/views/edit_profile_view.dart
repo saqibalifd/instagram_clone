@@ -107,12 +107,17 @@ class _EditProfileViewState extends State<EditProfileView> {
             SizedBox(height: 20.h),
             Center(
               child: CircleAvatar(
+                backgroundColor: IGColors.gray.withValues(alpha: .3),
                 radius: 40.r,
-                backgroundImage: image == null
-                    ? NetworkImage(user.profileImageUrl)
-                    : FileImage(image ?? File(user.profileImageUrl)),
-
-                // backgroundImage: NetworkImage(user.profileImageUrl),
+                backgroundImage: image != null
+                    ? FileImage(image!)
+                    : (user.profileImageUrl.isNotEmpty
+                              ? NetworkImage(user.profileImageUrl)
+                              : null)
+                          as ImageProvider?,
+                child: image == null && user.profileImageUrl.isEmpty
+                    ? Icon(AppIcons.profile, size: 40.r)
+                    : null,
               ),
             ),
             SizedBox(height: 5.h),
