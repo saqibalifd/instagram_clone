@@ -7,6 +7,7 @@ class AppIcons {
   static const IconData searchOff = Icons.search_off_rounded;
   static const IconData searchFill = Icons.search_outlined;
   static const IconData cross = Icons.close;
+  static const IconData global = Icons.public;
 
   // Auth Icons
   static const IconData lock = Icons.lock_outline;
@@ -89,6 +90,7 @@ class AppIcons {
   static const IconData send = Iconsax.send_1;
 
   static const IconData music = Iconsax.music_circle_copy;
+  static const IconData tags = Iconsax.tag_copy;
 
   //svg
   static const String searchSvg = 'assets/svg/search.svg';

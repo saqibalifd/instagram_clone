@@ -148,7 +148,9 @@ class _DmViewState extends State<DmView> {
                           imageQuality: 85,
                         );
                         if (file != null) setState(() => image = file);
-                        await storiesController.addStory(context, image);
+                        if (image != null) {
+                          await storiesController.addStory(context, image);
+                        }
                       },
                     ),
 

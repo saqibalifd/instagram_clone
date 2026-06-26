@@ -1,19 +1,24 @@
+import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
+import 'package:instagram/utils/custom_toast_util.dart';
 
 class LocationController extends GetxController {
   final RxBool isLoadingLocation = false.obs;
   final RxString selectedLocation = ''.obs;
 
-  Future<void> getCurrentLocation() async {
+  Future<void> getCurrentLocation(BuildContext context) async {
     try {
       isLoadingLocation.value = true;
 
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
 
       if (!serviceEnabled) {
-        Get.snackbar("Location Disabled", "Please enable location services");
+        CustomToastUtil.showError(
+          context,
+          message: 'Please enable location services',
+        );
         return;
       }
 
@@ -24,10 +29,11 @@ class LocationController extends GetxController {
       }
 
       if (permission == LocationPermission.deniedForever) {
-        Get.snackbar(
-          "Permission Required",
-          "Location permission permanently denied",
+        CustomToastUtil.showError(
+          context,
+          message: 'Location permission is permanently denied.',
         );
+
         return;
       }
 
@@ -43,7 +49,7 @@ class LocationController extends GetxController {
       selectedLocation.value =
           "${place.locality ?? ''}, ${place.country ?? ''}";
     } catch (e) {
-      Get.snackbar("Error", e.toString());
+      CustomToastUtil.showError(context, message: e.toString());
     } finally {
       isLoadingLocation.value = false;
     }

@@ -10,6 +10,7 @@ import 'package:instagram/data/models/comments_model.dart';
 import 'package:instagram/data/models/post_model.dart';
 import 'package:instagram/features/profile/controllers/profile_controller.dart';
 import 'package:instagram/utils/custom_toast_util.dart';
+import 'package:instagram/utils/loading_utils.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class PostsController extends GetxController {
@@ -143,10 +144,11 @@ class PostsController extends GetxController {
     final String caption,
     final String location,
     final String visibility,
+    final bool allowComments,
+    final TextEditingController tagsController,
   ) async {
     try {
-      isLoading.value = true;
-
+      LoadingUtil.show();
       final DocumentReference docRef = FirebaseFirestore.instance
           .collection(AppConstants.postsCollection)
           .doc();
@@ -164,7 +166,11 @@ class PostsController extends GetxController {
 
         mediaUrl = supabase.storage.from('images').getPublicUrl(filePath);
       }
-
+      final List<String> tags = tagsController.text
+          .split(',')
+          .map((e) => e.trim())
+          .where((e) => e.isNotEmpty)
+          .toList();
       final PostModel postModel = PostModel(
         postId: docRef.id,
         userId: userId,
@@ -178,12 +184,12 @@ class PostsController extends GetxController {
         location: location,
         likes: [],
         comments: [],
-        tags: [],
+        tags: tags,
         repostBy: [],
         favorites: [],
         viewsBy: [],
         visibility: visibility,
-        allowComments: true,
+        allowComments: allowComments,
         hideFrom: [],
         reports: [],
       );
@@ -206,32 +212,9 @@ class PostsController extends GetxController {
       );
       print('Error adding story: $e');
     } finally {
-      isLoading.value = false;
+      LoadingUtil.dismiss();
     }
   }
-  // Future<void> uploadPosts(String caption) async {
-  //   try {
-  //     isLoading.value = true;
-
-  //     DocumentReference docRef = _firebase
-  //         .collection(AppConstants.postsCollection)
-  //         .doc();
-  //     final currentUser = profileController.profileUser.value;
-
-  //     docRef.set(postModel.toJson()).then((value) {
-  //       _firebase.collection(AppConstants.usersCollection).doc(userId).update({
-  //         'posts': FieldValue.arrayUnion([docRef.id]),
-  //       });
-  //     });
-  //   } on FirebaseException catch (e) {
-  //     error.value = e.message.toString();
-  //   } catch (e) {
-  //     error.value = AppConstants.commonErrorMessage;
-  //   } finally {
-  //     isLoading.value = false;
-  //     imageIndx++;
-  //   }
-  // }
 
   // Fetch ALL posts from Firestore
   Future<void> likePost(String postId) async {

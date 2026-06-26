@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:instagram/controllers/location_controller.dart';
 import 'package:instagram/controllers/posts_controller.dart';
 import 'package:instagram/core/constants/app_icons.dart';
@@ -24,6 +23,7 @@ class _AddPostViewState extends State<AddPostView> {
 
   File? selectedImage;
   bool isUploading = false;
+  final TextEditingController tagsController = TextEditingController();
 
   Future<void> pickImage() async {
     final file = await ImagePickerUtil.pick(
@@ -32,6 +32,17 @@ class _AddPostViewState extends State<AddPostView> {
       imageQuality: 85,
     );
     if (file != null) setState(() => selectedImage = file);
+  }
+
+  String visibility = 'public';
+  bool allowComments = false;
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    captionController.dispose();
+    tagsController.dispose();
   }
 
   @override
@@ -43,15 +54,18 @@ class _AddPostViewState extends State<AddPostView> {
         title: Text("Create Post"),
         actions: [
           TextButton(
-            onPressed: () {
+            onPressed: () async {
               if (selectedImage != null) {
-                postsController.uploadPost(
+                await postsController.uploadPost(
                   context,
                   selectedImage!,
                   captionController.text,
                   locationController.selectedLocation.value,
-                  'public',
+                  visibility,
+                  allowComments,
+                  tagsController,
                 );
+                Get.back();
               }
             },
             child: Text("Share", style: TextStyle(fontSize: 16.sp)),
@@ -119,7 +133,9 @@ class _AddPostViewState extends State<AddPostView> {
                 children: [
                   Obx(
                     () => ListTile(
-                      onTap: locationController.getCurrentLocation,
+                      onTap: () {
+                        locationController.getCurrentLocation(context);
+                      },
                       leading: Icon(AppIcons.location),
                       title: Text(
                         locationController.selectedLocation.value.isEmpty
@@ -135,6 +151,71 @@ class _AddPostViewState extends State<AddPostView> {
                               ),
                             )
                           : Icon(AppIcons.arrowNext),
+                    ),
+                  ),
+                  Divider(thickness: 1),
+                  // Allow Comments
+                  SwitchListTile(
+                    value: allowComments,
+                    onChanged: (value) {
+                      setState(() {
+                        allowComments = value;
+                      });
+                    },
+                    secondary: Icon(AppIcons.comment),
+                    title: const Text("Allow Comments"),
+                  ),
+
+                  const Divider(thickness: 1),
+
+                  // Visibility
+                  ListTile(
+                    leading: Icon(AppIcons.global),
+                    title: Text("Visibility"),
+                    trailing: DropdownButton<String>(
+                      value: visibility,
+                      underline: const SizedBox(),
+                      items: const [
+                        DropdownMenuItem(
+                          value: 'public',
+                          child: Text('Public'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'followers',
+                          child: Text('Followers'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'private',
+                          child: Text('Private'),
+                        ),
+                      ],
+                      onChanged: (value) {
+                        if (value != null) {
+                          setState(() {
+                            visibility = value;
+                          });
+                        }
+                      },
+                    ),
+                  ),
+
+                  const Divider(thickness: 1),
+
+                  // Tags
+                  Padding(
+                    padding: EdgeInsets.all(16.w),
+                    child: TextField(
+                      controller: tagsController,
+                      decoration: InputDecoration(
+                        prefixIcon: Icon(AppIcons.tags),
+                        hintText: "Tags (e.g. john, alex, sara)",
+                        helperText: "Separate tags with commas",
+                        filled: true,
+                        fillColor: Colors.transparent,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12.r),
+                        ),
+                      ),
                     ),
                   ),
                 ],

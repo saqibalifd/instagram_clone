@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:instagram/controllers/posts_controller.dart';
+import 'package:instagram/controllers/stories_controller.dart';
 import 'package:instagram/controllers/user_controller.dart';
 import 'package:instagram/core/constants/app_constants.dart';
 import 'package:instagram/core/constants/app_icons.dart';
@@ -13,9 +16,9 @@ import 'package:instagram/features/home/widgets/public_profile_header_widget.dar
 import 'package:instagram/features/home/widgets/suggested_card_widget.dart';
 import 'package:instagram/features/profile/controllers/profile_controller.dart';
 import 'package:instagram/features/profile/views/profile_tab_view.dart';
-import 'package:instagram/features/profile/widgets/profile_header.dart';
 import 'package:instagram/routes/app_routes.dart';
 import 'package:instagram/utils/bottom_sheet_util.dart';
+import 'package:instagram/utils/image_picker_util.dart';
 
 class ProfileView extends StatefulWidget {
   const ProfileView({super.key});
@@ -29,12 +32,8 @@ class _ProfileViewState extends State<ProfileView>
   final AuthController _authController = AuthController();
   final PostsController postsController = Get.put(PostsController());
   late TabController tabController;
-
-  final String bio = '''
-🚀 Flutter Developer | 2+ Years Experience
-Passionate Flutter Developer with 2+ years of experience building modern, scalable, and high-performance Android and cross-platform mobile applications. Experienced in crafting beautiful UIs, integrating APIs, and delivering seamless user experiences.
-''';
-
+  File? image;
+  StoriesController storiesController = Get.put(StoriesController());
   final ProfileController _profileController = Get.put(ProfileController());
   final UserController _suggestedUserController = Get.put(UserController());
   // Change this field declaration:
@@ -79,9 +78,9 @@ Passionate Flutter Developer with 2+ years of experience building modern, scalab
                   children: [
                     IconButton(
                       splashColor: Colors.transparent,
+                      color: IGColors.bgDark,
                       highlightColor: Colors.transparent,
                       iconSize: 35,
-                      color: IGColors.bgDark,
 
                       onPressed: () {
                         BottomSheetUtil.show(
@@ -93,27 +92,37 @@ Passionate Flutter Developer with 2+ years of experience building modern, scalab
                               label: 'Post',
                               subtitle:
                                   'Share a photo or video to your profile',
-                              onTap: () {},
+                              onTap: () {
+                                Get.toNamed(AppRoutes.addPost);
+                              },
                             ),
                             IGAddPostAction(
                               icon: AppIcons.reels,
                               label: 'Reel',
                               subtitle: 'Create and share a short video',
-                              onTap: () {},
+                              onTap: () {
+                                Get.toNamed(AppRoutes.stories);
+                              },
                             ),
                             IGAddPostAction(
                               icon: AppIcons.stories,
                               label: 'Story',
                               subtitle:
                                   'Share a photo or video that disappears in 24 hours',
-                              onTap: () {},
-                            ),
-                            IGAddPostAction(
-                              icon: AppIcons.live,
-                              label: 'Live',
-                              subtitle:
-                                  'Go live and connect with your followers in real time',
-                              onTap: () {},
+                              onTap: () async {
+                                final file = await ImagePickerUtil.pick(
+                                  context,
+                                  maxWidth: 1024,
+                                  imageQuality: 85,
+                                );
+                                if (file != null) setState(() => image = file);
+                                if (image != null) {
+                                  await storiesController.addStory(
+                                    context,
+                                    image,
+                                  );
+                                }
+                              },
                             ),
                           ],
                         );

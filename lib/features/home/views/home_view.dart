@@ -98,7 +98,18 @@ class _HomeViewState extends State<HomeView> {
                               subtitle:
                                   'Share a photo or video that disappears in 24 hours',
                               onTap: () async {
-                                // await storiesController.addStory();
+                                final file = await ImagePickerUtil.pick(
+                                  context,
+                                  maxWidth: 1024,
+                                  imageQuality: 85,
+                                );
+                                if (file != null) setState(() => image = file);
+                                if (image != null) {
+                                  await storiesController.addStory(
+                                    context,
+                                    image,
+                                  );
+                                }
                               },
                             ),
                           ],
@@ -176,7 +187,9 @@ class _HomeViewState extends State<HomeView> {
                             imageQuality: 85,
                           );
                           if (file != null) setState(() => image = file);
-                          await storiesController.addStory(context, image);
+                          if (image != null) {
+                            await storiesController.addStory(context, image);
+                          }
                         },
                       ),
 

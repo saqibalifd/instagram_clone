@@ -41,6 +41,14 @@ class MyStorieCircleWidget extends StatelessWidget {
                     child: CachedImageManager.image(
                       url: imageUrl,
                       fit: BoxFit.cover,
+                      errorWidget: CircleAvatar(
+                        backgroundColor: IGColors.gray.withValues(alpha: .3),
+                        child: Icon(
+                          AppIcons.profile,
+                          color: IGColors.bgLight,
+                          size: 40.r,
+                        ),
+                      ),
                     ),
                   ),
                 ),
