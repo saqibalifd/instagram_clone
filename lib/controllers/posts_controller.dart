@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -29,11 +30,30 @@ class PostsController extends GetxController {
   final RxList<PostModel> friendsPostsList = <PostModel>[].obs;
   RxInt imageIndx = 22.obs;
 
+  // ================== VIEW COUNT ==================
+
+  // Timer for each visible post
+  final Map<String, Timer> _viewTimers = {};
+
+  // Prevent multiple timers for the same post in this app session
+  final Set<String> _viewedPostsInSession = {};
   @override
   void onInit() {
     super.onInit();
     fetchAllPosts();
     fetchMyPosts();
+  }
+
+  @override
+  void onClose() {
+    for (final timer in _viewTimers.values) {
+      timer.cancel();
+    }
+
+    _viewTimers.clear();
+    _viewedPostsInSession.clear();
+
+    super.onClose();
   }
 
   // Fetch ALL posts from Firestore
@@ -217,7 +237,7 @@ class PostsController extends GetxController {
   }
 
   // Fetch ALL posts from Firestore
-  Future<void> likePost(String postId) async {
+  Future<void> likePost(BuildContext context, String postId) async {
     try {
       print('button pressed ******************');
       await _firebase
@@ -226,7 +246,10 @@ class PostsController extends GetxController {
           .update({
             'likes': FieldValue.arrayUnion([userId]),
           });
-      print('updated');
+      CustomToastUtil.showLikeNotification(
+        context,
+        message: 'You liked this post.',
+      );
     } on FirebaseException catch (e) {
       error.value = e.message.toString();
       print('Error in like  posts: ${e.message}');
@@ -321,11 +344,6 @@ class PostsController extends GetxController {
     }
   }
 
-  Future<void> addToStory(BuildContext context, String link) async {
-    try {} catch (e) {}
-  }
-  //
-
   Future<void> reportPost(BuildContext context, String postId) async {
     try {
       await _firebase
@@ -391,9 +409,69 @@ class PostsController extends GetxController {
   Future<void> copyLink(BuildContext context, String link) async {
     try {
       await Clipboard.setData(ClipboardData(text: link));
-      CustomToastUtil.showSuccess(context, message: 'Link copied to clipboard');
+      CustomToastUtil.showLinkCopied(
+        context,
+        message: 'Link copied to clipboard',
+      );
     } catch (e) {
       CustomToastUtil.showError(context, message: 'Failed to copy link');
+    }
+  }
+
+  Future<void> increasePostView(String postId) async {
+    try {
+      final docRef = _firebase
+          .collection(AppConstants.postsCollection)
+          .doc(postId);
+
+      await _firebase.runTransaction((transaction) async {
+        final snapshot = await transaction.get(docRef);
+
+        if (!snapshot.exists) return;
+
+        final data = snapshot.data() as Map<String, dynamic>;
+
+        List<dynamic> viewsBy = data['viewsBy'] ?? [];
+
+        // Already viewed by this user
+        if (viewsBy.contains(userId)) {
+          return;
+        }
+
+        transaction.update(docRef, {
+          'viewsBy': FieldValue.arrayUnion([userId]),
+        });
+      });
+    } on FirebaseException catch (e) {
+      error.value = e.message ?? '';
+      debugPrint('View Count Error: ${e.message}');
+    } catch (e) {
+      error.value = e.toString();
+      debugPrint('View Count Error: $e');
+    }
+  }
+
+  Future<void> onPostVisibilityChanged({
+    required String postId,
+    required double visibleFraction,
+  }) async {
+    // Already counted in this session
+    if (_viewedPostsInSession.contains(postId)) return;
+
+    if (visibleFraction >= 0.7) {
+      // Start timer only once
+      if (!_viewTimers.containsKey(postId)) {
+        _viewTimers[postId] = Timer(const Duration(seconds: 3), () async {
+          await increasePostView(postId);
+
+          _viewedPostsInSession.add(postId);
+          _viewTimers.remove(postId);
+        });
+      }
+    } else {
+      // User scrolled away before 3 seconds
+      _viewTimers[postId]?.cancel();
+      _viewTimers.remove(postId);
     }
   }
 }

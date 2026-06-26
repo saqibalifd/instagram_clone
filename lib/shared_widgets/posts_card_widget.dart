@@ -266,16 +266,9 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
                             ),
                           )
                         : const Center(child: CircularProgressIndicator())
-                  : InteractiveViewer(
-                      panEnabled: false,
-                      minScale: 1.0,
-                      maxScale: 4.0,
-                      boundaryMargin: const EdgeInsets.all(20),
-                      clipBehavior: Clip.hardEdge,
-                      child: CachedImageManager.image(
-                        url: widget.postModel.mediaUrl,
-                        fit: BoxFit.cover,
-                      ),
+                  : CachedImageManager.image(
+                      url: widget.postModel.mediaUrl,
+                      fit: BoxFit.cover,
                     ),
             ),
           ),
@@ -297,7 +290,10 @@ class _PostsCardWidgetState extends State<PostsCardWidget> {
                     await postsController.unlikePost(widget.postModel.postId);
                     setState(() => isLiked = !isLiked);
                   } else {
-                    await postsController.likePost(widget.postModel.postId);
+                    await postsController.likePost(
+                      context,
+                      widget.postModel.postId,
+                    );
                     setState(() => isLiked = !isLiked);
                   }
                 },

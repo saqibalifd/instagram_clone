@@ -19,6 +19,7 @@ import 'package:instagram/features/profile/controllers/profile_controller.dart';
 import 'package:instagram/routes/app_routes.dart';
 import 'package:instagram/utils/bottom_sheet_util.dart';
 import 'package:instagram/utils/image_picker_util.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -294,10 +295,10 @@ class _HomeViewState extends State<HomeView> {
 
                 Obx(() {
                   if (postsController.isLoading.value) {
-                    return Center(child: CircularProgressIndicator());
+                    return SizedBox();
                   }
                   if (postsController.allPostsList.isEmpty) {
-                    return Center(child: CircularProgressIndicator());
+                    return SizedBox();
                   }
                   return ListView.builder(
                     shrinkWrap: true,
@@ -305,10 +306,19 @@ class _HomeViewState extends State<HomeView> {
                     itemCount: postsController.allPostsList.length,
                     padding: EdgeInsets.zero,
                     itemBuilder: (context, index) {
-                      return PostsCardWidget(
-                        postModel: postsController.allPostsList[index],
-                        mediaType:
-                            postsController.allPostsList[index].mediaType,
+                      return VisibilityDetector(
+                        key: Key(postsController.allPostsList[index].postId),
+                        onVisibilityChanged: (info) {
+                          postsController.onPostVisibilityChanged(
+                            postId: postsController.allPostsList[index].postId,
+                            visibleFraction: info.visibleFraction,
+                          );
+                        },
+                        child: PostsCardWidget(
+                          postModel: postsController.allPostsList[index],
+                          mediaType:
+                              postsController.allPostsList[index].mediaType,
+                        ),
                       );
                     },
                   );
