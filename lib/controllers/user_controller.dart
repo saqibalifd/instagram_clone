@@ -209,7 +209,6 @@ class UserController extends GetxController {
 
       followingIds.add(toFollowUserId);
       await loadFollowStatus(toFollowUserId);
-      await fetchDiscoverUsers();
 
       await SendNotificationService.sendNotificationUsingApi(
         token:
@@ -244,7 +243,6 @@ class UserController extends GetxController {
 
       followingIds.remove(toFollowUserId); // update UI instantly
       await loadFollowStatus(toFollowUserId);
-      await fetchDiscoverUsers();
     } on FirebaseException catch (e) {
       error.value = e.message.toString();
     } finally {
