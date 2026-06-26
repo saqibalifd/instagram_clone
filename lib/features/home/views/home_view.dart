@@ -273,8 +273,8 @@ class _HomeViewState extends State<HomeView> {
                               onCancel: () {
                                 _userController.skipUser(index);
                               },
-                              onFollow: () {
-                                _userController.followUser(
+                              onFollow: () async {
+                                await _userController.followUser(
                                   suggestedUsers.userId,
                                 );
                                 _userController.skipUser(index);

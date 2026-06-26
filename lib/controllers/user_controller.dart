@@ -26,7 +26,9 @@ class UserController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    loadSuggestedUserStream();
+    // getSuggestedUsers();
+    fetchDiscoverUsers();
+    // loadSuggestedUserStream();
     loadMyFollowing();
     loadFriends();
   }
@@ -149,30 +151,39 @@ class UserController extends GetxController {
     }
   }
 
-  // load snapshot profile
-  Future<void> loadSuggestedUserStream() async {
+  Future<void> fetchDiscoverUsers() async {
     try {
       isLoading.value = true;
 
-      _firebase
-          .collection(AppConstants.usersCollection)
-          .where('userId', isNotEqualTo: userId)
-          .snapshots()
-          .listen((snapshot) {
-            final allUsers = snapshot.docs
-                .map((doc) => UserModel.fromJson(doc.data()))
-                .toList();
+      final String currentUserId = FirebaseAuth.instance.currentUser!.uid;
 
-            // filter locally
-            final filteredUsers = allUsers.where((user) {
-              return user.userId != userId &&
-                  !suggestedUsersList.contains(user.userId.toString());
-            }).toList();
+      // Step 1: Get current user's doc to read the following list
+      final DocumentSnapshot currentUserDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUserId)
+          .get();
 
-            suggestedUsersList.assignAll(filteredUsers);
-          });
-    } on FirebaseException catch (e) {
-      error.value = e.message.toString();
+      final List<String> followingList = List<String>.from(
+        (currentUserDoc.data() as Map<String, dynamic>)['following'] ?? [],
+      );
+
+      // Step 2: Fetch all users
+      final QuerySnapshot allUsersSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .get();
+
+      // Step 3: Filter out yourself + anyone you already follow
+      final List<UserModel> filtered = allUsersSnapshot.docs
+          .where((doc) {
+            final isMe = doc.id == currentUserId;
+            final isFollowing = followingList.contains(doc.id);
+            return !isMe && !isFollowing;
+          })
+          .map((doc) => UserModel.fromJson(doc.data() as Map<String, dynamic>))
+          .toList();
+
+      suggestedUsersList.assignAll(filtered);
+    } catch (e) {
     } finally {
       isLoading.value = false;
     }
@@ -198,6 +209,7 @@ class UserController extends GetxController {
 
       followingIds.add(toFollowUserId);
       await loadFollowStatus(toFollowUserId);
+      await fetchDiscoverUsers();
 
       await SendNotificationService.sendNotificationUsingApi(
         token:
@@ -232,6 +244,7 @@ class UserController extends GetxController {
 
       followingIds.remove(toFollowUserId); // update UI instantly
       await loadFollowStatus(toFollowUserId);
+      await fetchDiscoverUsers();
     } on FirebaseException catch (e) {
       error.value = e.message.toString();
     } finally {
@@ -275,10 +288,6 @@ class UserController extends GetxController {
     }
   }
 
-  /// Returns:
-  /// "Follow"    -> I don't follow this user
-  /// "Following" -> I follow them, but they don't follow me back
-  /// "Friends"   -> We follow each other
   Future<void> loadFollowStatus(String targetUserId) async {
     try {
       followStatusLoading.value = true;
