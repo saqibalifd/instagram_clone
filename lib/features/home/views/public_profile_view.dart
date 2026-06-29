@@ -127,6 +127,7 @@ class _PublicProfileViewState extends State<PublicProfileView>
                           if (isBlue) {
                             await suggestedUserController.followUser(
                               user.userId,
+                              user.deviceToken,
                             );
                           } else {
                             await suggestedUserController.unfollowUser(

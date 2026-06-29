@@ -238,37 +238,7 @@ class _HomeViewState extends State<HomeView> {
                   if (_userController.suggestedUsersList.isEmpty) {
                     return SizedBox();
                   }
-                  // if (_userController.isLoading == true) {
-                  //   return SizedBox(
-                  //     height: 245.h,
-                  //     child: ListView.builder(
-                  //       itemCount: _userController.suggestedUsersList.length,
-                  //       scrollDirection: Axis.horizontal,
 
-                  //       padding: EdgeInsets.symmetric(horizontal: 12.w),
-                  //       itemBuilder: (context, index) {
-                  //         final suggestedUsers =
-                  //             _userController.suggestedUsersList[index];
-                  //         return SuggestedCardWidget(
-                  //           onCancel: () {
-                  //             _userController.skipUser(index);
-                  //           },
-                  //           onFollow: () async {
-                  //             await _userController.followUser(
-                  //               suggestedUsers.userId,
-                  //             );
-                  //             _userController.skipUser(index);
-                  //           },
-                  //           name: suggestedUsers.fullName,
-
-                  //           image: suggestedUsers.profileImageUrl,
-
-                  //           userId: suggestedUsers.userId,
-                  //         );
-                  //       },
-                  //     ),
-                  //   );
-                  // }
                   return Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -305,6 +275,7 @@ class _HomeViewState extends State<HomeView> {
                                 _userController.skipUser(index);
                                 await _userController.followUser(
                                   suggestedUsers.userId,
+                                  suggestedUsers.deviceToken,
                                 );
                               },
                               name: suggestedUsers.fullName,

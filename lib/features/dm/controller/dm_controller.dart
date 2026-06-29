@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:instagram/core/constants/app_constants.dart';
 import 'package:instagram/data/models/chat_model.dart';
 import 'package:instagram/data/models/message_model.dart';
+import 'package:instagram/services/send_notification_service.dart';
 import '../../../data/models/user_model.dart';
 
 class DmController extends GetxController {
@@ -138,6 +139,8 @@ class DmController extends GetxController {
   Future<void> sendMessage({
     required String receiverId,
     required String message,
+    required String token,
+    required String fullName,
   }) async {
     final currentUserId = FirebaseAuth.instance.currentUser!.uid;
     final chatId = generateChatId(currentUserId, receiverId);
@@ -172,6 +175,12 @@ class DmController extends GetxController {
         .collection(AppConstants.chatsCollection)
         .doc(chatId)
         .set(chatModel.toJson(), SetOptions(merge: true));
+    await SendNotificationService.sendNotificationUsingApi(
+      token: token,
+      title: fullName,
+      body: message,
+      data: {},
+    );
   }
 
   // =========================

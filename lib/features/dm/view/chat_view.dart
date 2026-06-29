@@ -66,13 +66,13 @@ class _ChatViewState extends State<ChatView> {
     scrollController.dispose();
   }
 
-  Widget buildInputField(String receiverId) {
+  Widget buildInputField(String receiverId, String name, String token) {
     return TextField(
       controller: messageController,
       focusNode: focusNode,
       textInputAction: TextInputAction.send,
       onSubmitted: (_) async {
-        await sendMessage(receiverId);
+        await sendMessage(receiverId, name, token);
       },
       decoration: InputDecoration(
         hintText: "Type a message...",
@@ -83,19 +83,28 @@ class _ChatViewState extends State<ChatView> {
         suffixIcon: IconButton(
           icon: const Icon(Icons.send),
           onPressed: () async {
-            await sendMessage(receiverId);
+            await sendMessage(receiverId, name, token);
           },
         ),
       ),
     );
   }
 
-  Future<void> sendMessage(String receiverId) async {
+  Future<void> sendMessage(
+    String receiverId,
+    String fullName,
+    String token,
+  ) async {
     final text = messageController.text.trim();
 
     if (text.isEmpty) return;
 
-    await chatController.sendMessage(receiverId: receiverId, message: text);
+    await chatController.sendMessage(
+      receiverId: receiverId,
+      message: text,
+      token: token,
+      fullName: fullName, //********************************************** */
+    );
 
     messageController.clear();
   }
@@ -106,6 +115,7 @@ class _ChatViewState extends State<ChatView> {
     final image = args['image'] ?? '';
     final status = args['status']?.toString() ?? 'offline';
     final userId = args['userId'] ?? '';
+    final token = args['token'] ?? '';
 
     return Scaffold(
       appBar: AppBar(
@@ -194,7 +204,7 @@ class _ChatViewState extends State<ChatView> {
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.all(8),
-              child: buildInputField(userId),
+              child: buildInputField(userId, name, token),
             ),
           ),
         ],

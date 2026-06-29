@@ -242,6 +242,7 @@ class _DmViewState extends State<DmView> {
                             'status': user.status,
                             'image': user.profileImageUrl,
                             'userId': user.userId,
+                            'token': user.deviceToken,
                           },
                         );
                       },

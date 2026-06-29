@@ -189,7 +189,7 @@ class UserController extends GetxController {
     }
   }
 
-  Future<void> followUser(String toFollowUserId) async {
+  Future<void> followUser(String toFollowUserId, String token) async {
     try {
       isLoading.value = true;
 
@@ -211,8 +211,7 @@ class UserController extends GetxController {
       await loadFollowStatus(toFollowUserId);
 
       await SendNotificationService.sendNotificationUsingApi(
-        token:
-            'dbpjwWeLSs2DxXxb2giIq8:APA91bHDQvjVYMw4tMamHe3oiYLr3nlBYGggh0oNEYk9X9ioHrDCytHmL_vK9HgddUXLnU1VRaVCQ6rDiIGme5QH6qnpMTEk0SW1DVTgqlkqGuqnuzUzwC8',
+        token: token,
         title: 'New Follower',
         body: 'You have a new follower',
         data: {},

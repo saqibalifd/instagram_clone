@@ -319,6 +319,7 @@ class _ProfileViewState extends State<ProfileView>
                                 onFollow: () {
                                   _suggestedUserController.followUser(
                                     suggestedUsers.userId,
+                                    suggestedUsers.deviceToken,
                                   );
                                   _suggestedUserController.skipUser(index);
                                 },

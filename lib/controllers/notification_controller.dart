@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:instagram/core/constants/app_constants.dart';
 import 'package:instagram/data/models/notification_model.dart';
 import 'package:instagram/features/profile/controllers/profile_controller.dart';
+import 'package:instagram/services/send_notification_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class NotificationController extends GetxController {
@@ -20,6 +21,19 @@ class NotificationController extends GetxController {
   void onInit() {
     super.onInit();
     fetchAllNotifications();
+  }
+
+  Future<void> sendNotificationOnMessage(
+    String token,
+    String userName,
+    String message,
+  ) async {
+    await SendNotificationService.sendNotificationUsingApi(
+      token: token,
+      title: userName,
+      body: message,
+      data: {},
+    );
   }
 
   // Fetch ALL posts from Firestore
